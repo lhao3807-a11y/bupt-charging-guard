@@ -1,8 +1,8 @@
 # CONTRACT.md — 接口与数据契约（唯一事实源）
 
-> **版本**：v0.1（待三人确认，确认后升 v1.0）
+> **版本**：**v1.0**（三人已确认，2026-09-08 定稿）
 > **负责人**：吕浩（起草与维护）
-> **确认人**：吕浩 / 汤瑾睿 / 吴和庆
+> **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— 已逐条确认并签字
 > **适用范围**：第 1 周最小闭环。任何结构变动 → 先改本文件 → @全员 + 升版本号，**禁止私自改自己那侧**。
 
 ---
@@ -23,10 +23,19 @@
 | Python | 3.11.x | 本机 3.11.9。**不要用 3.13** —— Ultralytics/PaddleOCR  wheels 支持滞后，第 2 周装模型会踩坑 |
 | Node.js | 22 LTS | 本机 v22.22.2，npm 10.9.7 |
 | 数据库（目标） | MySQL 8.0 | `backend/sql/schema.sql` 以 MySQL 8 语法为准，是交付物 |
-| 数据库（开发期） | SQLite 3 | 本机未装 MySQL 8。开发期连 SQLite 文件库，数据访问走 SQLAlchemy，**第 2 周换 MySQL 只改连接串** |
+| 数据库（开发期） | SQLite 3 | 本机未装 MySQL 8（验证方案见下方"第 0 天决策"）。开发期连 SQLite 文件库，数据访问走 SQLAlchemy，**第 2 周换 MySQL 只改连接串** |
 | Git | 2.55+ | 主分支 `main`（已于第 0 天由 `master` 重命名） |
 
 **开发期 SQLite 约束**：`vtype` / `status` / `notify_status` 在 MySQL DDL 里保留 `ENUM`，在 SQLAlchemy 模型中统一映射为 `String` + Pydantic 层 `Enum` 校验。禁止在业务代码里依赖数据库原生 ENUM 行为，否则换库必炸。
+
+> **第 0 天决策 · MySQL 8 验证方案（三选一，已定方案 b，2026-09-08）**
+>
+> 本机未装 MySQL 8，汤瑾睿的分工任务 5.2.3"本地 MySQL 8 跑通 `schema.sql`"**调整为方案 b**：
+> 1. `backend/sql/schema.sql` 仍以 **MySQL 8 语法**交付，是正式交付物；
+> 2. 本地改用 **SQLite + SQLAlchemy 做等价验证**——建表、插种子、查询、规则引擎读取全部跑通，pytest 全过；
+> 3. **MySQL 8 真机验证延至第 2 周**接入真实库时执行。若届时语法有差异，**以 `schema.sql` 为准修正代码，不改契约**。
+>
+> 风险已知：SQLite 不校验 MySQL 特有语法（如 `ENGINE=InnoDB`、部分 `ENUM` 行为），第 2 周真机接入时需补一轮验证。
 
 ## 3. 数据模型（核心四表）
 
@@ -222,4 +231,5 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v1.0** | 2026-09-08 | **三人确认定稿**。① v0.1 的 4 处补齐（`occupation_record.pile_id`、`ViolationRecord.id`、`frame_ref` 路径规则、`/api/records` 的 `items+total+page+size`）获汤瑾睿、吴和庆确认；② 确定 MySQL 8 验证方案为**方案 b**——`schema.sql` 交 MySQL 8 语法、本地用 SQLite+SQLAlchemy 等价验证、真机验证延至第 2 周（详见第 2 节） | 吕浩（汤瑾睿、吴和庆确认） |
 | v0.1 | 2026-09-08 | 首版。相对第 0 天文档第 6 节草案的 4 处补齐：`occupation_record` 增 `pile_id`；`ViolationRecord` 增 `id`；明确 `frame_ref` 为相对 `algo/samples/frames/` 的文件名；`GET /api/records` 返回 `items+total+page+size`。另登记预留端点 `/api/frame/latest`，并确定开发期 SQLite / 目标 MySQL 8 | 吕浩 |
