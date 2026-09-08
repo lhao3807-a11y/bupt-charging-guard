@@ -1,0 +1,4 @@
+# backend/sql 交付物说明
+#
+# 本目录下的 schema.sql（四表建表 + 种子数据，MySQL 8 语法）由汤瑾睿在
+# 第 0 天下午完成（见 docs/CONTRACT.md 第 3 节）。此处先占位以保证目录入版本库。
