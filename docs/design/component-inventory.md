@@ -87,6 +87,13 @@
 > `--state-danger-solid` → `-caution-solid` → `-warning-solid` → `-success-solid`
 > （与 §3.3 的严重度梯度一致）。**这条超出 Element Plus 范围，需吕浩确认选型。**
 
+> ✅ **已确认选用 ECharts（2026-09-13，吕浩）**。前端约定：
+> - 依赖 `echarts` + `vue-echarts`，按需引入（`BarChart` / `LineChart` / `PieChart` + 必要组件），不全量打包。
+> - 配色**从 `tokens.css` 的 CSS 变量读取**（`getComputedStyle(document.documentElement).getPropertyValue('--token')`），
+>   **不要在图里写死十六进制** —— 否则改主题时图表不跟随，也过不了 `check_tokens.py` 的裸色值校验。
+> - 序列顺序固定为严重度梯度：danger 红 → caution 橙 → warning 黄 → success 绿。
+> - 第 4 页若需统计聚合接口，**先改 `CONTRACT.md` 再升版本**，不得前端硬凑。
+
 ---
 
 ## 4. 逐页清单
