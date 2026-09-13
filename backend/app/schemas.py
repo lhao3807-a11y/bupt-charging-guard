@@ -85,8 +85,9 @@ class ViolationRecord(BaseModel):
 # 短信沙箱 -> /api/notify
 # ---------------------------------------------------------------------------
 class NotifyReq(BaseModel):
-    """短信沙箱请求：携带要更新的提醒状态。"""
+    """短信沙箱请求：按记录 id 更新提醒状态（契约 v1.2 起入参含 id）。"""
 
+    id: int = Field(..., description="违规记录 ID，取自 /api/judge 的返回")
     notify_status: NotifyStatus
 
 

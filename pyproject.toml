@@ -9,6 +9,9 @@ description = "桩点北邮 · 充电桩车位防占系统（充电桩车位防�
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.110",
+    # FastAPI 仅声明 starlette>=0.46 无上界；starlette 1.x 属破坏性大版本，
+    # 与本项目验证过的 0.46.x 行为不一致，显式钉住上界。
+    "starlette>=0.46,<0.47",
     "uvicorn>=0.27",
     "sqlalchemy>=2.0",
     "pydantic>=2.5",
@@ -30,7 +33,9 @@ target-version = "py311"
 # 契约 §3 的时间字段一律为「无时区 DATETIME」（MySQL DATETIME 与
 # ISO 字符串 "2026-09-08T10:00:00" 均不含时区），故关闭 flake8-datetimez
 # 的时区强制规则，避免与契约冲突。
-ignore = ["DTZ001", "DTZ005", "DTZ007"]
+# B008：FastAPI 依赖注入的惯用法就是 `db: Session = Depends(get_db)`，
+# 该规则属误报，予以豁免。
+ignore = ["DTZ001", "DTZ005", "DTZ007", "B008"]
 
 [tool.black]
 line-length = 100

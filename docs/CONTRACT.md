@@ -1,6 +1,6 @@
 # CONTRACT.md — 接口与数据契约（唯一事实源）
 
-> **版本**：**v1.1**（2026-09-08 · v1.0 三人确认后，补入后台 6 页清单）
+> **版本**：**v1.2**（2026-09-13 · 明确 judge 落库/去重口径、notify 入参加 id）
 > **负责人**：吕浩（起草与维护）
 > **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— 已逐条确认并签字
 > **适用范围**：第 1 周最小闭环。任何结构变动 → 先改本文件 → @全员 + 升版本号，**禁止私自改自己那侧**。
@@ -158,14 +158,20 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 - 入参即 `RecognitionResult`。
 - 引擎内部按 `plate` 查 `charging_pile` 与 `system_config`，命中四条规则之一则返回 `ViolationRecord`，**规则 ④（正常充电）返回 `null`**。
+- **落库口径（v1.2 明确）**：命中即**落库**并返回带 `id` 的记录（非等 `/api/notify`），前端拿到 `id` 后可直接调 `/api/notify` 或查 `/api/records`。
+- **去重口径（v1.2 明确）**：若已存在 **同 `pile_id` + 同 `rule_hit` 且 `notify_status='未提醒'`** 的记录，视为「同一违规持续中」，更新其 `occur_time` 并返回原记录，**不新增行**。避免轮询场景下记录爆炸、保证「报警统计」页数字真实。已提醒过（或 `rule_hit` 已变）再次命中则视为新违规，新增一条。
 
 ### 6.3 `POST /api/notify`
 
+请求体（v1.2 起**入参含 `id`**，用于定位要更新的记录 —— v1.1 及以前仅 `notify_status`，沙箱无法确定更新哪条）：
+
 ```json
-{ "notify_status": "已提醒" }
+{ "id": 1, "notify_status": "已提醒" }
 ```
 
-沙箱实现：更新 `occupation_record.notify_status` / `notify_time`，并写日志，不调真实短信 API。
+- `id` 取自 `/api/judge` 返回的记录。
+- 沙箱实现：按 `id` 更新 `occupation_record.notify_status` / `notify_time`，并写日志，不调真实短信 API。
+- 记录不存在 → `404`。
 
 ### 6.4 `GET /api/records`
 
@@ -249,6 +255,7 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v1.2** | 2026-09-13 | 接口层实现落地，明确两处此前未定的口径：① **`/api/judge` 命中即落库**，并新增**去重规则**（同 `pile_id`+同 `rule_hit`+未提醒 → 复用原记录，不新增）；② **`/api/notify` 入参增加 `id`**（原仅 `notify_status`，沙箱无法定位记录）。同时实现 `/api/recognize`（stub 读 `algo/samples/labels/`，缺文件 404）、`/api/records`（分页按 `occur_time` 倒序），`main.py` 挂载全部路由并在启动时建表+种子 | 吕浩 |
 | **v1.1** | 2026-09-08 | 新增 **§1.1 后台页面清单（6 页）**：车辆信息管理 / 违规记录查询 / 充电状态展示 / 报警统计 / 系统参数配置 / 实时识别预览（末项第 1 周预留，依赖 §6.5 预留端点）。来源：开发大纲 M7。**补此清单是为解封吴和庆任务 5.3.1** —— 原契约未定义页面范围，吴无从下手。另约定：表格列以对应表字段为准，页面增删须先改本节并升版本 | 吕浩 |
 | **v1.0** | 2026-09-08 | **三人确认定稿**。① v0.1 的 4 处补齐（`occupation_record.pile_id`、`ViolationRecord.id`、`frame_ref` 路径规则、`/api/records` 的 `items+total+page+size`）获汤瑾睿、吴和庆确认；② 确定 MySQL 8 验证方案为**方案 b**——`schema.sql` 交 MySQL 8 语法、本地用 SQLite+SQLAlchemy 等价验证、真机验证延至第 2 周（详见第 2 节） | 吕浩（汤瑾睿、吴和庆确认） |
 | v0.1 | 2026-09-08 | 首版。相对第 0 天文档第 6 节草案的 4 处补齐：`occupation_record` 增 `pile_id`；`ViolationRecord` 增 `id`；明确 `frame_ref` 为相对 `algo/samples/frames/` 的文件名；`GET /api/records` 返回 `items+total+page+size`。另登记预留端点 `/api/frame/latest`，并确定开发期 SQLite / 目标 MySQL 8 | 吕浩 |

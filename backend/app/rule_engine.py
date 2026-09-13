@@ -136,15 +136,47 @@ def _decide_rule(
 
 
 # ---------------------------------------------------------------------------
-# 落库 / 沙箱辅助（供吕浩的 /api/judge、/api/notify 路由复用）
+# 落库 / 沙箱辅助（供 /api/judge、/api/notify 路由复用）
 # ---------------------------------------------------------------------------
 def save_violation(db: Session, record: ViolationRecord) -> ViolationRecord:
-    """把违规记录落库，返回带 ``id`` 的记录。
+    """把违规记录落库，返回带 ``id`` 的记录；**同一违规复用已有记录**。
 
-    说明：契约 §6.2 规定 ``/api/judge`` 只返回 ``ViolationRecord``，
-    而 §6.3 的短信沙箱要「更新 occupation_record.notify_status」——
-    更新前该行必须已存在，故由本函数承担落库职责，具体在哪个路由调用待与吕浩对齐。
+    落库口径（2026-09-13 与吕浩对齐，写入 CONTRACT §6.2）：
+
+    - ``/api/judge`` 命中即落库（非等 ``/api/notify``）。
+    - **去重**：若已存在 ``pile_id`` + ``rule_hit`` 相同且 ``notify_status='未提醒'``
+      的记录，视为「同一违规持续中」——更新其 ``occur_time`` 后返回原记录，
+      **不新增行**。避免轮询场景下记录爆炸、保证「报警统计」页数字真实。
+    - 已提醒过（``notify_status != '未提醒'``）或规则已变（``rule_hit`` 不同）
+      则视为新违规，新增一条。
     """
+    existing = (
+        db.query(m.OccupationRecord)
+        .filter(
+            m.OccupationRecord.pile_id == record.pile_id,
+            m.OccupationRecord.rule_hit == record.rule_hit,
+            m.OccupationRecord.notify_status == m.NOTIFY_PENDING,
+        )
+        .order_by(m.OccupationRecord.id.desc())
+        .first()
+    )
+
+    if existing is not None:
+        existing.occur_time = record.occur_time
+        existing.plate = record.plate
+        existing.vtype = record.vtype
+        db.commit()
+        db.refresh(existing)
+        return ViolationRecord(
+            id=existing.id,
+            plate=existing.plate,
+            vtype=existing.vtype,
+            pile_id=existing.pile_id,
+            rule_hit=existing.rule_hit,
+            occur_time=existing.occur_time,
+            notify_status=existing.notify_status,
+        )
+
     row = m.OccupationRecord(
         plate=record.plate,
         vtype=record.vtype,
@@ -165,7 +197,12 @@ def mark_notified(
     status: str,
     when: datetime | None = None,
 ) -> bool:
-    """短信沙箱：更新提醒状态与时间。返回是否找到该记录。"""
+    """短信沙箱：按记录 ``id`` 更新提醒状态与时间。返回是否找到该记录。
+
+    入参口径（2026-09-13 与吕浩对齐，写入 CONTRACT §6.3）：``/api/notify``
+    请求体为 ``{"id": <int>, "notify_status": "已提醒"}``，``id`` 取自
+    ``/api/judge`` 返回的记录——沙箱据此定位要更新的行。
+    """
     row = db.get(m.OccupationRecord, record_id)
     if row is None:
         return False
