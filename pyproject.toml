@@ -26,6 +26,20 @@ dev = [
 line-length = 100
 target-version = "py311"
 
+[tool.ruff.lint]
+# 契约 §3 的时间字段一律为「无时区 DATETIME」（MySQL DATETIME 与
+# ISO 字符串 "2026-09-08T10:00:00" 均不含时区），故关闭 flake8-datetimez
+# 的时区强制规则，避免与契约冲突。
+ignore = ["DTZ001", "DTZ005", "DTZ007"]
+
 [tool.black]
 line-length = 100
 target-version = ["py311"]
+
+# 包发现：仓库为 flat-layout，含 backend/ algo/ docs/ 多个顶层目录，
+# setuptools 自动发现会报「Multiple top-level packages discovered」而拒绝构建。
+# 显式声明只把 backend/app 作为包安装（源码内 import app.* 即可用）。
+[tool.setuptools.packages.find]
+where = ["backend"]
+include = ["app*"]
+
