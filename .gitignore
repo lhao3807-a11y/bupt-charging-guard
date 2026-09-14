@@ -33,3 +33,6 @@ Thumbs.db
 
 # 工具目录
 .workbuddy/
+
+# 文档流水线中间产物（溯源记录 / 中间 HTML）
+output/
