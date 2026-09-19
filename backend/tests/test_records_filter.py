@@ -218,8 +218,16 @@ def test_and_with_time_and_pagination(client, records):
 
 
 def test_blank_params_are_ignored(client, records):
-    """前端清空筛选框会发空串 —— 视为不传，不能把结果清空。"""
-    body = _get(client, plate="", pile_id="  ", start_time="", end_time="")
+    """前端清空筛选框 / 选中「全部」会发空串 —— 视为不传，不能把结果清空或报 422。"""
+    body = _get(
+        client,
+        plate="",
+        vtype="",
+        pile_id="  ",
+        notify_status="",
+        start_time="",
+        end_time="",
+    )
     assert body["total"] == 5
 
 

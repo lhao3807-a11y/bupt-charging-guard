@@ -18,12 +18,12 @@ from __future__ import annotations
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import models as m
 from app.db import get_db
-from app.schemas import NotifyStatus, RecordPage, ViolationRecord, VType
+from app.query import enum_exact, like_ci
+from app.schemas import RecordPage, ViolationRecord
 
 router = APIRouter(tags=["records"])
 
@@ -53,25 +53,17 @@ def _parse_time_bound(raw: str, *, upper: bool) -> datetime:
         ) from exc
 
 
-def _like_ci(column, value: str):
-    """大小写不敏感的模糊匹配。
-
-    显式套 ``lower()``，不依赖各库 ``LIKE`` 的默认排序规则（SQLite ASCII 不敏感、
-    MySQL 取决于 collation）—— 换库行为一致。中文不受 lower 影响，故 ``京A`` 仍能
-    匹配 ``京AD12345``。
-    """
-    return func.lower(column).like(f"%{value.strip().lower()}%")
-
-
 @router.get("/api/records", response_model=RecordPage, summary="后台查询违规记录（分页 + 筛选）")
 def list_records(
     page: int = Query(1, ge=1, description="页码，从 1 开始"),
     size: int = Query(20, ge=1, le=200, description="每页条数"),
     plate: str | None = Query(None, description="车牌号，模糊匹配（忽略大小写）"),
-    vtype: VType | None = Query(None, description="车型，精确匹配"),
+    vtype: str | None = Query(None, description="车型，精确匹配（新能源 / 燃油）"),
     pile_id: str | None = Query(None, description="桩 ID，模糊匹配（忽略大小写）"),
     rule_hit: int | None = Query(None, ge=0, le=3, description="命中规则 0~3，精确匹配"),
-    notify_status: NotifyStatus | None = Query(None, description="提醒状态，精确匹配"),
+    notify_status: str | None = Query(
+        None, description="提醒状态，精确匹配（未提醒 / 已提醒 / 失败）"
+    ),
     start_time: str | None = Query(
         None, description="occur_time 下界（含），ISO 8601 或 YYYY-MM-DD"
     ),
@@ -83,16 +75,20 @@ def list_records(
     """按筛选条件分页返回违规记录，``total`` 为**筛选后**总数（契约 §6.4）。"""
     query = db.query(m.OccupationRecord)
 
+    # 枚举参数：空串（前端「全部」）视为不筛选，拼错才 422
+    vtype_value = enum_exact(vtype, m.VTYPES, "vtype")
+    status_value = enum_exact(notify_status, m.NOTIFY_STATUSES, "notify_status")
+
     if plate and plate.strip():
-        query = query.filter(_like_ci(m.OccupationRecord.plate, plate))
-    if vtype is not None:
-        query = query.filter(m.OccupationRecord.vtype == vtype.value)
+        query = query.filter(like_ci(m.OccupationRecord.plate, plate))
+    if vtype_value is not None:
+        query = query.filter(m.OccupationRecord.vtype == vtype_value)
     if pile_id and pile_id.strip():
-        query = query.filter(_like_ci(m.OccupationRecord.pile_id, pile_id))
+        query = query.filter(like_ci(m.OccupationRecord.pile_id, pile_id))
     if rule_hit is not None:
         query = query.filter(m.OccupationRecord.rule_hit == rule_hit)
-    if notify_status is not None:
-        query = query.filter(m.OccupationRecord.notify_status == notify_status.value)
+    if status_value is not None:
+        query = query.filter(m.OccupationRecord.notify_status == status_value)
     if start_time and start_time.strip():
         query = query.filter(
             m.OccupationRecord.occur_time >= _parse_time_bound(start_time, upper=False)
