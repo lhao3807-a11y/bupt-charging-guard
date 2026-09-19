@@ -110,23 +110,57 @@ cp docs/design/tokens.css frontend/src/styles/tokens.css
 | 5 | 系统参数配置 | ⬜ 占位（排第 2 周） |
 | 6 | 实时识别预览 | ⬜ 导航置灰预留（契约 §1.1 明确第 1 周不做） |
 
-## 6. 两处「契约缺口」的处置（**契约已升 v1.3，前端待跟进**）
+## 6. 两处「契约缺口」的处置（**契约已补齐，等后端实现**）
 
-> 2026-09-19 契约升至 **v1.3**，两处缺口已在契约侧补齐，后端改动任务书见 `docs/TASK_TANG_v1.3.md`。
-> **后端接口就绪后，前端需做两处切换**（代码里已留好替换点）：
+> 2026-09-19 契约升至 **v1.3**，两处缺口已在**契约侧**补齐。
+> 但**后端尚未实现**（实测：`?rule_hit=3` 仍返回 `rule_hit=1` 的记录、`/api/vehicles` 返回 404），
+> 后端改动任务书见 `docs/TASK_TANG_v1.3.md`。
+> **后端接口就绪后，前端需做两处切换**（代码里已留好替换点）。
 
 ### 6.1 第 2 页筛选 → 待切服务端
 
-- **契约现状**：§6.4 已新增 7 个筛选参数（`plate`/`vtype`/`pile_id`/`rule_hit`/`notify_status`/`start_time`/`end_time`），
+- **契约现状**：§6.4 已定义 7 个筛选参数（`plate`/`vtype`/`pile_id`/`rule_hit`/`notify_status`/`start_time`/`end_time`），
   AND 关系，`total` 随筛选变化。
-- **前端现状**：仍是**前端过滤当前页**（`stores/records.ts`），页面有 info 条如实标注。
+- **前端现状**：**后端未实现筛选**，故仍是**前端过滤当前页**（`stores/records.ts`），页面有 info 条如实标注。
 - **待办**：后端就绪后，把 `filters` 作为查询参数传给 `fetchRecords`，改为服务端筛选与分页。
   这样跨页筛选才正确，同时移除页面上的提示条。
 
 ### 6.2 第 1 页数据源 → 待切后端
 
-- **契约现状**：§6.6 已新增车辆 CRUD 四端点（`GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`）。
-- **前端现状**：仍是 `localStorage`（`stores/vehicle.ts`），页面顶部有黄色警示条。
+- **契约现状**：§6.6 已定义车辆 CRUD 四端点（`GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`）。
+- **前端现状**：**后端未实现**（404），故仍是 `localStorage`（`stores/vehicle.ts`），页面顶部有黄色警示条。
 - **待办**：后端就绪后替换 `stores/vehicle.ts` 的实现为 `api/` 调用，并**移除页面顶部的警示条**
   （该条是"未接后端"的诚实标注，接了就该撤掉）。
-  注意契约口径：`plate` 不可改、重复新增返回 `409`、`DELETE` 返回 `204`。
+  注意契约口径：`plate` 不可改、重复新增返回 `409`、`DELETE` 返回 `204` 且**不级联删违规记录**。
+
+---
+
+## 9. 设计令牌同步（**已脚本化，勿再人肉 cp**）
+
+`src/styles/tokens.css` 是 `docs/design/tokens.css` 的逐字副本，设计侧是唯一事实源。
+
+```bash
+npm run check:tokens    # 校验两份文件是否逐条一致（有漂移即 exit 1，交付前必跑）
+npm run sync:tokens     # 从设计侧覆盖前端副本
+npm run verify          # 一键：check:tokens + typecheck + lint + build
+```
+
+脚本 `scripts/copy-tokens.mjs` 只比对 `--token: value` 定义本身，**忽略文件头注释差异**
+（前端副本会多一段「本文件是副本」的说明，属预期）。
+
+> 与 `docs/design/tools/check_tokens.py` 的分工：
+> 那个管**合规性**（令牌齐全 / WCAG 对比度 / 页面裸色值 / 列名口径）；
+> 这个管**一致性**（两份 tokens.css 是否同源）。**两者都要跑。**
+
+## 10. 端到端验证
+
+```bash
+# 需同时起后端(8000)与前端(5173)
+../.venv/Scripts/python.exe ../scripts/e2e_check.py
+```
+
+`scripts/e2e_check.py` 覆盖两段（共 12 项）：
+- §1–8 **后端 API 闭环**：health → recognize → judge → notify → records → 容错 → 规则①
+- §9–12 **前端联调**：dev server 起得来 → Vite 代理通 → 第 2 页数据源含目标记录 → 入口资源可加载
+
+前端未起时 §9–12 会明确报 FAIL，**不静默跳过**。

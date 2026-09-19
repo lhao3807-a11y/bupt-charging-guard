@@ -3,9 +3,17 @@
 用途：本地起服务后手跑一遍「识别 → 判定 → 提醒 → 后台可查」，
 确认契约 §11 的 Demo 主线在真实进程里成立。
 
+覆盖两段：
+  §1–8  后端 API 闭环（打 BASE）
+  §9–12 前端联调（打 FRONTEND，经 Vite 代理，验证契约 §11 第 5 项数据源）
+
 用法（仓库根目录下）：
-    .venv\\Scripts\\python.exe scripts\\e2e_check.py [base_url]
-需先启动服务：cd backend && ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000
+    .venv\\Scripts\\python.exe scripts\\e2e_check.py [base_url] [frontend_url]
+    # 默认 http://127.0.0.1:8000 与 http://127.0.0.1:5173
+需先启动服务：
+    cd backend  && ..\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000
+    cd frontend && npm run dev
+前端未起时 §9–12 会报 FAIL 并提示，不静默跳过。
 """
 
 from __future__ import annotations
@@ -32,6 +40,60 @@ FUEL_PLATE = {
     "bbox": [128, 300, 468, 372],
     "frame_time": "2026-09-08T10:00:00",
 }
+
+# 前端 dev server（Vite）。契约 §11 第 5 项是「后台页面能看到记录」，
+# 故 e2e 必须覆盖「经 Vite 代理打通前后端」这一段，否则该验收项无自动化保障。
+FRONTEND = (sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:5173").rstrip("/")
+
+
+def check_frontend(expected_id: int, failures: list[str]) -> None:
+    """前端段：验证 Vite dev server 起来了、代理通、页面能拿到真实数据。
+
+    这里刻意**只用 HTTP 验证**（不引入浏览器依赖），保证脚本在任何机器上都能跑。
+    真实渲染的视觉验收由 `docs/acceptance/week1/` 的截图承担。
+    """
+    print("=== 9) 前端 dev server ===")
+    with httpx.Client(timeout=10, follow_redirects=True) as fe:
+        try:
+            r = fe.get(f"{FRONTEND}/")
+            ok = r.status_code == 200 and '<div id="app"' in r.text
+            print(f"[{'PASS' if ok else 'FAIL'}] 首页 200 且含 #app 挂载点  HTTP {r.status_code}")
+            if not ok:
+                failures.append("前端首页")
+        except httpx.HTTPError as exc:
+            print(f"[FAIL] 前端不可达 {FRONTEND} —— {exc}")
+            print("       （前端未起时本段跳过不算失败，但会提示）")
+            failures.append("前端不可达")
+            return
+
+        print("=== 10) Vite 代理 → 后端 ===")
+        r = fe.get(f"{FRONTEND}/api/health")
+        ok = r.status_code == 200 and r.json().get("status") == "ok"
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理 /api/health  HTTP {r.status_code}  {r.text[:60]}"
+        )
+        if not ok:
+            failures.append("代理 health")
+
+        print("=== 11) 第 2 页数据源（契约 §11 第 5 项） ===")
+        r = fe.get(f"{FRONTEND}/api/records", params={"page": 1, "size": 20})
+        page = r.json()
+        hit = next((it for it in page.get("items", []) if it["id"] == expected_id), None)
+        ok = hit is not None
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理 /api/records 含 id={expected_id}"
+            f"  total={page.get('total')}  {hit}"
+        )
+        if not ok:
+            failures.append("第 2 页数据源")
+
+        # 前端资源可加载（证明不是白屏的骨架）
+        print("=== 12) 前端入口资源 ===")
+        r = fe.get(f"{FRONTEND}/src/main.ts")
+        ok = r.status_code == 200 and "createApp" in r.text
+        print(f"[{'PASS' if ok else 'FAIL'}] /src/main.ts 可加载  HTTP {r.status_code}")
+        if not ok:
+            failures.append("前端入口资源")
 
 
 def main() -> int:
@@ -94,8 +156,9 @@ def main() -> int:
         "judge 燃油 rule_hit=1", r.status_code == 200 and r.json()["rule_hit"] == 1, str(r.json())
     )
 
-    client.close()
+    check_frontend(rid, failures)
 
+    client.close()
     print()
     if failures:
         print(f"FAILED: {len(failures)} 项未通过 -> {failures}")
