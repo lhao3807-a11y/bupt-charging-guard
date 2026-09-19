@@ -1,5 +1,6 @@
 # Python
 .venv/
+.venv-algo/
 venv/
 __pycache__/
 *.py[cod]
@@ -33,3 +34,9 @@ Thumbs.db
 
 # 工具目录
 .workbuddy/
+
+# CV 数据集与模型权重（体积大，不入库）
+algo/dataset/
+algo/runs/
+*.pt
+*.onnx
