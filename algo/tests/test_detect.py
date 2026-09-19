@@ -20,7 +20,7 @@ ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
 sys.path.insert(0, os.path.join(ALGO, "train"))
 
-import detect  # noqa: E402
+import detect
 
 
 def _best_pt() -> str | None:
@@ -51,7 +51,7 @@ def test_predict_detects_vehicle_and_plate():
     assert "vehicle" in names, f"未检出车辆：{boxes}"
     assert "plate" in names, f"未检出租车牌：{boxes}"
     for b in boxes:
-        x, y, w, h = b["bbox_xywh"]
+        _x, _y, w, h = b["bbox_xywh"]
         assert w > 0 and h > 0
         assert 0.0 <= b["conf"] <= 1.0
 
