@@ -155,7 +155,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
       type="info"
       :closable="false"
       show-icon
-      :title="`已启用筛选：本页 ${filteredCount} / ${store.rawItems.length} 条命中。⚠️ 契约 §6.4 已定义服务端筛选参数，但后端尚未实现，故当前筛选仅作用于本页；分页总数仍为服务端返回的全表 total。后端就绪后此提示条将移除。`"
+      :title="`已启用筛选：本页 ${filteredCount} / ${store.rawItems.length} 条命中。⚠️ 契约 §6.4 已定义服务端筛选参数且后端已实现，但本页仍在前端过滤，故筛选仅作用于当前页；分页总数仍为服务端返回的全表 total。前端切换为服务端筛选后此提示条将移除。`"
     />
 
     <DataCard

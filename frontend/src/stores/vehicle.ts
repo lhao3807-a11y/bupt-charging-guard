@@ -2,11 +2,10 @@
  * 车辆信息 store（第 1 页）
  *
  * 契约 **§6.6 已定义**车辆 CRUD 四端点（`GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`），
- * 但**后端尚未实现**（实测 `GET/POST /api/vehicles` 均返回 404）。
- * 因此本 store **暂用 `localStorage` 做持久化**，作为明确标注的临时数据源，
- * 目的是先把 UI 与字段对齐做出来、能演示。
+ * 且**后端已实现**（`backend/app/routers/vehicles.py`，132 passed）。
+ * 但本 store **当前仍用 `localStorage` 做持久化** —— 属**前端未切换**，不是后端缺接口。
  *
- * ⚠️ **后端就绪后必须切换**（替换点见 `frontend/README.md` §6.2）：
+ * ⚠️ **待办（前端任务，非后端阻塞）**（替换点见 `frontend/README.md` §6.2）：
  * 改为调用 `api/` 的 `/api/vehicles`，并移除页面顶部的黄色警示条。
  * 契约口径注意：`plate` 是主键不可改、重复新增返回 `409`、`DELETE` 返回 `204` 且**不级联删违规记录**。
  *

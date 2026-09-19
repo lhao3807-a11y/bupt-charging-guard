@@ -8,8 +8,9 @@
  * 车牌号、手机号、时间一律等宽字族 + tabular-nums（component-inventory.md §5）。
  * 车牌号是主键，**编辑态只读**。
  *
- * ⚠️ 数据源说明：契约 §6 未定义 vehicle 的 CRUD 接口，本页暂用 localStorage
- * （见 stores/vehicle.ts 注释），页面上如实标注，不假装已接后端。
+ * ⚠️ 数据源说明：契约 §6.6 **已定义且后端已实现** vehicle 的 CRUD 接口
+ * （`backend/app/routers/vehicles.py`），但本页**尚未切换**，仍用 localStorage
+ * （见 stores/vehicle.ts 注释），页面上如实标注「前端待切换」，不假装已接后端。
  */
 import { computed, onMounted, reactive, ref } from 'vue'
 
@@ -205,7 +206,7 @@ onMounted(() => {
       type="warning"
       :closable="false"
       show-icon
-      title="数据源说明：契约 §6 未定义 vehicle 的增删改查接口，本页当前使用浏览器本地存储（localStorage）演示；接入后端需先改 CONTRACT.md 并升版本。"
+      title="数据源说明：契约 §6.6 已定义车辆 CRUD 四端点（GET/POST /api/vehicles、PUT/DELETE /api/vehicles/{plate}）且后端已实现；本页当前仍使用浏览器本地存储（localStorage）演示，属前端待切换，非接口缺失。"
     />
 
     <FilterCard @search="handleSearch" @reset="handleReset">
