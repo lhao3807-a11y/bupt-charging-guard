@@ -72,8 +72,12 @@ def list_records(
     pile_id: str | None = Query(None, description="桩 ID，模糊匹配（忽略大小写）"),
     rule_hit: int | None = Query(None, ge=0, le=3, description="命中规则 0~3，精确匹配"),
     notify_status: NotifyStatus | None = Query(None, description="提醒状态，精确匹配"),
-    start_time: str | None = Query(None, description="occur_time 下界（含），ISO 8601 或 YYYY-MM-DD"),
-    end_time: str | None = Query(None, description="occur_time 上界（含），纯日期按当日 23:59:59.999999"),
+    start_time: str | None = Query(
+        None, description="occur_time 下界（含），ISO 8601 或 YYYY-MM-DD"
+    ),
+    end_time: str | None = Query(
+        None, description="occur_time 上界（含），纯日期按当日 23:59:59.999999"
+    ),
     db: Session = Depends(get_db),
 ) -> RecordPage:
     """按筛选条件分页返回违规记录，``total`` 为**筛选后**总数（契约 §6.4）。"""
