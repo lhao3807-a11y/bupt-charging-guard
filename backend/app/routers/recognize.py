@@ -1,12 +1,15 @@
 """识别桩 —— 对应 POST /api/recognize（CONTRACT §6.1）。
 
-双模式（PLAN §2.2 任务 2.5），经 ``system_config.recognition_mode`` 或环境变量
-``RECOGNITION_MODE`` 切换，**环境变量优先**（便于测试/部署，无需动库）：
+双模式（PLAN §2.2 任务 2.5），经环境变量 ``RECOGNITION_MODE`` 切换：
 
 - ``stub``（**默认**）：按 ``frame_ref`` 拼路径读标注 JSON 原样返回，**不读图片**
   （契约 §6.1），demo 稳定、不被模型拖累。
 - ``real``：读 ``algo/samples/frames/<frame_ref>`` 真图 → YOLO 检测 + HyperLPR3
   识别 + 绿蓝牌判定（``algo/recognize/plate.py``），返回结构**与 stub 完全一致**。
+
+开关**刻意不放 `system_config` 表**：契约 §7 的系统配置项只含业务阈值
+（``full_timeout_min`` / ``abnormal_park_min``），识别模式属部署期/调试开关，
+按「先改契约再动代码」的纪律不擅自扩表。
 
 模式非法 / real 模式缺 CV 依赖 / 真图缺失或无车牌 → 明确的 4xx/5xx，不静默兜底。
 """
@@ -17,11 +20,8 @@ import json
 import os
 import sys
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, status
 
-from app.db import get_db
-from app.models import SystemConfig
 from app.schemas import FrameRef, RecognitionResult
 
 router = APIRouter(tags=["recognize"])
@@ -32,10 +32,10 @@ _REPO_DIR = os.path.dirname(_BACKEND_DIR)
 LABELS_DIR = os.path.join(_REPO_DIR, "algo", "samples", "labels")
 FRAMES_DIR = os.path.join(_REPO_DIR, "algo", "samples", "frames")
 
-#: 模式开关：环境变量 > system_config 表 > 默认 stub
+#: 模式开关：环境变量，未设置或为空 → 默认 stub
 MODE_ENV_VAR = "RECOGNITION_MODE"
-MODE_CONFIG_KEY = "recognition_mode"
 VALID_MODES = ("stub", "real")
+DEFAULT_MODE = "stub"
 
 
 def label_path_for(frame_ref: str) -> str:
@@ -59,21 +59,17 @@ def frame_path_for(frame_ref: str) -> str:
     return os.path.join(FRAMES_DIR, name)
 
 
-def get_recognition_mode(db: Session) -> str:
-    """解析当前识别模式：环境变量 > system_config > 默认 ``stub``。"""
+def get_recognition_mode() -> str:
+    """解析当前识别模式：``RECOGNITION_MODE`` 环境变量，未设置/为空 → ``stub``。"""
     env = os.environ.get(MODE_ENV_VAR, "").strip().lower()
-    if env:
-        if env not in VALID_MODES:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"{MODE_ENV_VAR} 非法：{env!r}（可选 {'/'.join(VALID_MODES)}）",
-            )
-        return env
-
-    row = db.query(SystemConfig).filter(SystemConfig.key == MODE_CONFIG_KEY).one_or_none()
-    if row is not None and row.value in VALID_MODES:
-        return row.value
-    return "stub"
+    if not env:
+        return DEFAULT_MODE
+    if env not in VALID_MODES:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{MODE_ENV_VAR} 非法：{env!r}（可选 {'/'.join(VALID_MODES)}）",
+        )
+    return env
 
 
 def _recognize_stub(frame_ref: str) -> RecognitionResult:
@@ -116,7 +112,8 @@ def _recognize_real(frame_ref: str) -> RecognitionResult:
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=(
                 "real 模式需要算法环境依赖（torch/ultralytics/hyperlpr3）。"
-                f"导入失败：{exc}。请用 .venv-algo 运行后端，或把 recognition_mode 切回 stub。"
+                f"导入失败：{exc}。请用 .venv-algo 运行后端，"
+                f"或去掉 {MODE_ENV_VAR}=real（回到默认 stub）。"
             ),
         ) from exc
 
@@ -132,9 +129,8 @@ def _recognize_real(frame_ref: str) -> RecognitionResult:
 @router.post(
     "/api/recognize", response_model=RecognitionResult, summary="输入帧 → 识别结果（stub/real）"
 )
-def recognize(req: FrameRef, db: Session = Depends(get_db)) -> RecognitionResult:
+def recognize(req: FrameRef) -> RecognitionResult:
     """按当前模式返回 ``RecognitionResult``（两种模式结构完全一致，契约 §4）。"""
-    mode = get_recognition_mode(db)
-    if mode == "real":
+    if get_recognition_mode() == "real":
         return _recognize_real(req.frame_ref)
     return _recognize_stub(req.frame_ref)

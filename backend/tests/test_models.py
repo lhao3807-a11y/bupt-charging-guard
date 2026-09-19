@@ -36,8 +36,8 @@ def test_tables_created_for_four_entities(db):
     """契约 §3 四表都能建、种子都灌得进去。"""
     assert db.query(m.Vehicle).count() == len(m.SEED_VEHICLES) == 4
     assert db.query(m.ChargingPile).count() == len(m.SEED_PILES) == 4
-    # 两条阈值（契约 §7）+ recognition_mode 开关（任务 2.5）
-    assert db.query(m.SystemConfig).count() == len(m.DEFAULT_CONFIG) == 3
+    # 契约 §7 只定义两项业务阈值，不擅自扩表（识别模式走环境变量，不入库）
+    assert db.query(m.SystemConfig).count() == len(m.DEFAULT_CONFIG) == 2
     assert db.query(m.OccupationRecord).count() == 0  # 违规记录由闭环产生
 
 

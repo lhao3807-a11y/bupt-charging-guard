@@ -121,7 +121,6 @@ class SystemConfig(Base):
 DEFAULT_CONFIG = (
     ("full_timeout_min", "30", "充满超时阈值（分钟）：已充满后超过该时长未移车即命中规则③"),
     ("abnormal_park_min", "30", "异常占位久停阈值（分钟）：未充电停放超过该时长即命中规则②"),
-    ("recognition_mode", "stub", "识别桩模式：stub=读标注（默认，demo 稳定）/ real=真实 CV 模型"),
 )
 
 #: 种子车辆（与 schema.sql 的 INSERT 一致）

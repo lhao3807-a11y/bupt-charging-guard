@@ -110,8 +110,8 @@ INSERT INTO charging_pile (pile_id, status, bound_plate, start_time, end_time) V
   ('PILE-003', '空闲',   '京AD24680', '2026-09-08 08:30:00', NULL),
   ('PILE-004', '空闲',   '京A88888',  '2026-09-08 09:00:00', NULL);
 
--- 系统参数：契约 §7 两项默认阈值 + 识别桩模式开关（严禁硬编码，业务一律查本表）
+-- 系统参数：契约 §7 两项默认阈值（严禁硬编码，业务一律查本表）
+-- 注：识别桩的 stub/real 开关不走本表，而是环境变量 RECOGNITION_MODE（非业务阈值，属部署期开关）
 INSERT INTO system_config (`key`, `value`, note) VALUES
   ('full_timeout_min',  '30', '充满超时阈值（分钟）：已充满后超过该时长未移车即命中规则③'),
-  ('abnormal_park_min', '30', '异常占位久停阈值（分钟）：未充电停放超过该时长即命中规则②'),
-  ('recognition_mode',  'stub', '识别桩模式：stub=读标注（默认，demo 稳定）/ real=真实 CV 模型');
+  ('abnormal_park_min', '30', '异常占位久停阈值（分钟）：未充电停放超过该时长即命中规则②');
