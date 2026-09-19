@@ -1,8 +1,8 @@
 # CONTRACT.md — 接口与数据契约（唯一事实源）
 
-> **版本**：**v1.2**（2026-09-13 · 明确 judge 落库/去重口径、notify 入参加 id）
+> **版本**：**v1.3**（2026-09-19 · 记录筛选参数、vehicle CRUD 端点、页面清单对齐 PLAN_4WEEKS）
 > **负责人**：吕浩（起草与维护）
-> **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— 已逐条确认并签字
+> **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— v1.0 已逐条确认并签字，v1.1–v1.3 为增量变更
 > **适用范围**：第 1 周最小闭环。任何结构变动 → 先改本文件 → @全员 + 升版本号，**禁止私自改自己那侧**。
 
 ---
@@ -20,14 +20,25 @@
 
 来源：开发大纲 M7「后台管理平台（Web）」。**吴和庆据此出设计基线与线框，吕浩据此实现前端路由**。
 
-| # | 页面 | 数据来源 / 对应接口 | 第 1 周范围 |
-|---|---|---|---|
-| 1 | 车辆信息管理 | `vehicle` 表（plate / vtype / owner / phone / created_at） | 做 |
-| 2 | 违规记录查询 | `GET /api/records` → `occupation_record` | 做（Demo 验收项，见 §11） |
-| 3 | 充电状态展示 | `charging_pile` 表（模拟数据） | 做 |
-| 4 | 报警统计 | `occupation_record` 按 `rule_hit` / 时间聚合 | 做 |
-| 5 | 系统参数配置 | `system_config` 表（`full_timeout_min` / `abnormal_park_min`） | 做 |
-| 6 | 实时识别预览 | 预留端点 `GET /api/frame/latest`（见 §6.5） | **第 1 周不做，仅预留** |
+| # | 页面 | 数据来源 / 对应接口 | 第 1 周范围 | 完整实现 |
+|---|---|---|---|---|
+| 1 | 车辆信息管理 | `vehicle` 表（见 §6.6 CRUD） | **做** | 第 1 周 |
+| 2 | 违规记录查询 | `GET /api/records` → `occupation_record` | **做**（Demo 验收项，见 §11） | 第 1 周 |
+| 3 | 充电状态展示 | `charging_pile` 表（模拟数据） | **占位路由**（见下方口径） | 第 2 周 |
+| 4 | 报警统计 | `occupation_record` 按 `rule_hit` / 时间聚合 | **占位路由** | 第 2 周 |
+| 5 | 系统参数配置 | `system_config` 表（`full_timeout_min` / `abnormal_park_min`） | **占位路由** | 第 2 周 |
+| 6 | 实时识别预览 | 预留端点 `GET /api/frame/latest`（见 §6.5） | **不做，仅预留导航占位** | 第 3 周 |
+
+**「第 1 周范围」列的口径（v1.3 对齐 `PLAN_4WEEKS.md` §2.1 任务 1.8，2026-09-19 明确）**：
+
+- **做** = 页面功能可用，纳入第 1 周末 Demo 验收。仅第 1、2 页属此列。
+- **占位路由** = 路由与导航项就位、可点进、有标题与空态、**明确列出缺口与计划周次**，但**不实现业务功能**。
+  第 3/4/5 页均属此列：这三页各自依赖一个**尚未定义的接口**（桩列表 / 统计聚合 / 参数读写），
+  第 1 周全做等于「改 3 次契约 + 后端补 3 组接口 + 前端 3 页」，超出本周工期，故统一推迟至第 2 周。
+- **不做** = 第 6 页，导航项 `disabled` 置灰，不纳入任何验收。
+
+> **v1.3 修正说明**：v1.1–v1.2 曾将第 3/4/5 页标为第 1 周「做」，与 `PLAN_4WEEKS.md` §2.1
+> 「3/4/5 页占位路由」的口径冲突。本版以 PLAN 为准统一表述，**消除两份文档打架**。
 
 **约定**：
 - 表格列以对应表的字段为准（如"车辆信息管理"的表格列 = `vehicle` 全部字段），吴出线框时直接照抄字段，不另发明。
@@ -136,13 +147,30 @@
 
 ## 6. API 端点
 
+**闭环端点（识别—判断—提醒）**
+
 | 方法 | 路径 | 说明 | 请求 → 响应 |
 |---|---|---|---|
 | POST | `/api/recognize` | 输入帧 → 识别结果（stub 读标注） | `FrameRef` → `RecognitionResult` |
 | POST | `/api/judge` | 识别结果 → 违规判定（引擎内部查桩状态） | `RecognitionResult` → `ViolationRecord` \| `null` |
 | POST | `/api/notify` | 违规 → 短信沙箱（写库+日志） | `ViolationRecord` → `NotifyResp` |
-| GET | `/api/records` | 后台查询违规记录 | `?page=&size=` → `RecordPage` |
+| GET | `/api/records` | 后台查询违规记录（分页 + 筛选，见 §6.4） | `?page=&size=&plate=&vtype=&pile_id=&rule_hit=&notify_status=&start_time=&end_time=` → `RecordPage` |
+
+**后台数据端点（v1.3 新增，供第 1 页）**
+
+| 方法 | 路径 | 说明 | 请求 → 响应 |
+|---|---|---|---|
+| GET | `/api/vehicles` | 车辆列表（分页 + 筛选） | `?page=&size=&plate=&vtype=&owner=` → `VehiclePage` |
+| POST | `/api/vehicles` | 新增车辆 | `Vehicle` → `Vehicle`（`201`） |
+| PUT | `/api/vehicles/{plate}` | 更新车辆（`plate` 主键不可改） | `VehicleUpdate` → `Vehicle` |
+| DELETE | `/api/vehicles/{plate}` | 删除车辆（不级联删违规记录） | → `204` |
+
+**预留 / 健康**
+
+| 方法 | 路径 | 说明 | 请求 → 响应 |
+|---|---|---|---|
 | GET | `/api/health` | 冒烟/健康检查 | → `{"status": "ok"}` |
+| GET | `/api/frame/latest` | **预留，第 1 周不实现**（见 §6.5） | → 帧截图 |
 
 ### 6.1 `POST /api/recognize`
 
@@ -175,6 +203,28 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 ### 6.4 `GET /api/records`
 
+**查询参数（v1.3 新增筛选，全部可选，不传即不参与过滤）**：
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `page` | int ≥1，默认 `1` | 页码 |
+| `size` | int 1–200，默认 `20` | 每页条数 |
+| `plate` | string | 车牌号，**模糊匹配**（`LIKE %..%`，忽略大小写） |
+| `vtype` | `新能源` \| `燃油` | 车型，精确匹配 |
+| `pile_id` | string | 桩 ID，**模糊匹配**（忽略大小写） |
+| `rule_hit` | int 0–3 | 命中规则，精确匹配 |
+| `notify_status` | `未提醒` \| `已提醒` \| `失败` | 提醒状态，精确匹配 |
+| `start_time` | ISO 8601 / `YYYY-MM-DD` | 命中时间**下界**（含） |
+| `end_time` | ISO 8601 / `YYYY-MM-DD` | 命中时间**上界**（含） |
+
+**筛选口径（v1.3 明确）**：
+- 多个参数之间是 **AND** 关系。
+- `plate` / `pile_id` 为模糊匹配；其余为精确匹配。
+- `start_time` / `end_time` 均**含边界**。若 `end_time` 只给日期（`2026-09-19`），
+  按**当日 23:59:59.999999** 解释，避免"选同一天查不到数据"。
+- **`total` 必须反映筛选后的总数**（不是全表总数）——前端分页条依赖它。
+- 无任何筛选参数时行为与 v1.2 一致（全表分页，按 `occur_time` 倒序）。
+
 响应结构（v0.1 明确，前端分页条需要 `total`）：
 
 ```json
@@ -186,11 +236,73 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 }
 ```
 
+> `total` = **应用筛选条件后**的总条数；`page` / `size` 回显请求值。
+
 ### 6.5 预留端点（第 1 周不实现）
 
 | 方法 | 路径 | 说明 |
 |---|---|---|
 | GET | `/api/frame/latest` | 实时识别预览：返回最近一帧截图，前端轮询刷新。开发大纲有此需求，第 0 天 4 端点未覆盖，先占位登记 |
+
+### 6.6 车辆信息 CRUD（v1.3 新增）
+
+> **背景**：§1.1 第 1 页「车辆信息管理」要求表格列 = `vehicle` 全字段并可增删改，
+> 但 v1.2 及以前的 §6 只有识别闭环的 5 个端点，**未定义 vehicle 的读接口** ——
+> 前端只能退化为本地存储（`localStorage`），无法与后端一致，且「车辆信息管理」既列在
+> 第 1 周范围就必须有真接口。本版补齐 4 个端点。
+
+| 方法 | 路径 | 说明 | 请求 → 响应 |
+|---|---|---|---|
+| GET | `/api/vehicles` | 车辆列表（分页 + 可选筛选） | `?page=&size=&plate=&vtype=&owner=` → `VehiclePage` |
+| POST | `/api/vehicles` | 新增车辆 | `Vehicle` → `Vehicle`（`201`） |
+| PUT | `/api/vehicles/{plate}` | 更新车辆 | `VehicleUpdate` → `Vehicle` |
+| DELETE | `/api/vehicles/{plate}` | 删除车辆 | → `204` |
+
+**查询参数（`GET /api/vehicles`）**：
+
+| 参数 | 类型 | 说明 |
+|---|---|---|
+| `page` | int ≥1，默认 `1` | 页码 |
+| `size` | int 1–200，默认 `20` | 每页条数 |
+| `plate` | string | 车牌号，**模糊匹配**（忽略大小写） |
+| `vtype` | `新能源` \| `燃油` | 车型，精确匹配 |
+| `owner` | string | 车主，**模糊匹配** |
+
+**响应结构**：
+
+```json
+{
+  "items": [ { "Vehicle" } ],
+  "total": 3,
+  "page": 1,
+  "size": 20
+}
+```
+
+**口径（务必遵守）**：
+
+- **`plate` 是主键，不可修改**：`PUT /api/vehicles/{plate}` 的路径参数是**定位用**，
+  请求体里的 `plate` 会被忽略（或若与路径不符则返回 `400`）。前端编辑态下车牌只读。
+- **`POST` 新增时 `plate` 已存在 → `409`**（不是 `400`），前端据此提示"车牌号已存在"。
+- **`DELETE` 不级联删除违规记录**：`occupation_record` 保留（历史违规是事实记录），
+  但此后该车牌不再有关联手机号，**无法自动提醒**。前端删除确认弹窗必须说明这一点
+  （`component-inventory.md` §4.1 标注 6 的要求）。
+  `occupation_record.plate` **不加外键约束**，否则历史记录会被连带删除。
+- `created_at` 由**服务端**在 `POST` 时生成，请求体不传。
+- `PUT` 请求体为 `VehicleUpdate`（仅 `vtype` / `owner` / `phone`，不含 `plate` / `created_at`）。
+- `plate` 不存在 → `404`；`phone` / `plate` 格式非法 → `422`（Pydantic 校验）。
+
+**`Vehicle` 结构**（对应 §3.1 全字段）：
+
+```json
+{
+  "plate": "京AD12345",
+  "vtype": "新能源",
+  "owner": "张伟",
+  "phone": "13800136621",
+  "created_at": "2026-09-01T09:00:00"
+}
+```
 
 ## 7. 系统配置项
 
@@ -246,15 +358,21 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 - [ ] `POST /api/judge` 四条规则正确：燃油占位 / 异常占位 / 充满未移车 各命中，正常充电返回 `null`
 - [ ] `POST /api/notify` 沙箱写库成功（`notify_status` 更新）+ 有日志落盘
 - [ ] `GET /api/records` 能查到刚产生的那条记录，分页 `total` 正确
+- [ ] `GET /api/records` **筛选参数（§6.4）生效**：`rule_hit=1` 只返回燃油占位，`total` 随筛选变化
 - [ ] 后台"违规记录查询"页面能看到该条记录
+- [ ] 后台"车辆信息管理"页面可用（`/api/vehicles` CRUD 见 §6.6）：能增、能改、能删，车牌编辑态只读
 - [ ] `GET /api/health` = 200，冒烟测试 `tests/test_health.py` 通过
 - [ ] 汤：pytest 覆盖四规则全过；吕：TestClient 测端点与沙箱全过
 - [ ] 本周不卡准确率 / 响应时间指标
+
+> **第 1 周不验收**（见 §1.1）：第 3 页充电状态展示、第 4 页报警统计、第 5 页系统参数配置为**占位路由**；
+> 第 6 页实时识别预览不做。此 4 页不进第 1 周 Demo 验收清单。
 
 ## 12. 变更记录
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v1.3** | 2026-09-19 | 第 1 周前端落地时发现三处缺口，一并补齐：① **§6.4 `GET /api/records` 新增筛选参数**（`plate`/`vtype`/`pile_id`/`rule_hit`/`notify_status`/`start_time`/`end_time`，AND 关系，`total` 随筛选变化）——此前只有 `page`/`size`，第 2 页筛选项只能前端过滤当前页；② **新增 §6.6 车辆信息 CRUD 四端点**（`GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`）——§1.1 要求第 1 页表格含 `vehicle` 全字段并可增删改，但 §6 从未定义该表读接口，前端只能退化为 localStorage；③ **§1.1 页面清单表述对齐 `PLAN_4WEEKS.md` §2.1**：第 3/4/5 页明确为「占位路由」（原标「做」，与 PLAN 任务 1.8 冲突），并新增「完整实现」列标注周次；§11 同步补筛选与车辆 CRUD 两条验收项、明确 4 页不进第 1 周验收 | 吕浩 |
 | **v1.2** | 2026-09-13 | 接口层实现落地，明确两处此前未定的口径：① **`/api/judge` 命中即落库**，并新增**去重规则**（同 `pile_id`+同 `rule_hit`+未提醒 → 复用原记录，不新增）；② **`/api/notify` 入参增加 `id`**（原仅 `notify_status`，沙箱无法定位记录）。同时实现 `/api/recognize`（stub 读 `algo/samples/labels/`，缺文件 404）、`/api/records`（分页按 `occur_time` 倒序），`main.py` 挂载全部路由并在启动时建表+种子 | 吕浩 |
 | **v1.1** | 2026-09-08 | 新增 **§1.1 后台页面清单（6 页）**：车辆信息管理 / 违规记录查询 / 充电状态展示 / 报警统计 / 系统参数配置 / 实时识别预览（末项第 1 周预留，依赖 §6.5 预留端点）。来源：开发大纲 M7。**补此清单是为解封吴和庆任务 5.3.1** —— 原契约未定义页面范围，吴无从下手。另约定：表格列以对应表字段为准，页面增删须先改本节并升版本 | 吕浩 |
 | **v1.0** | 2026-09-08 | **三人确认定稿**。① v0.1 的 4 处补齐（`occupation_record.pile_id`、`ViolationRecord.id`、`frame_ref` 路径规则、`/api/records` 的 `items+total+page+size`）获汤瑾睿、吴和庆确认；② 确定 MySQL 8 验证方案为**方案 b**——`schema.sql` 交 MySQL 8 语法、本地用 SQLite+SQLAlchemy 等价验证、真机验证延至第 2 周（详见第 2 节） | 吕浩（汤瑾睿、吴和庆确认） |
