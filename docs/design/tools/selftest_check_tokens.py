@@ -28,6 +28,7 @@ CHECKER = os.path.join(TOOLS_DIR, "check_tokens.py")
 REC = os.path.join(DESIGN_DIR, "wireframes", "records.html")
 STAT = os.path.join(DESIGN_DIR, "wireframes", "statistics.html")
 ICON = os.path.join(DESIGN_DIR, "assets", "icons", "icon-search.svg")
+CONTRACT = os.path.join(REPO_ROOT, "docs", "CONTRACT.md")
 
 # (用例名, 目标文件, 原串, 替换串, 期望出现的失败信息, 是否替换全部)
 CASES = [
@@ -69,6 +70,24 @@ CASES = [
      '<th style="width: 150px;">车牌</th>',
      '<th style="width: 150px;">车牌号</th>',
      "列名分叉", False),
+    # --- 2026-09-19 补入：列名白名单已改为从 CONTRACT.md §3.5 派生，
+    #     下面 4 条验证「改契约就能拦下」这件事真的成立（而非断言空跑）。
+    ("§3.5 同表跨页列名分叉", CONTRACT,
+     "| plate | 车牌 | P2 |",
+     "| plate | 车牌号 | P2 |",
+     "同表同字段", False),
+    ("§3.5 改列名致线框越界", CONTRACT,
+     "| phone | 手机号 | P1 |",
+     "| phone | 手机 | P1 |",
+     "超出契约字段白名单", False),
+    ("§3.1 说明档与 §3.5 漂移", CONTRACT,
+     "| plate | VARCHAR(15) PK | 车牌号 |",
+     "| plate | VARCHAR(15) PK | 车牌 |",
+     "说明档", False),
+    ("§3.5 整节缺失", CONTRACT,
+     "### 3.5 显示列名映射表",
+     "### 3.5X 已移除",
+     "无法从 CONTRACT.md §3.5 解析", False),
 ]
 
 

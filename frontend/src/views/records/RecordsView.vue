@@ -93,7 +93,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
     </PageHeader>
 
     <FilterCard :loading="store.loading" @search="handleSearch" @reset="handleReset">
-      <el-form-item label="车牌号">
+      <el-form-item label="车牌">
         <el-input
           v-model="form.plate"
           class="mono"

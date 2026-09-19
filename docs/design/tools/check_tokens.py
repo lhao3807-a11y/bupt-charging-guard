@@ -441,46 +441,96 @@ def check_assets():
 NAV_ORDER = ["车辆信息管理", "违规记录查询", "充电状态展示",
              "报警统计", "系统参数配置", "实时识别预览"]
 
-# 表格列名白名单：列名只允许来自契约定义的表字段（+ 操作列），
-# 防止「自造字段」。新增页面/列必须先改 CONTRACT.md 再登记到这里。
+# 表格列名白名单：**从 CONTRACT.md §3.5 显示列名映射表解析生成**，本脚本不再手写。
+# 之所以改成解析：此前白名单与线框出自同一手，写错时两边一起错，自动校验抓不到
+# （2026-09-19 第 2/4 页「车牌号 vs 车牌」分叉即此类）。判定权收归契约后，
+# 「白名单写错」这一可能性被物理消灭。改列名的唯一入口 = CONTRACT.md §3.5。
+COLUMNS_MAPPING_RE = re.compile(
+    r"^\|\s*([a-z_]+)\s*\|\s*([^|]+?)\s*\|\s*(P[1-6])\s*\|\s*$", re.M)
+CONTRACT_MD = os.path.join(REPO_ROOT, "docs", "CONTRACT.md")
+# 「操作」列是跨页通用交互列，不属于任何表字段，单独放行
 COL_操作 = "操作"
-CONTRACT_COLUMNS = {
-    "vehicle-management.html": {
-        "table": "vehicle",
-        "allow": {"车牌号", "车型", "车主", "手机号", "录入时间", COL_操作},
-        "require": {"车牌号", "车型", "车主", "手机号", "录入时间"},
-    },
-    "records.html": {
-        "table": "occupation_record",
-        "allow": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间",
-                  "提醒状态", "提醒时间", COL_操作},
-        "require": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间",
-                    "提醒状态", "提醒时间"},
-    },
-    "pile-status.html": {
-        "table": "charging_pile",
-        "allow": {"桩 ID", "状态", "绑定车牌", "开始充电时间", "充满时间", COL_操作},
-        "require": {"桩 ID", "状态", "绑定车牌", "开始充电时间", "充满时间"},
-    },
-    "statistics.html": {
-        "table": "occupation_record(下钻)",
-        "allow": {"车牌", "车型", "桩 ID", "命中规则", "命中时间"},
-        "require": {"车牌", "车型", "桩 ID", "命中规则", "命中时间"},
-    },
-    "system-config.html": {
-        "table": "system_config",
-        "allow": {"参数键", "参数值", "说明", COL_操作},
-        "require": {"参数键", "参数值", "说明"},
-    },
+# 页面编号 → 线框文件
+PAGE_WIREFRAME = {
+    "P1": "vehicle-management.html",
+    "P2": "records.html",
+    "P3": "pile-status.html",
+    "P4": "statistics.html",
+    "P5": "system-config.html",
+}
+# 每页「必须出现」的列（即该表在主视图页上的全部列）。下钻视图页（P4）只要求
+# 是已登记列的子集，不要求齐全，故不进本表。
+REQUIRED_COLUMNS = {
+    "P1": {"车牌号", "车型", "车主", "手机号", "录入时间"},
+    "P2": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间", "提醒状态", "提醒时间"},
+    "P3": {"桩 ID", "状态", "绑定车牌", "开始充电时间", "充满时间"},
+    "P5": {"参数键", "参数值", "说明"},
 }
 
+
+def load_contract_columns():
+    """解析 CONTRACT.md §3.5，返回 (按线框的 allow/require 规格, 按表+字段的列名索引)。
+
+    规格结构（与改造前的 CONTRACT_COLUMNS 兼容）：
+        {线框文件名: {"table": 表名, "allow": {...}, "require": {...}}}
+    """
+    if not os.path.isfile(CONTRACT_MD):
+        return None, None
+    with open(CONTRACT_MD, encoding="utf-8") as fh:
+        text = fh.read()
+    # 只取 §3.5 一节，避免误匹配其它表格
+    start = text.find("### 3.5 显示列名映射表")
+    if start < 0:
+        return None, None
+    end = text.find("\n## ", start)
+    section = text[start:end if end > 0 else len(text)]
+
+    rows = COLUMNS_MAPPING_RE.findall(section)
+    if not rows:
+        return None, None
+
+    spec = {}
+    index = {}   # (table, field) -> 列名
+    by_page = {}  # P1 -> [(field, 列名)]
+    for field, colname, page in rows:
+        colname = colname.strip()
+        by_page.setdefault(page, []).append((field, colname))
+
+    # 页面 → 表名（用于报错信息与同表跨页比对）
+    page_table = {"P1": "vehicle", "P2": "occupation_record", "P3": "charging_pile",
+                  "P4": "occupation_record(下钻)", "P5": "system_config"}
+    for page, wire in PAGE_WIREFRAME.items():
+        cols = [c for _, c in by_page.get(page, [])]
+        if not cols:
+            continue
+        spec[wire] = {
+            "table": page_table.get(page, page),
+            "page": page,
+            "allow": set(cols) | {COL_操作},
+            "require": set(cols) & REQUIRED_COLUMNS.get(page, set()),
+        }
+    for page, items in by_page.items():
+        table = page_table.get(page, page)
+        for field, colname in items:
+            index.setdefault((table.split("(")[0], field), set()).add(colname)
+    return spec, index
+
+
+CONTRACT_COLUMNS, CONTRACT_COLUMN_INDEX = load_contract_columns()
+
 # 同一张表被多页引用时，同一个契约字段必须用同一个列名写法。
+# 判据来自 CONTRACT.md §3.5：同一 (表, 字段) 只允许对应一个列名。
 # 反例（2026-09-19 终检发现）：第 2 页写「车牌号」而第 4 页写「车牌」，
 # 两页读的是同一张 occupation_record，用户在页间要重新认一遍列。
-# 白名单挡不住这种错——因为白名单和线框出自同一手，必须单独交叉比对。
 SHARED_TABLE_PAGES = [
     ("occupation_record", "records.html", "statistics.html"),
 ]
+
+# §3.x 说明档位置：用「表名 → 该表字段说明行的中文名」与 §3.5 映射表比对，
+# 防的是「契约自己两处漂移」（上表改了而 §3.x 没改，或反之）。
+NARRATIVE_TABLES = ["vehicle", "charging_pile", "occupation_record", "system_config"]
+NARRATIVE_ROW_RE = re.compile(
+    r"^\|\s*\**\s*([a-z_]+)\s*\**\s*\|\s*[^|]+\|\s*([^|]+?)\s*\|\s*$", re.M)
 
 NAV_ITEM_RE = re.compile(r"<a\b[^>]*class=\"nav-item[^\"]*\"[^>]*>.*?</a>", re.S)
 TH_RE = re.compile(r"<th[^>]*>(.*?)</th>", re.S)
@@ -516,10 +566,17 @@ def check_consistency():
         print()
         return
 
+    if not CONTRACT_COLUMNS:
+        fail("无法从 CONTRACT.md §3.5 解析出显示列名映射表；列名白名单已改为契约派生，"
+             "请确认该节存在且为 `| 字段 | 列名 | 页面 |` 三列格式（页面写 P1–P6）")
+        print("  跳过")
+        print()
+        return
+
     files = [f for f in sorted(os.listdir(WIREFRAME_DIR)) if f.lower().endswith((".html", ".htm"))]
     for f in files:
         if f not in CONTRACT_COLUMNS:
-            warn("线框 %s 未登记契约字段白名单；新增页面须先改 CONTRACT.md §1.1 并登记到本脚本" % f)
+            warn("线框 %s 未在 CONTRACT.md §3.5 登记列名；新增页面须先改契约（§1.1 页面清单 + §3.5 列名映射）" % f)
     print("  已登记 %d 页，目录内共 %d 个线框" % (len(CONTRACT_COLUMNS), len(files)))
     print()
 
@@ -608,7 +665,71 @@ def check_consistency():
         if diverged:
             fail("%s 与 %s 同读 %s 表，列名分叉：%s 出现「%s」，%s 里没有同名写法"
                  % (other, base, table, other, " / ".join(diverged), base))
+
+    # --- 5.8 §3.5 映射表内部自洽：同表同字段只能对应一个列名 ---
+    bad_pairs = []
+    for (table, field), names in sorted(CONTRACT_COLUMN_INDEX.items()):
+        if len(names) > 1:
+            bad_pairs.append("%s.%s → %s" % (table, field, " / ".join(sorted(names))))
+    if bad_pairs:
+        fail("契约 §3.5 内同表同字段出现多个列名（应唯一）：%s" % "；".join(bad_pairs))
+    else:
+        print("  契约 §3.5：同表同字段列名唯一（%d 个表·字段组合）" % len(CONTRACT_COLUMN_INDEX))
+
+    # --- 5.9 §3.x 说明档的中文名必须与 §3.5 一致（防契约自己两处漂移）---
+    check_narrative_vs_mapping()
     print()
+
+
+def check_narrative_vs_mapping():
+    """§3.1–§3.4 字段说明档的「说明」列 vs §3.5 映射表的列名。
+
+    两处各写一份是必要的（说明档给的是语义，映射表给的是列名），但**列名部分**必须同值，
+    否则契约内部就先打架了。
+
+    比对规则：说明档允许在列名后追加括注或枚举（如「车型（由绿牌/蓝牌判定）」
+    「1 燃油占位 / 2 异常占位 …」），这些是语义补充、不是列名的一部分，
+    故只取**开头的列名词**与映射表比对（截到第一个「（」「(」「 / 」为止）；
+    说明档若以符号开头（如 `**桩 ID（v0.1 新增）**` 被解析成前导 `*`），先剥符号。
+    """
+    if not os.path.isfile(CONTRACT_MD):
+        return
+    with open(CONTRACT_MD, encoding="utf-8") as fh:
+        text = fh.read()
+
+    mismatched, compared = [], 0
+    for idx, table in enumerate(NARRATIVE_TABLES, start=1):
+        # 必须锚定小节标题（`### 3.1 vehicle（…）`）。不能用 text.find("vehicle")：
+        # §1.1 的页面清单里也出现 `vehicle`，会定位到错误的小节导致断言空跑。
+        head = text.find("### 3.%d %s" % (idx, table))
+        if head < 0:
+            fail("契约 §3.x 找不到小节 `### 3.%d %s`，列名一致性断言无法执行" % (idx, table))
+            continue
+        nxt = text.find("\n### ", head + 1)
+        end = text.find("\n## ", head + 1)
+        stop = min(x for x in (nxt, end, len(text)) if x > 0)
+        section = text[head:stop]
+        found = 0
+        for field, note in NARRATIVE_ROW_RE.findall(section):
+            if field in ("字段",) or field.startswith("--"):
+                continue
+            expected = CONTRACT_COLUMN_INDEX.get((table, field))
+            if not expected:
+                continue
+            note = note.strip().strip("*").strip()
+            # 只取开头的列名词：截到第一个括注 / 冒号 / 枚举分隔符
+            lead = re.split(r"[（(：:]|\s*/\s*|\s*——", note, maxsplit=1)[0].strip()
+            compared += 1
+            found += 1
+            if lead not in expected:
+                mismatched.append("%s.%s：说明档写「%s」，§3.5 映射表写「%s」"
+                                  % (table, field, lead, " / ".join(sorted(expected))))
+        if found == 0:
+            fail("契约 §3.%d %s 说明档未比出任何字段，断言空跑（校验器自身故障）" % (idx, table))
+    if mismatched:
+        fail("契约 §3.x 说明档与 §3.5 映射表列名不一致：%s" % "；".join(mismatched))
+    else:
+        print("  契约 §3.x 说明档 ↔ §3.5 映射表：%d 个字段列名词一致" % compared)
 
 
 # ---------------------------------------------------------------- main
