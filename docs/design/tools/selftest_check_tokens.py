@@ -26,6 +26,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(DESIGN_DIR))  # 仓库根
 
 CHECKER = os.path.join(TOOLS_DIR, "check_tokens.py")
 REC = os.path.join(DESIGN_DIR, "wireframes", "records.html")
+STAT = os.path.join(DESIGN_DIR, "wireframes", "statistics.html")
 ICON = os.path.join(DESIGN_DIR, "assets", "icons", "icon-search.svg")
 
 # (用例名, 目标文件, 原串, 替换串, 期望出现的失败信息, 是否替换全部)
@@ -62,6 +63,12 @@ CASES = [
      'stroke="currentColor"',
      'stroke="#A8071A"',
      "不得写死色值", False),
+    # 2026-09-19 终检补入：第 4 页下钻表与第 2 页读同一张 occupation_record，
+    # 若把「车牌」写成「车牌号」，白名单和同表跨页比对应同时拦下。
+    ("同表跨页列名分叉", STAT,
+     '<th style="width: 150px;">车牌</th>',
+     '<th style="width: 150px;">车牌号</th>',
+     "列名分叉", False),
 ]
 
 

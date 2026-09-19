@@ -16,7 +16,7 @@ docs/design/
 ├── README.md                    本文件：目录说明 + 切图与命名规范
 ├── design-tokens.md             设计系统基线：颜色/字体/圆角/间距/阴影/布局 + 对比度实测值
 ├── tokens.css                   令牌代码实现，前端直接 import
-├── component-inventory.md       6 页组件清单、Element Plus 映射、图表规格（§3.1）、素材清单（§6）
+├── component-inventory.md       6 页组件清单、Element Plus 映射、图表规格（§3.1）、列名↔契约字段映射（§4.0）、素材清单（§6）
 ├── walkthrough.md              设计走查记录：9 项检查单结论 + 发现项 + 待确认项（第 1 周）
 ├── wireframes/                  线框（5 页就位；第 6 页第 1 周不做）
 │   ├── vehicle-management.html  第 1 页 · 风格样板（表格列 = vehicle 全字段）
@@ -152,7 +152,7 @@ python docs/design/tools/check_tokens.py
 | 4 | 线框内联快照与 `tokens.css` 逐条一致 | 改色没同步，预览与真实页面不一致 |
 | 5 | 线框不出现裸色值 | 改主题时该处不跟随 |
 | 6 | `assets/` 命名 kebab-case + 取色规范（图标只用 `currentColor`） | 图标无法随主题变色 |
-| 7 | **跨页一致性**（导航顺序 / 当前页高亮 / 空态齐备 / 表格规格 / 表格列名 ⊆ 契约字段 / 间距取 4px 栅格） | 各页各做各的，或自造了契约里没有的字段 |
+| 7 | **跨页一致性**（导航顺序 / 当前页高亮 / 空态齐备 / 表格规格 / 表格列名 ⊆ 契约字段 / **同表跨页列名同写法** / 间距取 4px 栅格） | 各页各做各的，或自造了契约里没有的字段 |
 
 > 第 7 项是第 1 周新增的：把 `component-inventory.md` §5 的走查清单从「人工打勾」变成「机器断言」。
 > 走查结论与反例自测记录见 `walkthrough.md`。
@@ -160,7 +160,7 @@ python docs/design/tools/check_tokens.py
 **想知道「全绿」是不是脚本没查到？** 跑反例自测：
 
 ```bash
-python docs/design/tools/selftest_check_tokens.py   # 改坏 8 处，期望每次 exit 1；结束自动还原
+python docs/design/tools/selftest_check_tokens.py   # 改坏 9 处，期望每次 exit 1；结束自动还原
 ```
 
 ---
@@ -196,5 +196,6 @@ python docs/design/tools/selftest_check_tokens.py   # 改坏 8 处，期望每�
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| — | 2026-09-19（**交付前终检**） | 终检发现第 2 页 `plate` 列名写「车牌号」，而 `occupation_record` 的契约说明与第 4 页均为「车牌」，文档/契约/线框三方分叉（白名单出自同一手，抓不到）。已统一为「车牌」；`component-inventory.md` 升 **v1.2** 新增 §4.0 列名↔契约字段映射表；`check_tokens.py` 增**同表跨页列名**断言，`selftest` 用例 **8 → 9** | 吴和庆 |
 | — | 2026-09-19 | 第 1 周：5 页线框全部就位；新增 `walkthrough.md`（走查记录）；§5 校验扩到 7 项（新增跨页一致性）；§1 目录结构更新；图标提前落地（§4 已更新说明）。表格列名白名单进脚本，**自造字段会被直接拦下** | 吴和庆 |
 | v1.0 | 2026-09-13 | 首版。目录说明、切图规范（格式/图标/位图/Logo）、命名规范、语义命名约定、校验与交付流程、与契约的边界 | 吴和庆 |

@@ -18,7 +18,8 @@
      （图标只用 currentColor；Logo / 插画只允许 var(--x, #hex) 兜底写法）
   7. 跨页一致性（对应 component-inventory.md §5 的走查清单）：
      导航 6 项顺序、当前页高亮、空态齐备、表头底/行线/悬浮行、
-     定长标识用等宽、表格列名 ⊆ 契约字段白名单、间距取 4px 栅格
+     定长标识用等宽、表格列名 ⊆ 契约字段白名单、间距取 4px 栅格、
+     同一张表被多页引用时列名写法一致
 
 退出码 0 = 全部通过；1 = 存在失败项。
 """
@@ -451,9 +452,9 @@ CONTRACT_COLUMNS = {
     },
     "records.html": {
         "table": "occupation_record",
-        "allow": {"ID", "车牌号", "车型", "桩 ID", "命中规则", "命中时间",
+        "allow": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间",
                   "提醒状态", "提醒时间", COL_操作},
-        "require": {"ID", "车牌号", "车型", "桩 ID", "命中规则", "命中时间",
+        "require": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间",
                     "提醒状态", "提醒时间"},
     },
     "pile-status.html": {
@@ -472,6 +473,14 @@ CONTRACT_COLUMNS = {
         "require": {"参数键", "参数值", "说明"},
     },
 }
+
+# 同一张表被多页引用时，同一个契约字段必须用同一个列名写法。
+# 反例（2026-09-19 终检发现）：第 2 页写「车牌号」而第 4 页写「车牌」，
+# 两页读的是同一张 occupation_record，用户在页间要重新认一遍列。
+# 白名单挡不住这种错——因为白名单和线框出自同一手，必须单独交叉比对。
+SHARED_TABLE_PAGES = [
+    ("occupation_record", "records.html", "statistics.html"),
+]
 
 NAV_ITEM_RE = re.compile(r"<a\b[^>]*class=\"nav-item[^\"]*\"[^>]*>.*?</a>", re.S)
 TH_RE = re.compile(r"<th[^>]*>(.*?)</th>", re.S)
@@ -581,6 +590,24 @@ def check_consistency():
             fail("%s：%s" % (f, p))
         if not problems:
             print("    导航 / 高亮 / 空态 / 表格规格 / 列名 / 间距  全部一致")
+    print()
+
+    # --- 5.7 同一张表被多页引用时，列名不得各写各的 ---
+    for table, base, other in SHARED_TABLE_PAGES:
+        pb = os.path.join(WIREFRAME_DIR, base)
+        po = os.path.join(WIREFRAME_DIR, other)
+        if not (os.path.isfile(pb) and os.path.isfile(po)):
+            continue
+        with open(pb, encoding="utf-8") as fh:
+            cols_base = [strip_tags(c) for c in TH_RE.findall(fh.read())]
+        with open(po, encoding="utf-8") as fh:
+            cols_other = [strip_tags(c) for c in TH_RE.findall(fh.read())]
+        diverged = [c for c in cols_other if c not in cols_base]
+        print("  同表跨页列名（%s）：%s ⊆ %s → %s"
+              % (table, other, base, "一致" if not diverged else "有分叉"))
+        if diverged:
+            fail("%s 与 %s 同读 %s 表，列名分叉：%s 出现「%s」，%s 里没有同名写法"
+                 % (other, base, table, other, " / ".join(diverged), base))
     print()
 
 

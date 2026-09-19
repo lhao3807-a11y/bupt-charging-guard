@@ -454,7 +454,7 @@
         <div class="card-body">
           <div class="filter-grid">
             <div class="field">
-              <span class="label">车牌号</span>
+              <span class="label">车牌</span>
               <div class="input is-placeholder">支持模糊匹配，如 京AD</div>
             </div>
             <div class="field">
@@ -498,7 +498,7 @@
           <thead>
             <tr>
               <th style="width: 72px;">ID</th>
-              <th style="width: 150px;">车牌号</th>
+              <th style="width: 150px;">车牌</th>
               <th style="width: 110px;">车型</th>
               <th style="width: 120px;">桩 ID</th>
               <th style="width: 140px;">命中规则</th>
@@ -696,7 +696,7 @@
   <h2 class="anno-title">标注说明</h2>
   <p class="anno-desc">本页是<b>第 1 周 Demo 验收项</b>（<code>CONTRACT.md</code> §11 第 5 项「后台违规记录查询页面能看到该条记录」），优先级高于其余 4 页。</p>
   <ol class="notes">
-    <li><b>表格列 = ViolationRecord 全字段</b>：ID / 车牌号 / 车型 / 桩 ID / 命中规则 / 命中时间 / 提醒状态 / 提醒时间，另加「操作」列。依据契约 §5 与 §1.1「表格列以对应表字段为准」，未新增字段、未自造枚举。</li>
+    <li><b>表格列 = ViolationRecord 全字段</b>：ID / 车牌 / 车型 / 桩 ID / 命中规则 / 命中时间 / 提醒状态 / 提醒时间，另加「操作」列。依据契约 §5 与 §1.1「表格列以对应表字段为准」，未新增字段、未自造枚举。</li>
     <li><b>ID 列必须展示、不可隐藏</b>：契约 v1.2 起 <code>POST /api/notify</code> 的入参<b>必须带 id</b>（§6.3），id 是「定位要更新哪条记录」的唯一键。藏在 tooltip 里会让联调时无法核对。</li>
     <li><b>表中不出现 rule_hit = 0</b>：契约 §6.2 规定规则 ④（正常充电）判定返回 <code>null</code>，不落库，因此记录里只有 1 / 2 / 3。枚举 0 仅为兼容历史数据保留，所以「命中规则」筛选下拉只给 1 / 2 / 3 三项，不给「正常」。</li>
     <li><b>不需要前端去重</b>：契约 v1.2 §6.2 已定去重口径——同 <code>pile_id</code> + 同 <code>rule_hit</code> 且未提醒时，视为「同一违规持续中」，后端复用原记录并刷新 <code>occur_time</code>，不新增行。前端<b>不要</b>再自行合并同名记录，否则统计会与后端不一致。</li>
@@ -704,7 +704,7 @@
     <li><b>行内操作用文字按钮而非实心按钮</b>：一屏十余行，实心按钮会把表格变成色块墙。依据 <code>design-tokens.md</code> §3.3 ⑤。</li>
     <li><b>车型与命中规则必须语义自洽</b>：<code>rule_hit = 1</code>（燃油占位）对应车型「燃油」；<code>rule_hit = 2 / 3</code> 对应车型「新能源」。线框数据已按此规则构造，前端无需校验，但演示数据不能配错，否则答辩现场一眼看穿。</li>
     <li><b>提醒时间为空显示「—」</b>并降级到 <code>--text-tertiary</code>，不留空白单元格，避免被误认为渲染失败。</li>
-    <li><b>数字与定长标识一律等宽</b>：ID / 车牌号 / 桩 ID / 时间用 <code>--font-family-mono</code> + <code>tabular-nums</code>，翻页时列宽不跳动。</li>
+    <li><b>数字与定长标识一律等宽</b>：ID / 车牌 / 桩 ID / 时间用 <code>--font-family-mono</code> + <code>tabular-nums</code>，翻页时列宽不跳动。</li>
     <li><b>空态两种文案</b>：筛不出结果 → 「重置筛选」引导；库里确实没有 → 提示去录入车辆 / 触发识别。第二种同时是<b>演示前自检</b>：如果 Demo 时看到「暂无违规记录」，说明识别→判定链路没跑通。</li>
   </ol>
 </div>
