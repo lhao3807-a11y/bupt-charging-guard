@@ -8,10 +8,14 @@
  * 校验   python docs/design/tools/check_tokens.py
  * ----------------------------------------------------------------------------
  * ⚠️ 本文件是 docs/design/tokens.css 的**逐字副本**，请勿直接编辑。
- *    上游改动后同步执行：
+ *    上游改动后同步执行（任选其一）：
+ *        npm run sync:tokens                                  # 从设计侧覆盖本文件
  *        cp docs/design/tokens.css frontend/src/styles/tokens.css
- *    校验脚本 docs/design/tools/check_tokens.py 以 docs/design/tokens.css 为准；
- *    如需比对两文件一致性，见 frontend/scripts/copy-tokens.mjs（预留）。
+ *    一致性由脚本强制校验（有漂移即 exit 1）：
+ *        npm run check:tokens
+ *    校验脚本 docs/design/tools/check_tokens.py 以 docs/design/tokens.css 为准，
+ *    管**合规性**（令牌齐全 / WCAG 对比度 / 页面裸色值）；
+ *    前端侧 copy-tokens.mjs 管**一致性**（两份文件是否逐条相同）。两者互补，都要跑。
  *
  * 引入方式（前端 main.ts，必须早于 element-plus 样式）：
  *     import '@/styles/tokens.css'

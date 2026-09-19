@@ -11,7 +11,10 @@
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint . --ext .ts,.vue --max-warnings 0",
     "lint:fix": "eslint . --ext .ts,.vue --fix",
-    "format": "prettier --write \"src/**/*.{ts,vue,css,json}\""
+    "format": "prettier --write \"src/**/*.{ts,vue,css,json}\"",
+    "check:tokens": "node scripts/copy-tokens.mjs",
+    "sync:tokens": "node scripts/copy-tokens.mjs --write",
+    "verify": "npm run check:tokens && npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
