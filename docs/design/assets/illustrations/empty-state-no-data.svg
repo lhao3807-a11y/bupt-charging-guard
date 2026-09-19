@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" role="img" aria-label="暂无数据">
+  <!-- 颜色一律走 CSS 变量并带兜底值：以 img 标签引入时用兜底值，内联时跟随主题。
+       SVG 是 XML，注释内不得出现连续两个连字符，故此处用文字描述，不写变量全名。 -->
+  <rect x="34" y="26" width="84" height="62" rx="8" style="fill: var(--fill-light, #F2F3F5); stroke: var(--border-strong, #C9CDD4);" stroke-width="2"/>
+  <line x1="50" y1="48" x2="102" y2="48" style="stroke: var(--border-strong, #C9CDD4);" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="64" x2="90" y2="64" style="stroke: var(--border-strong, #C9CDD4);" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="80" x2="72" y2="80" style="stroke: var(--border-strong, #C9CDD4);" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="114" cy="82" r="18" style="fill: var(--bg-container, #FFFFFF); stroke: var(--text-tertiary, #64707D);" stroke-width="2"/>
+  <line x1="127" y1="95" x2="138" y2="106" style="stroke: var(--text-tertiary, #64707D);" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

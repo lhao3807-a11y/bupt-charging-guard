@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>车辆信息管理 · 线框（风格样板） — 桩点北邮</title>
+<title>系统参数配置 · 线框（第 5 页） — 桩点北邮</title>
 
 <!-- ==========================================================================
      tokens 快照 · 自动生成，请勿手改
@@ -294,12 +294,14 @@
   .pill-warning { color: var(--state-warning-text); background: var(--state-warning-bg); border-color: var(--state-warning-border); }
   .pill-success { color: var(--state-success-text); background: var(--state-success-bg); border-color: var(--state-success-border); }
   .pill-info { color: var(--state-info-text); background: var(--state-info-bg); border-color: var(--state-info-border); }
+  .pill-primary { color: var(--brand-primary); background: var(--brand-primary-bg); border-color: var(--brand-primary-border); }
   .dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: var(--radius-pill); }
   .dot-danger { background: var(--state-danger-solid); }
   .dot-caution { background: var(--state-caution-solid); }
   .dot-warning { background: var(--state-warning-solid); }
   .dot-success { background: var(--state-success-solid); }
   .dot-info { background: var(--state-info-solid); }
+  .dot-primary { background: var(--brand-primary); }
 
   .pager {
     display: flex; align-items: center; gap: var(--space-3);
@@ -369,7 +371,61 @@
   .swatch { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xs); color: var(--text-secondary); }
   .swatch-chip { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-base); }
 
-  /* ---------- 空态（走查补齐：第 0 天交付时遗漏，与其余 4 页对齐） ---------- */
+  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
+  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
+  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  code {
+    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
+    background: var(--fill-light); color: var(--text-secondary);
+    padding: 1px var(--space-1); border-radius: var(--radius-xs);
+  }
+
+  /* ---------- 本页新增：提示条 / 数字输入 / 未保存条 / 空态 ---------- */
+  .alert {
+    display: flex; gap: var(--space-2); align-items: flex-start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid; border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);
+  }
+  .alert-info { color: var(--state-info-text); background: var(--state-info-bg); border-color: var(--state-info-border); }
+  .alert-warning { color: var(--state-warning-text); background: var(--state-warning-bg); border-color: var(--state-warning-border); }
+  .alert b { font-weight: var(--font-weight-medium); }
+  .alert + .card, .card + .alert { margin-top: var(--layout-card-gap); }
+
+  .field-append {
+    display: inline-flex; align-items: stretch; height: 32px;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    overflow: hidden; background: var(--bg-container);
+  }
+  .field-append.is-dirty { border-color: var(--brand-primary); box-shadow: 0 0 0 2px var(--brand-primary-bg); }
+  .field-append.is-disabled { border-color: var(--border-base); background: var(--fill-light); }
+  .input-num { display: inline-flex; align-items: stretch; }
+  .input-num-step {
+    width: 28px; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--fill-light); color: var(--text-secondary); font-size: var(--font-size-sm);
+  }
+  .input-num-val {
+    width: 56px; display: inline-flex; align-items: center; justify-content: center;
+    border-left: 1px solid var(--border-strong); border-right: 1px solid var(--border-strong);
+  }
+  .append-suffix {
+    display: inline-flex; align-items: center; padding: 0 var(--space-3);
+    background: var(--fill-light); color: var(--text-secondary);
+    font-size: var(--font-size-sm); border-left: 1px solid var(--border-strong);
+  }
+  .key { font-weight: var(--font-weight-medium); }
+  .key-desc { display: block; margin-top: var(--space-1); font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  .dirty-bar {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-top: 1px solid var(--border-light);
+    background: var(--state-warning-bg);
+    color: var(--state-warning-text);
+    font-size: var(--font-size-sm);
+  }
+  .dirty-bar .filter-actions { margin-left: auto; }
+
   .empty {
     border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
     padding: var(--space-8) var(--space-4) var(--space-8);
@@ -380,22 +436,21 @@
   .empty-desc { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0 0 var(--space-4); }
   .empty-desc:last-child { margin-bottom: 0; }
 
-  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
-  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
-  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
-  code {
-    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
-    background: var(--fill-light); color: var(--text-secondary);
-    padding: 1px var(--space-1); border-radius: var(--radius-xs);
-  }
+  .impact { display: grid; gap: var(--space-3); }
+  .impact-row { display: grid; grid-template-columns: 180px 1fr; gap: var(--space-3); align-items: baseline; }
+  .impact-key { font-size: var(--font-size-sm); color: var(--text-secondary); }
+  .impact-val { font-size: var(--font-size-sm); color: var(--text-primary); }
+  .diff { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); }
+  .diff-was { color: var(--text-tertiary); text-decoration: line-through; }
+  .diff-now { color: var(--brand-primary); font-weight: var(--font-weight-medium); }
 </style>
 </head>
 <body>
 
-<!-- ===================== 线框主体：车辆信息管理 ===================== -->
+<!-- ===================== 线框主体：系统参数配置 ===================== -->
 <div class="shell">
 
-  <!-- 侧边导航 —— 对应 CONTRACT.md v1.1 §1.1 后台 6 页 -->
+  <!-- 侧边导航 —— 顺序即 CONTRACT.md §1.1 的 6 页顺序，第 6 页第 1 周预留 -->
   <aside class="sidebar">
     <div class="logo">
       <span class="logo-mark">桩</span>
@@ -405,11 +460,11 @@
       </span>
     </div>
     <nav class="nav">
-      <a class="nav-item is-active"><span class="nav-idx">1</span>车辆信息管理</a>
+      <a class="nav-item"><span class="nav-idx">1</span>车辆信息管理</a>
       <a class="nav-item"><span class="nav-idx">2</span>违规记录查询</a>
       <a class="nav-item"><span class="nav-idx">3</span>充电状态展示</a>
       <a class="nav-item"><span class="nav-idx">4</span>报警统计</a>
-      <a class="nav-item"><span class="nav-idx">5</span>系统参数配置</a>
+      <a class="nav-item is-active"><span class="nav-idx">5</span>系统参数配置</a>
       <a class="nav-item is-reserved"><span class="nav-idx">6</span>实时识别预览
         <span class="nav-tag">第 1 周预留</span>
       </a>
@@ -418,7 +473,7 @@
 
   <div class="main">
     <header class="header">
-      <span class="crumb">后台管理 / <b>车辆信息管理</b></span>
+      <span class="crumb">后台管理 / <b>系统参数配置</b></span>
       <div class="header-right">
         <span class="crumb">演示环境 · 数据来自 SQLite 开发库</span>
         <span class="avatar">吴</span>
@@ -430,114 +485,82 @@
       <!-- 页头 -->
       <div class="page-head">
         <div>
-          <h1 class="page-title">车辆信息管理</h1>
-          <p class="page-desc">维护车辆台账，作为规则引擎判定「燃油占位 / 异常占位」的车主与手机号来源。</p>
+          <h1 class="page-title">系统参数配置</h1>
+          <p class="page-desc">阈值取自 system_config 表，本页是这两个数字的唯一修改入口（契约 §7：阈值严禁硬编码）。</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-default">批量导入</button>
-          <button class="btn btn-primary">＋ 新增车辆</button>
+          <button class="btn btn-default">撤销改动</button>
+          <button class="btn btn-primary is-disabled">保存并生效</button>
         </div>
       </div>
 
-      <!-- 筛选 -->
-      <section class="card">
-        <div class="card-body">
-          <div class="filter-grid">
-            <div class="field">
-              <span class="label">车牌号</span>
-              <div class="input is-placeholder">支持模糊匹配，如 京AD</div>
-            </div>
-            <div class="field">
-              <span class="label">车型</span>
-              <div class="select">全部<span></span></div>
-            </div>
-            <div class="field">
-              <span class="label">车主</span>
-              <div class="input is-placeholder">姓名关键字</div>
-            </div>
-            <div class="field">
-              <span class="label">录入时间</span>
-              <div class="select">2026-09-01 ~ 2026-09-13<span></span></div>
-            </div>
-            <div class="field">
-              <span class="label">&nbsp;</span>
-              <div class="filter-actions">
-                <button class="btn btn-primary">查询</button>
-                <button class="btn btn-default">重置</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- 风险提示：本页是全站唯一能改判定行为的地方，必须显式警示 -->
+      <div class="alert alert-warning">
+        <span>!</span>
+        <span><b>修改阈值将直接影响规则引擎的判定结果</b>，并联动「违规记录查询」与「报警统计」两页的数字。建议在<b>没有正在进行演示</b>时调整，改完先跑一次识别验证判定符合预期。</span>
+      </div>
 
-      <!-- 表格 -->
-      <section class="card">
+      <!-- 参数表 -->
+      <section class="card" style="margin-top: var(--layout-card-gap);">
         <div class="table-toolbar">
-          <h3>车辆列表</h3>
-          <span class="count">共 <span class="num">42</span> 条</span>
+          <h3>系统参数</h3>
+          <span class="count">共 <span class="num">2</span> 项 · 均来自 system_config</span>
         </div>
         <table>
           <thead>
             <tr>
-              <th style="width: 160px;">车牌号</th>
-              <th style="width: 120px;">车型</th>
-              <th style="width: 140px;">车主</th>
-              <th style="width: 160px;">手机号</th>
-              <th style="width: 200px;">录入时间</th>
-              <th style="width: 140px;">操作</th>
+              <th style="width: 260px;">参数键</th>
+              <th style="width: 260px;">参数值</th>
+              <th>说明</th>
+              <th style="width: 150px;">操作</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="col-plate mono">京AD12345</td>
-              <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>吴和庆</td>
-              <td class="mono num">138****6621</td>
-              <td class="mono num">2026-09-08 09:12:04</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
+              <td>
+                <span class="key mono">full_timeout_min</span>
+                <span class="key-desc">充满超时阈值</span>
+              </td>
+              <td>
+                <span class="field-append is-dirty">
+                  <span class="input-num">
+                    <span class="input-num-step">−</span>
+                    <span class="input-num-val mono">45</span>
+                    <span class="input-num-step">＋</span>
+                  </span>
+                  <span class="append-suffix">分钟</span>
+                </span>
+                <span class="key-desc">原值 <span class="num">30</span> · 已修改，未保存</span>
+              </td>
+              <td>桩状态变为「已充满」后，超过该时长仍未移车 → 命中规则 ③<b>充满未移车</b>。默认 30。</td>
+              <td><span class="col-actions"><span class="btn btn-link">保存</span><span class="btn btn-danger-text">撤销</span></span></td>
             </tr>
             <tr>
-              <td class="col-plate mono">京A12345</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td>吕浩</td>
-              <td class="mono num">139****0087</td>
-              <td class="mono num">2026-09-08 09:20:41</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
-            </tr>
-            <tr class="is-hover">
-              <td class="col-plate mono">京AD67890</td>
-              <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>汤瑾睿</td>
-              <td class="mono num">137****4412</td>
-              <td class="mono num">2026-09-08 10:05:17</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
-            </tr>
-            <tr>
-              <td class="col-plate mono">京A88888</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td>张伟</td>
-              <td class="mono num">136****9903</td>
-              <td class="mono num">2026-09-08 11:31:52</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
-            </tr>
-            <tr>
-              <td class="col-plate mono">京AD24680</td>
-              <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>李娜</td>
-              <td class="mono num">135****2277</td>
-              <td class="mono num">2026-09-08 14:02:09</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
+              <td>
+                <span class="key mono">abnormal_park_min</span>
+                <span class="key-desc">异常占位久停阈值</span>
+              </td>
+              <td>
+                <span class="field-append">
+                  <span class="input-num">
+                    <span class="input-num-step">−</span>
+                    <span class="input-num-val mono">30</span>
+                    <span class="input-num-step">＋</span>
+                  </span>
+                  <span class="append-suffix">分钟</span>
+                </span>
+                <span class="key-desc">当前值 · 未修改</span>
+              </td>
+              <td>新能源车停在桩位上但未充电，停放超过该时长 → 命中规则 ②<b>异常占位</b>。默认 30。</td>
+              <td><span class="col-actions"><span class="btn btn-link" style="color: var(--text-disabled);">保存</span><span class="btn" style="color: var(--text-disabled); padding: 0;">撤销</span></span></td>
             </tr>
           </tbody>
         </table>
-        <div class="pager">
-          <span>第 <span class="num">1</span> / <span class="num">3</span> 页，共 <span class="num">42</span> 条，每页 <span class="num">20</span> 条</span>
-          <span class="pager-right">
-            <span class="pager-btn">‹</span>
-            <span class="pager-btn is-cur">1</span>
-            <span class="pager-btn">2</span>
-            <span class="pager-btn">3</span>
-            <span class="pager-btn">›</span>
+        <div class="dirty-bar">
+          <span>! 有 <b class="num">1</b> 项改动未保存：<code>full_timeout_min</code> <span class="num">30</span> → <span class="num">45</span></span>
+          <span class="filter-actions">
+            <button class="btn btn-default">撤销全部</button>
+            <button class="btn btn-primary">保存并生效</button>
           </span>
         </div>
       </section>
@@ -546,210 +569,109 @@
   </div>
 </div>
 
-<!-- ===================== 风格样板：弹窗与组件态 ===================== -->
+<!-- ===================== 标注区 ===================== -->
 <div class="anno-wrap">
 
-  <h2 class="anno-title">风格样板 · 弹窗</h2>
-  <p class="anno-desc">新增与编辑共用同一表单（编辑态车牌号只读、标题改为「编辑车辆」）。遮罩 <code>--bg-mask</code>，弹窗宽 <span class="num">520px</span>，圆角 <code>--radius-lg</code>。</p>
+  <h2 class="anno-title">保存前二次确认（必须做）</h2>
+  <p class="anno-desc">阈值改动会当场改变判定行为，属于「不可悄悄发生」的操作，因此保存走确认弹窗，并把<b>新旧值差异</b>写进正文。</p>
 
-  <div class="mask-frame">
-    <div class="modal">
-      <div class="modal-head">
-        <span class="modal-title">新增车辆</span>
-        <span class="modal-close">✕</span>
-      </div>
-      <div class="modal-body">
-        <div class="form-row">
-          <span class="label req">车牌号</span>
-          <div class="input is-placeholder mono">如 京AD12345</div>
-          <span></span>
-        </div>
-        <div class="form-row">
-          <span class="label req">车型</span>
-          <div class="select">请选择<span></span></div>
-        </div>
-        <div class="form-row">
-          <span class="label req">车主</span>
-          <div class="input is-focus">吴和庆</div>
-        </div>
-        <div class="form-row">
-          <span class="label req">手机号</span>
-          <div class="input is-error mono">1380000</div>
-        </div>
-        <div class="form-row">
-          <span class="label"></span>
-          <span class="help is-error">应为 11 位手机号，用于违规短信提醒</span>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn btn-default">取消</button>
-        <button class="btn btn-primary">确定</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="specimen" style="margin-top: var(--layout-card-gap);">
-    <h4>二次确认（删除车辆）</h4>
+  <div class="specimen">
     <div class="mask-frame">
       <div class="modal confirm">
         <div class="modal-head">
-          <span class="modal-title">删除确认</span>
+          <span class="modal-title">确认修改系统参数</span>
           <span class="modal-close">✕</span>
         </div>
         <div class="confirm-body">
           <span class="confirm-icon">!</span>
           <div>
-            确认删除车牌 <b class="mono">京A12345</b>（车主：吕浩）吗？
-            <div class="help">该车辆的违规记录将保留，但不再关联车主手机号，后续无法自动提醒。</div>
+            即将修改 <span class="num">1</span> 项参数：
+            <div class="impact" style="margin: var(--space-3) 0;">
+              <div class="impact-row">
+                <span class="impact-key mono">full_timeout_min</span>
+                <span class="impact-val">
+                  <span class="diff"><span class="diff-was">30 分钟</span> → <span class="diff-now">45 分钟</span></span>
+                </span>
+              </div>
+            </div>
+            <div class="help">影响面：规则 ③「充满未移车」的判定阈值。改大后，桩充满 30～45 分钟期间<b>不再产生新的违规记录</b>；已落库的历史记录不受影响。</div>
           </div>
         </div>
         <div class="modal-foot">
           <button class="btn btn-default">取消</button>
-          <button class="btn btn-primary">确认删除</button>
+          <button class="btn btn-primary">确认修改</button>
         </div>
       </div>
     </div>
   </div>
 
-  <h2 class="anno-title">风格样板 · 状态色与组件态</h2>
-  <p class="anno-desc">状态色四档的用法边界见 <code>design-tokens.md</code> §3.2。白底上的圆点、文字、边框一律用 <code>-text</code> 档；<code>-solid</code> 档只用于有色填充块。</p>
+  <h2 class="anno-title">参数影响面（写在页面上，不靠记忆）</h2>
+  <p class="anno-desc">两个键各自影响哪条规则、哪一页，必须能一眼查到，否则调试时会来回猜。</p>
 
   <div class="specimen">
-    <h4>违规类型（occupation_record.rule_hit）</h4>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 1</span>
-      <span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 —— 最严重，恶意占用充电位</span>
+    <h4>参数 → 规则 → 页面</h4>
+    <div class="impact">
+      <div class="impact-row">
+        <span class="impact-key mono">full_timeout_min</span>
+        <span class="impact-val">规则 ③ 充满未移车（<code>rule_hit = 3</code>）· 影响第 2 页记录与第 4 页黄色分项</span>
+      </div>
+      <div class="impact-row">
+        <span class="impact-key mono">abnormal_park_min</span>
+        <span class="impact-val">规则 ② 异常占位（<code>rule_hit = 2</code>）· 影响第 2 页记录与第 4 页橙色分项</span>
+      </div>
     </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 2</span>
-      <span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">橙 —— 新能源未充电且久停</span>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 3</span>
-      <span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">黄 —— 充满超时未离场</span>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 0</span>
-      <span class="pill pill-success"><i class="dot dot-success"></i>正常</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿 —— 正常充电，不提醒</span>
-    </div>
+    <div class="help" style="margin-top: var(--space-4);">规则 ① 燃油车占位与规则 ④ 正常充电<b>不受这两个阈值控制</b>（前者靠车牌类型判定，后者是「不命中」分支），页面上不要给出误导性的「影响全部规则」文案。</div>
   </div>
 
-  <div class="specimen">
-    <h4>提醒状态（occupation_record.notify_status）</h4>
-    <div class="spec-row">
-      <span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span>
-      <span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span>
-      <span class="pill pill-danger"><i class="dot dot-danger"></i>失败</span>
-    </div>
-  </div>
+  <h2 class="anno-title">空态与异常态</h2>
+  <p class="anno-desc">这一页出问题往往比别处更严重（判定会失真），所以异常态要给出明确的修复动作。</p>
 
   <div class="specimen">
-    <h4>充电桩状态（charging_pile.status · 第 3 页）</h4>
-    <div class="spec-row">
-      <span class="pill pill-info"><i class="dot dot-info"></i>空闲</span>
-      <span class="pill pill-info" style="color: var(--brand-primary); background: var(--brand-primary-bg); border-color: var(--brand-primary-border);"><i class="dot" style="background: var(--brand-primary);"></i>充电中</span>
-      <span class="pill pill-caution"><i class="dot dot-caution"></i>已充满</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">充电中用主色蓝表示「进行中」，与违规色系区分开</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>车型标签 · 取色对应真实车牌底色</h4>
-    <div class="spec-row">
-      <span class="tag tag-new-energy">新能源</span>
-      <span class="tag tag-fuel">燃油</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿牌绿 / 蓝牌蓝，后台与现场一眼对得上</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>按钮状态</h4>
-    <div class="spec-row">
-      <span class="spec-label">主按钮</span>
-      <button class="btn btn-primary">默认</button>
-      <button class="btn btn-primary is-hover">悬浮</button>
-      <button class="btn btn-primary is-active">按下</button>
-      <button class="btn btn-primary is-disabled">禁用</button>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">次按钮 / 文字</span>
-      <button class="btn btn-default">默认</button>
-      <button class="btn btn-default is-disabled">禁用</button>
-      <span class="btn btn-link">编辑</span>
-      <span class="btn btn-danger-text">删除</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>输入框状态</h4>
-    <div class="spec-row">
-      <span class="spec-label">默认</span>
-      <div class="input">京AD12345</div>
-      <span class="spec-label">占位</span>
-      <div class="input is-placeholder">请输入车牌号</div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">聚焦</span>
-      <div class="input is-focus">吴和庆</div>
-      <span class="spec-label">错误</span>
-      <div class="input is-error">1380000</div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">禁用</span>
-      <div class="input is-disabled">京AD12345</div>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>状态色板（对照 design-tokens.md §3.2）</h4>
-    <div class="spec-row">
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-danger-solid);"></span>danger solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-danger-text);"></span>danger text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-caution-solid);"></span>caution solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-caution-text);"></span>caution text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-warning-solid);"></span>warning solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-warning-text);"></span>warning text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-success-solid);"></span>success</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-info-solid);"></span>info solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--brand-primary);"></span>primary</span>
-    </div>
-  </div>
-
-  <h2 class="anno-title">空态</h2>
-  <p class="anno-desc">本区块为第 1 周设计走查时补齐：第 0 天交付的样板页遗漏了空态，与其余 4 页不一致（见 <code>walkthrough.md</code> 发现项 F1）。</p>
-
-  <div class="specimen">
-    <h4>车辆台账为空 / 筛选无结果</h4>
+    <h4>参数键缺失 —— 表格为空</h4>
     <div class="empty">
-      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="车辆台账为空">
-        <path d="M22 56V48l5-12a5 5 0 0 1 4.6-3h22.8a5 5 0 0 1 4.6 3l5 12v8" style="fill: none; stroke: var(--border-strong);" stroke-width="2" stroke-linejoin="round"/>
-        <line x1="22" y1="56" x2="64" y2="56" style="stroke: var(--border-strong);" stroke-width="2"/>
-        <circle cx="31" cy="63" r="5" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
-        <circle cx="55" cy="63" r="5" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
-        <path d="M82 40h20M82 52h16M82 64h20" style="stroke: var(--border-strong);" stroke-width="2" stroke-linecap="round"/>
+      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="参数表为空">
+        <rect x="26" y="18" width="68" height="54" rx="6" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
+        <line x1="38" y1="34" x2="82" y2="34" style="stroke: var(--border-strong);" stroke-width="2"/>
+        <line x1="38" y1="46" x2="70" y2="46" style="stroke: var(--border-strong);" stroke-width="2"/>
+        <line x1="38" y1="58" x2="76" y2="58" style="stroke: var(--border-strong);" stroke-width="2"/>
       </svg>
-      <p class="empty-title">还没有车辆信息</p>
-      <p class="empty-desc">规则引擎判定「燃油占位 / 异常占位」时，需要按车牌查到车主手机号才能提醒。先录入车辆，或使用「批量导入」。</p>
-      <button class="btn btn-primary">＋ 新增车辆</button>
+      <p class="empty-title">system_config 表为空</p>
+      <p class="empty-desc">说明建表后未写入种子数据。后端启动时会自动建表 + 插种子，若此处为空请先确认 <code>backend/sql/schema.sql</code> 的种子是否执行成功——阈值缺失会让规则 ② ③ <b>无法判定</b>，不是小问题。</p>
+      <button class="btn btn-default">↻ 重新加载</button>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>取值非法 —— 行内校验</h4>
+    <div class="spec-row">
+      <span class="spec-label">非法值</span>
+      <span class="field-append" style="border-color: var(--state-danger-solid);">
+        <span class="input-num">
+          <span class="input-num-step">−</span>
+          <span class="input-num-val mono">0</span>
+          <span class="input-num-step">＋</span>
+        </span>
+        <span class="append-suffix">分钟</span>
+      </span>
+    </div>
+    <div class="spec-row" style="margin-bottom: 0;">
+      <span class="spec-label"></span>
+      <span class="help is-error">应为 <b>大于 0 的整数</b>（分钟）。填 0 会让规则恒不命中，等于关掉了这条违规判定。</span>
     </div>
   </div>
 
   <h2 class="anno-title">标注说明</h2>
-  <p class="anno-desc">本页是 6 页后台的**风格样板**：后续 5 页沿用同一套骨架（侧边栏 220px + 顶栏 56px + 内容留白 24px）、同一套卡片与表格规格。</p>
+  <p class="anno-desc">契约 §7 明令：阈值一律从 <code>system_config</code> 读取，<b>严禁硬编码</b>。本页是这套约束的 UI 出口。</p>
   <ol class="notes">
-    <li><b>表格列严格等于 vehicle 全字段</b>：车牌号 / 车型 / 车主 / 手机号 / 录入时间，另加「操作」列。字段与列一一对应，未新增业务字段（依据 CONTRACT.md §1.1 约定）。</li>
-    <li><b>手机号脱敏显示</b>（<code>138****6621</code>）：仅改展示、不改字段，但<b>契约未规定</b>，需吕浩确认是否采纳；若不采纳则直接显示明文。</li>
-    <li><b>车牌号与时间用等宽字形</b>（<code>--font-family-mono</code> + <code>tabular-nums</code>），保证多行竖直对齐、避免 0/O 误读。</li>
-    <li><b>车型标签取车牌底色</b>：新能源用绿牌绿、燃油用蓝牌蓝。与「正常绿」同色系但处于不同列、不同语义，不构成歧义。</li>
-    <li><b>新增橙色</b>（<code>--state-caution-*</code>）：第 0 天文档只列了「违规红 / 正常绿 / 警告黄」三色，但三种违规类型在违规记录页与统计页需要可区分，故补一档橙。纯视觉增补，<b>不改契约</b>。</li>
-    <li><b>第 6 页「实时识别预览」置灰</b>：依赖预留端点 <code>GET /api/frame/latest</code>，第 1 周不做，导航先占位（CONTRACT.md §1.1、§6.5）。</li>
-    <li><b>侧边导航顺序即 CONTRACT.md §1.1 的 6 页顺序</b>，吕浩实现前端路由时可直接照此排布。</li>
-    <li><b>颜色全部走令牌</b>：本文件除自动生成的 tokens 快照外，不出现任何裸色值；<code>tools/check_tokens.py</code> 会自动校验这一点。</li>
-    <li><b>空态（第 1 周补齐）</b>：文案同时覆盖「台账为空」与「筛不出结果」两种触发原因，前者引导新增、后者引导重置筛选。空态是 6 页统一的交付项，缺了会在走查中被 <code>check_tokens.py</code> 第 5 项直接拦下。</li>
+    <li><b>表格列 = system_config 全字段</b>：参数键 <code>key</code> / 参数值 <code>value</code> / 说明 <code>note</code>，另加「操作」列。字段与列一一对应，未新增字段。</li>
+    <li><b>只放契约里已有的两个键</b>：本期 <code>CONTRACT.md</code> §7 只定义了 <code>full_timeout_min</code> 与 <code>abnormal_park_min</code>。非阈值键（如后续的 OCPP 开关）按同一张表展示、置为只读并用 tooltip 说明用途，但<b>本期不预造键名</b>——造了就会在联调时对不上。</li>
+    <li><b>行内编辑而非弹窗</b>：只有 2 个值，弹窗反而增加层级。用 <code>el-input-number</code> 行内改，单位「分钟」用 <code>append</code> 后缀，避免用户把单位理解成秒。</li>
+    <li><b>「已修改未保存」必须可见</b>：改动项给主色描边 + 光晕（<code>--brand-primary</code> + <code>--brand-primary-bg</code>），并在表底压一条黄色未保存条（<code>--state-warning-*</code>），列出「哪个键、从多少改到多少」。未改动行的「保存/撤销」置灰，避免误以为整页都要保存。</li>
+    <li><b>保存走二次确认，且把 diff 写进正文</b>：这是全站唯一能改变判定结果的入口，属于高风险操作。确认框里写清「改前 → 改后」和影响面，不做「确定要保存吗」这种无信息量文案。</li>
+    <li><b>不提供「恢复默认」按钮</b>：契约未定义默认值的重置接口，硬做一个只在前端改数字的「恢复默认」会造成「看起来恢复了但库里没改」的假象。需要的键把默认值（30）写在说明列里，用户手动改回去即可。</li>
+    <li><b>⚠️ 待确认（汤瑾睿）</b>：确认框里写了「已落库的历史记录不受影响」——即改阈值<b>不回溯重算</b>历史判定。这是设计侧按「判定发生在落库时刻」推出的行为，<b>需汤瑾睿确认规则引擎实现一致</b>；若引擎会回溯重算，这句话必须删掉并另写说明。</li>
+    <li><b>⚠️ 待确认（吕浩）</b>：保存参数需要写接口（<code>PUT/POST /api/config</code> 之类），<b>契约 §6 尚未定义</b>。第 1 周若不做本页交互，可先只读展示；若要可编辑，须走「先改 <code>CONTRACT.md</code> → @全员 → 升版本号」流程，不得由前端私定路径。</li>
+    <li><b>等宽处理</b>：参数键、阈值数字均用 <code>--font-family-mono</code> + <code>tabular-nums</code>，与全站定长标识一致。</li>
   </ol>
 </div>
 

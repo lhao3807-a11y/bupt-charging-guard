@@ -1,0 +1,283 @@
+/* ============================================================================
+ * 「桩」点北邮 · 充电桩车位防占系统 —— 设计令牌 Design Tokens
+ * ----------------------------------------------------------------------------
+ * 版本   v1.0
+ * 负责人 吴和庆（UI / 美术）
+ * 依据   docs/CONTRACT.md v1.1 §1.1 后台页面清单（6 页）
+ * 说明   docs/design/design-tokens.md（含每条颜色的 WCAG 对比度实测值）
+ * 校验   python docs/design/tools/check_tokens.py
+ * ----------------------------------------------------------------------------
+ * ⚠️ 本文件是 docs/design/tokens.css 的**逐字副本**，请勿直接编辑。
+ *    上游改动后同步执行：
+ *        cp docs/design/tokens.css frontend/src/styles/tokens.css
+ *    校验脚本 docs/design/tools/check_tokens.py 以 docs/design/tokens.css 为准；
+ *    如需比对两文件一致性，见 frontend/scripts/copy-tokens.mjs（预留）。
+ *
+ * 引入方式（前端 main.ts，必须早于 element-plus 样式）：
+ *     import '@/styles/tokens.css'
+ *     import 'element-plus/dist/index.css'
+ * 改名说明：本文件是**唯一色彩来源**。线框与后续页面里禁止出现裸色值，
+ *           一律 var(--token) 引用；新增颜色必须先加到这里并让校验脚本通过。
+ * ========================================================================== */
+
+:root {
+  /* ==========================================================================
+   * 1. 品牌主色 Brand
+   *    「电」的青蓝。用作：主按钮、链接、选中态、进行中状态、图表主色。
+   * ========================================================================== */
+  --brand-primary:            #1668E3;
+  --brand-primary-hover:      #145ECC;
+  --brand-primary-active:     #1253B6;
+  --brand-primary-bg:         #F0F6FF;  /* 浅底：选中行、主色标签底 */
+  --brand-primary-border:     #BFDBFF;
+
+  /* Element Plus 主色梯度（mix(white, primary, i*10%) 计算所得，勿手改） */
+  --brand-primary-light-3:    #5C95EB;
+  --brand-primary-light-5:    #8AB4F1;
+  --brand-primary-light-7:    #B9D2F7;
+  --brand-primary-light-8:    #D0E1F9;
+  --brand-primary-light-9:    #E8F0FC;
+
+  /* ==========================================================================
+   * 2. 语义状态色 Semantic State Colors
+   * --------------------------------------------------------------------------
+   * 每种状态固定 4 档，各有**明确使用边界**，不可串用：
+   *   -solid   实心填充。只允许出现在有色块上（按钮底、标签实心底、进度条）。
+   *            在 #FFFFFF 上对比度不足 4.5，**禁止**直接当白底文字/图形用。
+   *   -text    白底文字与图形。白底上任何可见文字、图标、圆点、色条、边框线
+   *            一律用这一档，实测 ≥ 4.5:1，满足 WCAG AA。
+   *   -bg      浅底填充。用于标签底、提示条底、图表区块底。
+   *   -border  浅底上的描边。
+   * 四档配对的对比度实测值见 design-tokens.md §3.2。
+   * ========================================================================== */
+
+  /* 违规红 —— 燃油车占位（最严重）、提醒失败 */
+  --state-danger-solid:       #CF1322;
+  --state-danger-text:        #A8071A;
+  --state-danger-bg:          #FFF1F0;
+  --state-danger-border:      #FFCCC7;
+
+  /* 异常橙 —— 新能源车未充电久停、充电桩已充满（需关注） */
+  --state-caution-solid:      #FA8C16;
+  --state-caution-text:       #C4320A;
+  --state-caution-bg:         #FFF7E6;
+  --state-caution-border:     #FFD591;
+
+  /* 超时黄 —— 新能源车充满未移车、未提醒（待处理） */
+  --state-warning-solid:      #FAAD14;
+  --state-warning-text:       #946200;
+  --state-warning-bg:         #FFFBE6;
+  --state-warning-border:     #FFE58F;
+
+  /* 正常绿 —— 正常充电、已提醒、检测通过 */
+  --state-success-solid:      #0E7A2E;
+  --state-success-text:       #0E7A2E;
+  --state-success-bg:         #F0FBF2;
+  --state-success-border:     #B7EB8F;
+
+  /* 中性 —— 空闲、默认/无状态、次要信息 */
+  --state-info-solid:         #8A919F;
+  --state-info-text:          #4E5969;
+  --state-info-bg:            #F2F3F5;
+  --state-info-border:        #D9D9D9;
+
+  /* ==========================================================================
+   * 3. 业务标签色 Business Tags
+   * --------------------------------------------------------------------------
+   * 车型标签取色直接对应**真实车牌底色**（绿牌 = 新能源 / 蓝牌 = 燃油），
+   * 让后台与现场一眼对得上。详见 design-tokens.md §3.3 的列级语义说明。
+   * ========================================================================== */
+  --plate-new-energy-text:    #0E7A2E;  /* 新能源（绿牌） */
+  --plate-new-energy-bg:      #F0FBF2;
+  --plate-new-energy-border:  #B7EB8F;
+
+  --plate-fuel-text:          #1D4FD8;  /* 燃油（蓝牌） */
+  --plate-fuel-bg:            #EAF1FF;
+  --plate-fuel-border:        #ADC6FF;
+
+  /* ==========================================================================
+   * 4. 中性色 Neutral
+   * ========================================================================== */
+  --text-primary:             #1F2329;  /* 标题、表格主字段、正文 */
+  --text-secondary:           #4E5969;  /* 次要正文、表格副字段 */
+  --text-tertiary:            #64707D;  /* 说明、单位、表单提示（三底均 ≥4.5，可用于正式信息） */
+  --text-disabled:            #C9CDD4;  /* 禁用态；WCAG 1.4.3 明确豁免，不可承载有效信息 */
+  --text-inverse:             #FFFFFF;
+
+  --border-base:              #E5E6EB;  /* 表格线、分割线、输入框描边 */
+  --border-strong:            #C9CDD4;  /* 需要强调的描边、表头下边线 */
+  --border-light:             #F2F3F5;
+
+  --fill-light:               #F2F3F5;  /* 表头底、斑马纹、禁用底 */
+  --bg-page:                  #F7F8FA;  /* 页面底色 */
+  --bg-container:             #FFFFFF;  /* 卡片 / 表格 / 弹窗底 */
+  --bg-mask:                  rgba(31, 35, 41, 0.5);  /* 弹窗遮罩 */
+
+  /* ==========================================================================
+   * 5. 字体与排版 Typography
+   * ========================================================================== */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "PingFang SC",
+                      "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  /* 车牌号、桩 ID 等**定长标识**一律用等宽，保证多行对齐、避免 0/O 误读 */
+  --font-family-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New",
+                      monospace;
+
+  --font-size-xs:             12px;  /* 标签、角标、图表刻度 */
+  --font-size-sm:             13px;  /* 表格辅助列、表单提示 */
+  --font-size-base:           14px;  /* 正文与表格主字段（基准） */
+  --font-size-md:             16px;  /* 卡片标题、弹窗标题 */
+  --font-size-lg:             20px;  /* 页面标题 */
+  --font-size-xl:             24px;  /* 统计卡大数 */
+  --font-size-2xl:            30px;  /* 首页/大屏主指标 */
+
+  --font-weight-regular:      400;
+  --font-weight-medium:       500;
+  --font-weight-semibold:     600;
+
+  --line-height-tight:        1.3;    /* 标题 */
+  --line-height-base:         1.5714; /* 正文：14px × 1.5714 ≈ 22px */
+  --line-height-relaxed:      1.7;    /* 长段说明 */
+
+  /* 表格数字对齐：等宽数字，避免列跳动 */
+  --font-variant-numeric:     tabular-nums;
+
+  /* ==========================================================================
+   * 6. 圆角 Radius
+   * ========================================================================== */
+  --radius-xs:                2px;   /* 标签、小徽标 */
+  --radius-sm:                4px;   /* 默认：按钮、输入框、卡片 */
+  --radius-md:                6px;   /* 表格容器、筛选卡 */
+  --radius-lg:                8px;   /* 弹窗、抽屉 */
+  --radius-xl:                12px;  /* 统计卡、特色模块 */
+  --radius-pill:              999px; /* 状态胶囊 */
+
+  /* ==========================================================================
+   * 7. 间距 Spacing（4px 栅格，只允许取这些值）
+   * ========================================================================== */
+  --space-1:                  4px;
+  --space-2:                  8px;
+  --space-3:                  12px;
+  --space-4:                  16px;
+  --space-5:                  20px;
+  --space-6:                  24px;
+  --space-8:                  32px;
+  --space-10:                 40px;
+  --space-12:                 48px;
+
+  /* ==========================================================================
+   * 8. 阴影 Shadow
+   * ========================================================================== */
+  --shadow-sm:                0 1px 2px rgba(31, 35, 41, 0.06);
+  --shadow-md:                0 2px 8px rgba(31, 35, 41, 0.08);   /* 卡片悬浮 */
+  --shadow-lg:                0 6px 16px rgba(31, 35, 41, 0.12);  /* 弹窗、下拉 */
+
+  /* ==========================================================================
+   * 9. 布局骨架 Layout
+   *    桌面后台，设计基准宽度 1440px，最小支持 1280px。
+   * ========================================================================== */
+  --layout-sidebar-width:           220px;
+  --layout-sidebar-collapsed-width: 64px;
+  --layout-header-height:           56px;
+  --layout-gutter:                  24px;  /* 页面左右留白 */
+  --layout-max-width:               1440px;/* 内容区最大宽 */
+  --layout-card-gap:                var(--space-4);
+
+  --z-dropdown:               1000;
+  --z-sticky:                 1010;
+  --z-modal:                  2000;
+  --z-message:                3000;
+
+  /* ==========================================================================
+   * 10. Element Plus 主题覆盖
+   *     把上面定义的语义色接进 Element Plus 变量，组件库无需逐组件改样式。
+   *     注意：--el-color-*-light-3/5/7/8/9 用 color-mix() 现算（等价于
+   *     SCSS mix($white, $color, i*10%)）。若目标浏览器不支持 color-mix，
+   *     可按同一公式预先烘焙成十六进制后再覆盖（见 design-tokens.md §9）。
+   * ========================================================================== */
+  --el-color-primary:              var(--brand-primary);
+  --el-color-primary-hover:        var(--brand-primary-hover);
+  --el-color-primary-light-3:      var(--brand-primary-light-3);
+  --el-color-primary-light-5:      var(--brand-primary-light-5);
+  --el-color-primary-light-7:      var(--brand-primary-light-7);
+  --el-color-primary-light-8:      var(--brand-primary-light-8);
+  --el-color-primary-light-9:      var(--brand-primary-light-9);
+  --el-color-primary-dark-2:       var(--brand-primary-active);
+
+  --el-color-success:              var(--state-success-solid);
+  --el-color-success-light-3:      color-mix(in srgb, #FFFFFF 30%, var(--state-success-solid));
+  --el-color-success-light-5:      color-mix(in srgb, #FFFFFF 50%, var(--state-success-solid));
+  --el-color-success-light-7:      color-mix(in srgb, #FFFFFF 70%, var(--state-success-solid));
+  --el-color-success-light-8:      color-mix(in srgb, #FFFFFF 80%, var(--state-success-solid));
+  --el-color-success-light-9:      var(--state-success-bg);
+  --el-color-success-dark-2:       color-mix(in srgb, #000000 20%, var(--state-success-solid));
+
+  --el-color-warning:              var(--state-warning-solid);
+  --el-color-warning-light-3:      color-mix(in srgb, #FFFFFF 30%, var(--state-warning-solid));
+  --el-color-warning-light-5:      color-mix(in srgb, #FFFFFF 50%, var(--state-warning-solid));
+  --el-color-warning-light-7:      color-mix(in srgb, #FFFFFF 70%, var(--state-warning-solid));
+  --el-color-warning-light-8:      color-mix(in srgb, #FFFFFF 80%, var(--state-warning-solid));
+  --el-color-warning-light-9:      var(--state-warning-bg);
+  --el-color-warning-dark-2:       color-mix(in srgb, #000000 20%, var(--state-warning-solid));
+
+  --el-color-danger:               var(--state-danger-solid);
+  --el-color-danger-light-3:       color-mix(in srgb, #FFFFFF 30%, var(--state-danger-solid));
+  --el-color-danger-light-5:       color-mix(in srgb, #FFFFFF 50%, var(--state-danger-solid));
+  --el-color-danger-light-7:       color-mix(in srgb, #FFFFFF 70%, var(--state-danger-solid));
+  --el-color-danger-light-8:       color-mix(in srgb, #FFFFFF 80%, var(--state-danger-solid));
+  --el-color-danger-light-9:       var(--state-danger-bg);
+  --el-color-danger-dark-2:        color-mix(in srgb, #000000 20%, var(--state-danger-solid));
+
+  --el-color-error:                var(--state-danger-solid);
+  --el-color-error-light-9:        var(--state-danger-bg);
+  --el-color-info:                 var(--state-info-solid);
+  --el-color-info-light-3:         color-mix(in srgb, #FFFFFF 30%, var(--state-info-solid));
+  --el-color-info-light-5:         color-mix(in srgb, #FFFFFF 50%, var(--state-info-solid));
+  --el-color-info-light-7:         color-mix(in srgb, #FFFFFF 70%, var(--state-info-solid));
+  --el-color-info-light-8:         color-mix(in srgb, #FFFFFF 80%, var(--state-info-solid));
+  --el-color-info-light-9:         var(--state-info-bg);
+  --el-color-info-dark-2:          color-mix(in srgb, #000000 20%, var(--state-info-solid));
+
+  --el-text-color-primary:         var(--text-primary);
+  --el-text-color-regular:         var(--text-secondary);
+  --el-text-color-secondary:       var(--text-tertiary);
+  --el-text-color-placeholder:     var(--text-tertiary);
+  --el-text-color-disabled:        var(--text-disabled);
+  --el-text-color-inverse:         var(--text-inverse);
+
+  --el-border-color:               var(--border-base);
+  --el-border-color-light:         var(--border-base);
+  --el-border-color-lighter:       var(--border-light);
+  --el-border-color-extra-light:   var(--border-light);
+  --el-border-color-dark:          var(--border-strong);
+  --el-border-color-darker:        var(--border-strong);
+
+  --el-fill-color:                 var(--fill-light);
+  --el-fill-color-light:           var(--fill-light);
+  --el-fill-color-lighter:         var(--border-light);
+  --el-fill-color-blank:           var(--bg-container);
+
+  --el-bg-color:                   var(--bg-container);
+  --el-bg-color-page:              var(--bg-page);
+  --el-bg-color-overlay:           var(--bg-container);
+
+  --el-font-family:                var(--font-family-base);
+  --el-font-size-base:             var(--font-size-base);
+  --el-font-size-small:            var(--font-size-sm);
+  --el-font-size-extra-small:      var(--font-size-xs);
+  --el-font-size-large:            var(--font-size-md);
+
+  --el-border-radius-base:         var(--radius-sm);
+  --el-border-radius-small:        var(--radius-xs);
+  --el-border-radius-round:        var(--radius-pill);
+
+  --el-box-shadow:                 var(--shadow-lg);
+  --el-box-shadow-light:           var(--shadow-md);
+  --el-box-shadow-lighter:         var(--shadow-sm);
+  --el-box-shadow-dark:            var(--shadow-lg);
+
+  --el-disabled-bg-color:          var(--fill-light);
+  --el-disabled-text-color:        var(--text-disabled);
+  --el-disabled-border-color:      var(--border-base);
+
+  --el-mask-color:                 var(--bg-mask);
+}

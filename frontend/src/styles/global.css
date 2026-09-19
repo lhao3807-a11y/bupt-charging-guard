@@ -1,0 +1,199 @@
+/* ============================================================================
+ * 全局基础样式 —— 全部取值来自 tokens.css，**不出现裸色值**
+ * ----------------------------------------------------------------------------
+ * 依据 docs/design/component-inventory.md §2 组件规格总表
+ * ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--brand-primary);
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------- 等宽字族 */
+
+/* 车牌号 / 桩 ID / 手机号 / 时间：定长标识一律等宽，保证多行对齐、避免 0/O 误读
+   （tokens.css §5 说明） */
+.mono {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: var(--font-variant-numeric);
+  letter-spacing: 0.02em;
+}
+
+/* 数字对齐：统计大数、表格数字列 */
+.tabular {
+  font-variant-numeric: var(--font-variant-numeric);
+}
+
+/* ------------------------------------------------------------ 表格规格 */
+
+/* 表头底色 --fill-light + 表头字色 --text-secondary（规格 ≤44px）
+   悬浮行 --brand-primary-bg —— 见 component-inventory.md §2 */
+.el-table th.el-table__cell {
+  background-color: var(--fill-light) !important;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  height: 44px;
+}
+
+.el-table td.el-table__cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+  background-color: var(--brand-primary-bg);
+}
+
+.el-table {
+  --el-table-border-color: var(--border-light);
+  --el-table-text-color: var(--text-primary);
+  --el-table-header-text-color: var(--text-secondary);
+  font-size: var(--font-size-base);
+}
+
+/* ------------------------------------------------------------ 卡片规格 */
+
+/* 卡片：白底 + --border-base + --shadow-sm，关掉 el-card 自带阴影
+   （component-inventory.md §3「建议关掉 el-card 自带阴影改用 --shadow-sm」） */
+.el-card {
+  --el-card-border-color: var(--border-base);
+  --el-card-border-radius: var(--radius-md);
+  --el-card-padding: var(--space-5);
+  box-shadow: var(--shadow-sm) !important;
+  border: 1px solid var(--border-base);
+}
+
+.el-card__header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* ------------------------------------------------------------ 表单规格 */
+
+/* 输入框/下拉/日期 高度 32px、圆角 --radius-sm */
+.el-input__wrapper,
+.el-select__wrapper {
+  border-radius: var(--radius-sm);
+}
+
+.el-input--default .el-input__wrapper,
+.el-select--default .el-select__wrapper {
+  min-height: 32px;
+}
+
+.el-form-item__label {
+  color: var(--text-secondary);
+}
+
+/* 分页：当前页 --brand-primary 描边 + 字色 */
+.el-pagination.is-background .el-pager li.is-active {
+  color: var(--text-inverse);
+  background-color: var(--brand-primary);
+}
+
+.el-pagination .el-pager li.is-active {
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 侧边导航项：高 40px、圆角 --radius-sm、选中 --brand-primary-bg + --brand-primary */
+.el-menu {
+  border-right: none !important;
+}
+
+.el-menu-item {
+  height: 40px;
+  line-height: 40px;
+  margin: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}
+
+.el-menu-item:hover {
+  background-color: var(--brand-primary-bg);
+  color: var(--brand-primary);
+}
+
+.el-menu-item.is-active {
+  background-color: var(--brand-primary-bg);
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 禁用项（第 6 页「实时识别预览」第 1 周预留） */
+.el-menu-item.is-disabled {
+  opacity: 1;
+  color: var(--text-disabled) !important;
+  background-color: transparent !important;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ 弹窗规格 */
+
+/* 弹窗 520px / 圆角 --radius-lg / 标题 --font-size-md；确认弹窗 420px */
+.el-dialog {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.el-dialog__title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+/* ------------------------------------------------------------ 通用工具类 */
+
+.page-container {
+  padding: var(--space-5) var(--layout-gutter);
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+/* 滚动条：与中性色令牌一致，避免系统默认蓝 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--fill-light);
+}
