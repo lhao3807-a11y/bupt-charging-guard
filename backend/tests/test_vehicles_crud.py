@@ -17,8 +17,8 @@ import pytest
 from app import models as m
 from app.schemas import VehicleCreate, VehicleUpdate
 
-# 种子车辆（models.SEED_VEHICLES）共 4 辆：3 新能源 + 1 燃油
-SEED_COUNT = 4
+# 种子车辆（models.SEED_VEHICLES）共 6 辆：4 新能源 + 2 燃油
+SEED_COUNT = 6
 SEED_PLATE = "京AD12345"
 SEED_FUEL_PLATE = "京A88888"
 
@@ -62,13 +62,13 @@ def test_list_returns_seed_vehicles(client):
 
 
 def test_list_filter_plate_is_fuzzy_and_case_insensitive(client):
-    assert _get(client, plate="京AD")["total"] == 3
+    assert _get(client, plate="京AD")["total"] == 4
     assert _get(client, plate="京ad12345")["total"] == 1  # 小写也命中
 
 
 def test_list_filter_vtype_exact(client):
-    assert _get(client, vtype="燃油")["total"] == 1
-    assert _get(client, vtype="新能源")["total"] == 3
+    assert _get(client, vtype="燃油")["total"] == 2
+    assert _get(client, vtype="新能源")["total"] == 4
     assert client.get("/api/vehicles", params={"vtype": "混动"}).status_code == 422
 
 
@@ -79,7 +79,7 @@ def test_list_filter_owner_fuzzy(client):
 
 def test_list_total_shrinks_with_filter_and_pagination(client):
     body = _get(client, vtype="新能源", page=1, size=1)
-    assert body["total"] == 3  # total 是筛选后总数，与分页无关
+    assert body["total"] == 4  # total 是筛选后总数，与分页无关
     assert len(body["items"]) == 1
 
 

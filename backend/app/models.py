@@ -124,11 +124,15 @@ DEFAULT_CONFIG = (
 )
 
 #: 种子车辆（与 schema.sql 的 INSERT 一致）
+#: 前 4 辆与 SEED_PILES 一一对应（服务四条规则）；后 2 辆为「车辆信息管理」页准备，
+#: 保证新能源/燃油两类车型标签都能取到色（契约 v1.3 任务 C）。
 SEED_VEHICLES = (
     ("京AD12345", VTYPE_NEW_ENERGY, "汤瑾睿", "13800000001"),
     ("京AD67890", VTYPE_NEW_ENERGY, "吕浩", "13800000002"),
     ("京AD24680", VTYPE_NEW_ENERGY, "吴和庆", "13800000003"),
     ("京A88888", VTYPE_FUEL, "张伟", "13800000004"),
+    ("京AD33333", VTYPE_NEW_ENERGY, "王芳", "13800000005"),
+    ("京N66666", VTYPE_FUEL, "李明", "13800000006"),
 )
 
 #: 种子充电桩（与 schema.sql 的 INSERT 一致）
