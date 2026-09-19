@@ -6,6 +6,9 @@ MySQL 8 真机验证延至第 2 周接入真实库时执行（以 schema.sql 为
 
 from __future__ import annotations
 
+import os
+import re
+
 import pytest
 from app import models as m
 from app.db import Base
@@ -34,8 +37,9 @@ def db():
 
 def test_tables_created_for_four_entities(db):
     """契约 §3 四表都能建、种子都灌得进去。"""
-    assert db.query(m.Vehicle).count() == len(m.SEED_VEHICLES) == 4
+    assert db.query(m.Vehicle).count() == len(m.SEED_VEHICLES) >= 4
     assert db.query(m.ChargingPile).count() == len(m.SEED_PILES) == 4
+    # 契约 §7 只定义两项业务阈值，不擅自扩表（识别模式走环境变量，不入库）
     assert db.query(m.SystemConfig).count() == len(m.DEFAULT_CONFIG) == 2
     assert db.query(m.OccupationRecord).count() == 0  # 违规记录由闭环产生
 
@@ -90,3 +94,48 @@ def test_seed_is_idempotent(db):
     before = db.query(m.Vehicle).count()
     m.seed_db(db)
     assert db.query(m.Vehicle).count() == before
+
+
+# ---------------------------------------------------------------------------
+# 两个事实源的一致性：models.py 的种子 vs 正式交付物 schema.sql
+# ---------------------------------------------------------------------------
+#: 仓库根目录（本文件在 <repo>/backend/tests/ 下）
+_REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_SCHEMA_SQL = os.path.join(_REPO, "backend", "sql", "schema.sql")
+
+_INSERT_ROW_RE = re.compile(r"\(([^()]*)\)")
+_QUOTED_RE = re.compile(r"'([^']*)'")
+
+
+def _insert_rows(table: str) -> list[list[str]]:
+    """抽取 schema.sql 里某张表 INSERT 语句的每行字符串字面量（跳过列名列表）。"""
+    with open(_SCHEMA_SQL, encoding="utf-8") as fh:
+        sql = fh.read()
+    match = re.search(rf"INSERT INTO {table}\b.*?;", sql, re.DOTALL)
+    assert match, f"schema.sql 中找不到 {table} 的 INSERT 语句"
+
+    rows = []
+    for raw_row in _INSERT_ROW_RE.findall(match.group(0)):
+        values = _QUOTED_RE.findall(raw_row)
+        if len(values) >= 2:  # 列名列表（`plate`, `vtype`, ...）不含引号，会被跳过
+            rows.append(values)
+    return rows
+
+
+def test_schema_sql_vehicle_seeds_match_models():
+    """`schema.sql` 的车辆种子必须与 `models.SEED_VEHICLES` 一致（车牌 + 车型）。
+
+    两处都是事实源（一个给 MySQL 8，一个给开发期 SQLite），漂了就会出现
+    「本地演示有 6 辆车、真机库里只有 4 辆」这类只在换库时才暴露的问题。
+    """
+    from_sql = {(row[0], row[1]) for row in _insert_rows("vehicle")}
+    from_models = {(plate, vtype) for plate, vtype, _, _ in m.SEED_VEHICLES}
+    assert from_sql == from_models
+
+
+def test_schema_sql_config_keys_match_models():
+    """`schema.sql` 的系统参数键必须与 `models.DEFAULT_CONFIG` 一致（且只有契约 §7 那两项）。"""
+    from_sql = {row[0] for row in _insert_rows("system_config")}
+    from_models = {key for key, _, _ in m.DEFAULT_CONFIG}
+    assert from_sql == from_models
+    assert from_sql == {"full_timeout_min", "abnormal_park_min"}
