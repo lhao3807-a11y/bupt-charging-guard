@@ -95,7 +95,7 @@ def test_recognize_frame_structure_matches_contract():
     x, y, w, h = result["bbox"]
     assert w > 0 and h > 0
     # 车牌框应落在标注框附近（±30px，检测有抖动是正常的）
-    ex, ey, ew, eh = m["bbox_plate"]
+    ex, ey, _ew, _eh = m["bbox_plate"]
     assert abs(x - ex) < 30 and abs(y - ey) < 30
     # 合成牌 OCR 大概率失败 → plate 允许为空，但类型必须是 str
     assert isinstance(result["plate"], str)
