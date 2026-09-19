@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>车辆信息管理 · 线框（风格样板） — 桩点北邮</title>
+<title>违规记录查询 · 线框（第 2 页 / Demo 验收项） — 桩点北邮</title>
 
 <!-- ==========================================================================
      tokens 快照 · 自动生成，请勿手改
@@ -369,7 +369,27 @@
   .swatch { display: flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-xs); color: var(--text-secondary); }
   .swatch-chip { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-base); }
 
-  /* ---------- 空态（走查补齐：第 0 天交付时遗漏，与其余 4 页对齐） ---------- */
+  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
+  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
+  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  code {
+    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
+    background: var(--fill-light); color: var(--text-secondary);
+    padding: 1px var(--space-1); border-radius: var(--radius-xs);
+  }
+
+  /* ---------- 本页新增：提示条 / 空态 ---------- */
+  .alert {
+    display: flex; gap: var(--space-2); align-items: flex-start;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid; border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);
+  }
+  .alert-info { color: var(--state-info-text); background: var(--state-info-bg); border-color: var(--state-info-border); }
+  .alert-warning { color: var(--state-warning-text); background: var(--state-warning-bg); border-color: var(--state-warning-border); }
+  .alert b { font-weight: var(--font-weight-medium); }
+
+  .empty-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--layout-card-gap); }
   .empty {
     border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
     padding: var(--space-8) var(--space-4) var(--space-8);
@@ -379,23 +399,14 @@
   .empty-title { font-size: var(--font-size-base); color: var(--text-secondary); margin: 0 0 var(--space-1); }
   .empty-desc { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0 0 var(--space-4); }
   .empty-desc:last-child { margin-bottom: 0; }
-
-  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
-  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
-  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
-  code {
-    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
-    background: var(--fill-light); color: var(--text-secondary);
-    padding: 1px var(--space-1); border-radius: var(--radius-xs);
-  }
 </style>
 </head>
 <body>
 
-<!-- ===================== 线框主体：车辆信息管理 ===================== -->
+<!-- ===================== 线框主体：违规记录查询 ===================== -->
 <div class="shell">
 
-  <!-- 侧边导航 —— 对应 CONTRACT.md v1.1 §1.1 后台 6 页 -->
+  <!-- 侧边导航 —— 顺序即 CONTRACT.md §1.1 的 6 页顺序，第 6 页第 1 周预留 -->
   <aside class="sidebar">
     <div class="logo">
       <span class="logo-mark">桩</span>
@@ -405,8 +416,8 @@
       </span>
     </div>
     <nav class="nav">
-      <a class="nav-item is-active"><span class="nav-idx">1</span>车辆信息管理</a>
-      <a class="nav-item"><span class="nav-idx">2</span>违规记录查询</a>
+      <a class="nav-item"><span class="nav-idx">1</span>车辆信息管理</a>
+      <a class="nav-item is-active"><span class="nav-idx">2</span>违规记录查询</a>
       <a class="nav-item"><span class="nav-idx">3</span>充电状态展示</a>
       <a class="nav-item"><span class="nav-idx">4</span>报警统计</a>
       <a class="nav-item"><span class="nav-idx">5</span>系统参数配置</a>
@@ -418,7 +429,7 @@
 
   <div class="main">
     <header class="header">
-      <span class="crumb">后台管理 / <b>车辆信息管理</b></span>
+      <span class="crumb">后台管理 / <b>违规记录查询</b></span>
       <div class="header-right">
         <span class="crumb">演示环境 · 数据来自 SQLite 开发库</span>
         <span class="avatar">吴</span>
@@ -430,12 +441,11 @@
       <!-- 页头 -->
       <div class="page-head">
         <div>
-          <h1 class="page-title">车辆信息管理</h1>
-          <p class="page-desc">维护车辆台账，作为规则引擎判定「燃油占位 / 异常占位」的车主与手机号来源。</p>
+          <h1 class="page-title">违规记录查询</h1>
+          <p class="page-desc">记录由规则引擎命中时自动落库（数据源 occupation_record），本页不接受手工新增与编辑。</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-default">批量导入</button>
-          <button class="btn btn-primary">＋ 新增车辆</button>
+          <button class="btn btn-default">↻ 刷新</button>
         </div>
       </div>
 
@@ -444,7 +454,7 @@
         <div class="card-body">
           <div class="filter-grid">
             <div class="field">
-              <span class="label">车牌号</span>
+              <span class="label">车牌</span>
               <div class="input is-placeholder">支持模糊匹配，如 京AD</div>
             </div>
             <div class="field">
@@ -452,11 +462,19 @@
               <div class="select">全部<span></span></div>
             </div>
             <div class="field">
-              <span class="label">车主</span>
-              <div class="input is-placeholder">姓名关键字</div>
+              <span class="label">桩 ID</span>
+              <div class="input is-placeholder mono">如 PILE-001</div>
             </div>
             <div class="field">
-              <span class="label">录入时间</span>
+              <span class="label">命中规则</span>
+              <div class="select">全部<span></span></div>
+            </div>
+            <div class="field">
+              <span class="label">提醒状态</span>
+              <div class="select">全部<span></span></div>
+            </div>
+            <div class="field">
+              <span class="label">命中时间</span>
               <div class="select">2026-09-01 ~ 2026-09-13<span></span></div>
             </div>
             <div class="field">
@@ -473,70 +491,100 @@
       <!-- 表格 -->
       <section class="card">
         <div class="table-toolbar">
-          <h3>车辆列表</h3>
-          <span class="count">共 <span class="num">42</span> 条</span>
+          <h3>违规记录</h3>
+          <span class="count">共 <span class="num">68</span> 条（total 来自响应，不自行累加）</span>
         </div>
         <table>
           <thead>
             <tr>
-              <th style="width: 160px;">车牌号</th>
-              <th style="width: 120px;">车型</th>
-              <th style="width: 140px;">车主</th>
-              <th style="width: 160px;">手机号</th>
-              <th style="width: 200px;">录入时间</th>
-              <th style="width: 140px;">操作</th>
+              <th style="width: 72px;">ID</th>
+              <th style="width: 150px;">车牌</th>
+              <th style="width: 110px;">车型</th>
+              <th style="width: 120px;">桩 ID</th>
+              <th style="width: 140px;">命中规则</th>
+              <th style="width: 190px;">命中时间</th>
+              <th style="width: 120px;">提醒状态</th>
+              <th style="width: 190px;">提醒时间</th>
+              <th style="width: 120px;">操作</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="col-plate mono">京AD12345</td>
-              <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>吴和庆</td>
-              <td class="mono num">138****6621</td>
-              <td class="mono num">2026-09-08 09:12:04</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
-            </tr>
-            <tr>
+              <td class="mono num">1</td>
               <td class="col-plate mono">京A12345</td>
               <td><span class="tag tag-fuel">燃油</span></td>
-              <td>吕浩</td>
-              <td class="mono num">139****0087</td>
-              <td class="mono num">2026-09-08 09:20:41</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
-            </tr>
-            <tr class="is-hover">
-              <td class="col-plate mono">京AD67890</td>
-              <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>汤瑾睿</td>
-              <td class="mono num">137****4412</td>
-              <td class="mono num">2026-09-08 10:05:17</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
+              <td class="mono">PILE-001</td>
+              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
+              <td class="mono num">2026-09-08 10:00:05</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span></td>
+              <td class="mono num" style="color: var(--text-tertiary);">—</td>
+              <td><span class="col-actions"><span class="btn btn-link">发送提醒</span></span></td>
             </tr>
             <tr>
+              <td class="mono num">2</td>
               <td class="col-plate mono">京A88888</td>
               <td><span class="tag tag-fuel">燃油</span></td>
-              <td>张伟</td>
-              <td class="mono num">136****9903</td>
-              <td class="mono num">2026-09-08 11:31:52</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
+              <td class="mono">PILE-007</td>
+              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
+              <td class="mono num">2026-09-08 09:41:22</td>
+              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>失败</span></td>
+              <td class="mono num">2026-09-08 09:42:10</td>
+              <td><span class="col-actions"><span class="btn btn-link">重试</span></span></td>
             </tr>
             <tr>
+              <td class="mono num">3</td>
+              <td class="col-plate mono">京AD67890</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-003</td>
+              <td><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></td>
+              <td class="mono num">2026-09-08 11:12:48</td>
+              <td><span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span></td>
+              <td class="mono num">2026-09-08 11:13:05</td>
+              <td><span class="col-actions"><span class="btn" style="color: var(--text-disabled); padding: 0;">已提醒</span></span></td>
+            </tr>
+            <tr class="is-hover">
+              <td class="mono num">4</td>
               <td class="col-plate mono">京AD24680</td>
               <td><span class="tag tag-new-energy">新能源</span></td>
-              <td>李娜</td>
-              <td class="mono num">135****2277</td>
-              <td class="mono num">2026-09-08 14:02:09</td>
-              <td><span class="col-actions"><span class="btn btn-link">编辑</span><span class="btn btn-danger-text">删除</span></span></td>
+              <td class="mono">PILE-005</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span></td>
+              <td class="mono num">2026-09-08 12:30:11</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span></td>
+              <td class="mono num" style="color: var(--text-tertiary);">—</td>
+              <td><span class="col-actions"><span class="btn btn-link">发送提醒</span></span></td>
+            </tr>
+            <tr>
+              <td class="mono num">5</td>
+              <td class="col-plate mono">京AD12345</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-002</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span></td>
+              <td class="mono num">2026-09-08 08:55:30</td>
+              <td><span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span></td>
+              <td class="mono num">2026-09-08 08:56:02</td>
+              <td><span class="col-actions"><span class="btn" style="color: var(--text-disabled); padding: 0;">已提醒</span></span></td>
+            </tr>
+            <tr>
+              <td class="mono num">6</td>
+              <td class="col-plate mono">京AD13579</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-006</td>
+              <td><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></td>
+              <td class="mono num">2026-09-08 07:48:59</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span></td>
+              <td class="mono num" style="color: var(--text-tertiary);">—</td>
+              <td><span class="col-actions"><span class="btn btn-link">发送提醒</span></span></td>
             </tr>
           </tbody>
         </table>
         <div class="pager">
-          <span>第 <span class="num">1</span> / <span class="num">3</span> 页，共 <span class="num">42</span> 条，每页 <span class="num">20</span> 条</span>
+          <span>第 <span class="num">1</span> / <span class="num">4</span> 页，共 <span class="num">68</span> 条，每页 <span class="num">20</span> 条</span>
           <span class="pager-right">
             <span class="pager-btn">‹</span>
             <span class="pager-btn is-cur">1</span>
             <span class="pager-btn">2</span>
             <span class="pager-btn">3</span>
+            <span class="pager-btn">4</span>
             <span class="pager-btn">›</span>
           </span>
         </div>
@@ -546,210 +594,118 @@
   </div>
 </div>
 
-<!-- ===================== 风格样板：弹窗与组件态 ===================== -->
+<!-- ===================== 标注区 ===================== -->
 <div class="anno-wrap">
 
-  <h2 class="anno-title">风格样板 · 弹窗</h2>
-  <p class="anno-desc">新增与编辑共用同一表单（编辑态车牌号只读、标题改为「编辑车辆」）。遮罩 <code>--bg-mask</code>，弹窗宽 <span class="num">520px</span>，圆角 <code>--radius-lg</code>。</p>
+  <h2 class="anno-title">状态映射（本页直接照抄）</h2>
+  <p class="anno-desc">两列状态各有一套色系，<b>不要互相借用</b>。依据 <code>design-tokens.md</code> §3.3 ① ②。</p>
 
-  <div class="mask-frame">
-    <div class="modal">
-      <div class="modal-head">
-        <span class="modal-title">新增车辆</span>
-        <span class="modal-close">✕</span>
-      </div>
-      <div class="modal-body">
-        <div class="form-row">
-          <span class="label req">车牌号</span>
-          <div class="input is-placeholder mono">如 京AD12345</div>
-          <span></span>
-        </div>
-        <div class="form-row">
-          <span class="label req">车型</span>
-          <div class="select">请选择<span></span></div>
-        </div>
-        <div class="form-row">
-          <span class="label req">车主</span>
-          <div class="input is-focus">吴和庆</div>
-        </div>
-        <div class="form-row">
-          <span class="label req">手机号</span>
-          <div class="input is-error mono">1380000</div>
-        </div>
-        <div class="form-row">
-          <span class="label"></span>
-          <span class="help is-error">应为 11 位手机号，用于违规短信提醒</span>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button class="btn btn-default">取消</button>
-        <button class="btn btn-primary">确定</button>
-      </div>
+  <div class="specimen">
+    <h4>命中规则 rule_hit</h4>
+    <div class="spec-row">
+      <span class="spec-label">rule_hit = 1</span>
+      <span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 · 最严重</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">rule_hit = 2</span>
+      <span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">橙 · 中</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">rule_hit = 3</span>
+      <span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">黄 · 低</span>
     </div>
   </div>
 
-  <div class="specimen" style="margin-top: var(--layout-card-gap);">
-    <h4>二次确认（删除车辆）</h4>
+  <div class="specimen">
+    <h4>提醒状态 notify_status</h4>
+    <div class="spec-row">
+      <span class="spec-label">未提醒</span>
+      <span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">黄 · 待处理，行内可点「发送提醒」</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">已提醒</span>
+      <span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿 · 操作列转为置灰文字，防误发</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">失败</span>
+      <span class="pill pill-danger"><i class="dot dot-danger"></i>失败</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 · 行内可点「重试」</span>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>发送提醒的二次确认与结果反馈</h4>
     <div class="mask-frame">
       <div class="modal confirm">
         <div class="modal-head">
-          <span class="modal-title">删除确认</span>
+          <span class="modal-title">发送提醒</span>
           <span class="modal-close">✕</span>
         </div>
         <div class="confirm-body">
           <span class="confirm-icon">!</span>
           <div>
-            确认删除车牌 <b class="mono">京A12345</b>（车主：吕浩）吗？
-            <div class="help">该车辆的违规记录将保留，但不再关联车主手机号，后续无法自动提醒。</div>
+            确认向车牌 <b class="mono">京A12345</b> 的车主发送违规提醒短信吗？
+            <div class="help">记录 ID <code>1</code>（桩 PILE-001 · 燃油车占位）。提醒成功后本行状态更新为「已提醒」，不可撤销。</div>
           </div>
         </div>
         <div class="modal-foot">
           <button class="btn btn-default">取消</button>
-          <button class="btn btn-primary">确认删除</button>
+          <button class="btn btn-primary">确认发送</button>
         </div>
       </div>
     </div>
-  </div>
-
-  <h2 class="anno-title">风格样板 · 状态色与组件态</h2>
-  <p class="anno-desc">状态色四档的用法边界见 <code>design-tokens.md</code> §3.2。白底上的圆点、文字、边框一律用 <code>-text</code> 档；<code>-solid</code> 档只用于有色填充块。</p>
-
-  <div class="specimen">
-    <h4>违规类型（occupation_record.rule_hit）</h4>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 1</span>
-      <span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 —— 最严重，恶意占用充电位</span>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 2</span>
-      <span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">橙 —— 新能源未充电且久停</span>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 3</span>
-      <span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">黄 —— 充满超时未离场</span>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">rule_hit = 0</span>
-      <span class="pill pill-success"><i class="dot dot-success"></i>正常</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿 —— 正常充电，不提醒</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>提醒状态（occupation_record.notify_status）</h4>
-    <div class="spec-row">
-      <span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span>
-      <span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span>
-      <span class="pill pill-danger"><i class="dot dot-danger"></i>失败</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>充电桩状态（charging_pile.status · 第 3 页）</h4>
-    <div class="spec-row">
-      <span class="pill pill-info"><i class="dot dot-info"></i>空闲</span>
-      <span class="pill pill-info" style="color: var(--brand-primary); background: var(--brand-primary-bg); border-color: var(--brand-primary-border);"><i class="dot" style="background: var(--brand-primary);"></i>充电中</span>
-      <span class="pill pill-caution"><i class="dot dot-caution"></i>已充满</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">充电中用主色蓝表示「进行中」，与违规色系区分开</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>车型标签 · 取色对应真实车牌底色</h4>
-    <div class="spec-row">
-      <span class="tag tag-new-energy">新能源</span>
-      <span class="tag tag-fuel">燃油</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿牌绿 / 蓝牌蓝，后台与现场一眼对得上</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>按钮状态</h4>
-    <div class="spec-row">
-      <span class="spec-label">主按钮</span>
-      <button class="btn btn-primary">默认</button>
-      <button class="btn btn-primary is-hover">悬浮</button>
-      <button class="btn btn-primary is-active">按下</button>
-      <button class="btn btn-primary is-disabled">禁用</button>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">次按钮 / 文字</span>
-      <button class="btn btn-default">默认</button>
-      <button class="btn btn-default is-disabled">禁用</button>
-      <span class="btn btn-link">编辑</span>
-      <span class="btn btn-danger-text">删除</span>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>输入框状态</h4>
-    <div class="spec-row">
-      <span class="spec-label">默认</span>
-      <div class="input">京AD12345</div>
-      <span class="spec-label">占位</span>
-      <div class="input is-placeholder">请输入车牌号</div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">聚焦</span>
-      <div class="input is-focus">吴和庆</div>
-      <span class="spec-label">错误</span>
-      <div class="input is-error">1380000</div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-label">禁用</span>
-      <div class="input is-disabled">京AD12345</div>
-    </div>
-  </div>
-
-  <div class="specimen">
-    <h4>状态色板（对照 design-tokens.md §3.2）</h4>
-    <div class="spec-row">
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-danger-solid);"></span>danger solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-danger-text);"></span>danger text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-caution-solid);"></span>caution solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-caution-text);"></span>caution text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-warning-solid);"></span>warning solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-warning-text);"></span>warning text</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-success-solid);"></span>success</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--state-info-solid);"></span>info solid</span>
-      <span class="swatch"><span class="swatch-chip" style="background: var(--brand-primary);"></span>primary</span>
+    <div class="spec-row" style="margin: var(--space-4) 0 0;">
+      <span class="spec-label">成功反馈</span>
+      <span class="pill pill-success"><i class="dot dot-success"></i>已提醒 · 提醒时间已写入</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">用 <code>--state-success-*</code>，不用主色（主色留给「进行中」）</span>
     </div>
   </div>
 
   <h2 class="anno-title">空态</h2>
-  <p class="anno-desc">本区块为第 1 周设计走查时补齐：第 0 天交付的样板页遗漏了空态，与其余 4 页不一致（见 <code>walkthrough.md</code> 发现项 F1）。</p>
+  <p class="anno-desc">两种空态文案不同，吕浩按触发原因二选一，不要只做一种。</p>
 
-  <div class="specimen">
-    <h4>车辆台账为空 / 筛选无结果</h4>
+  <div class="empty-grid" style="margin-bottom: var(--layout-card-gap);">
     <div class="empty">
-      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="车辆台账为空">
-        <path d="M22 56V48l5-12a5 5 0 0 1 4.6-3h22.8a5 5 0 0 1 4.6 3l5 12v8" style="fill: none; stroke: var(--border-strong);" stroke-width="2" stroke-linejoin="round"/>
-        <line x1="22" y1="56" x2="64" y2="56" style="stroke: var(--border-strong);" stroke-width="2"/>
-        <circle cx="31" cy="63" r="5" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
-        <circle cx="55" cy="63" r="5" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
-        <path d="M82 40h20M82 52h16M82 64h20" style="stroke: var(--border-strong);" stroke-width="2" stroke-linecap="round"/>
+      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="筛选无结果">
+        <rect x="18" y="20" width="84" height="52" rx="6" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
+        <line x1="30" y1="38" x2="90" y2="38" style="stroke: var(--border-strong);" stroke-width="2"/>
+        <line x1="30" y1="50" x2="74" y2="50" style="stroke: var(--border-strong);" stroke-width="2"/>
+        <circle cx="84" cy="62" r="12" style="fill: var(--bg-container); stroke: var(--text-tertiary);" stroke-width="2"/>
+        <line x1="93" y1="71" x2="102" y2="80" style="stroke: var(--text-tertiary);" stroke-width="2" stroke-linecap="round"/>
       </svg>
-      <p class="empty-title">还没有车辆信息</p>
-      <p class="empty-desc">规则引擎判定「燃油占位 / 异常占位」时，需要按车牌查到车主手机号才能提醒。先录入车辆，或使用「批量导入」。</p>
-      <button class="btn btn-primary">＋ 新增车辆</button>
+      <p class="empty-title">没有符合条件的违规记录</p>
+      <p class="empty-desc">试试放宽时间范围，或清空车牌 / 桩 ID 关键字。</p>
+      <button class="btn btn-default">重置筛选</button>
+    </div>
+    <div class="empty">
+      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="暂无违规记录">
+        <rect x="24" y="16" width="72" height="58" rx="6" style="fill: var(--fill-light); stroke: var(--border-strong);" stroke-width="2"/>
+        <path d="M40 45 l12 12 l22 -26" style="fill: none; stroke: var(--state-success-solid);" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="empty-title">暂无违规记录</p>
+      <p class="empty-desc">系统尚未命中任何违规。可到「车辆信息管理」确认真实数据已录入，或用识别桩触发一次识别。</p>
+      <span class="help">对应 el-empty 的默认插画位，此处用空状态素材占位</span>
     </div>
   </div>
 
   <h2 class="anno-title">标注说明</h2>
-  <p class="anno-desc">本页是 6 页后台的**风格样板**：后续 5 页沿用同一套骨架（侧边栏 220px + 顶栏 56px + 内容留白 24px）、同一套卡片与表格规格。</p>
+  <p class="anno-desc">本页是<b>第 1 周 Demo 验收项</b>（<code>CONTRACT.md</code> §11 第 5 项「后台违规记录查询页面能看到该条记录」），优先级高于其余 4 页。</p>
   <ol class="notes">
-    <li><b>表格列严格等于 vehicle 全字段</b>：车牌号 / 车型 / 车主 / 手机号 / 录入时间，另加「操作」列。字段与列一一对应，未新增业务字段（依据 CONTRACT.md §1.1 约定）。</li>
-    <li><b>手机号脱敏显示</b>（<code>138****6621</code>）：仅改展示、不改字段，但<b>契约未规定</b>，需吕浩确认是否采纳；若不采纳则直接显示明文。</li>
-    <li><b>车牌号与时间用等宽字形</b>（<code>--font-family-mono</code> + <code>tabular-nums</code>），保证多行竖直对齐、避免 0/O 误读。</li>
-    <li><b>车型标签取车牌底色</b>：新能源用绿牌绿、燃油用蓝牌蓝。与「正常绿」同色系但处于不同列、不同语义，不构成歧义。</li>
-    <li><b>新增橙色</b>（<code>--state-caution-*</code>）：第 0 天文档只列了「违规红 / 正常绿 / 警告黄」三色，但三种违规类型在违规记录页与统计页需要可区分，故补一档橙。纯视觉增补，<b>不改契约</b>。</li>
-    <li><b>第 6 页「实时识别预览」置灰</b>：依赖预留端点 <code>GET /api/frame/latest</code>，第 1 周不做，导航先占位（CONTRACT.md §1.1、§6.5）。</li>
-    <li><b>侧边导航顺序即 CONTRACT.md §1.1 的 6 页顺序</b>，吕浩实现前端路由时可直接照此排布。</li>
-    <li><b>颜色全部走令牌</b>：本文件除自动生成的 tokens 快照外，不出现任何裸色值；<code>tools/check_tokens.py</code> 会自动校验这一点。</li>
-    <li><b>空态（第 1 周补齐）</b>：文案同时覆盖「台账为空」与「筛不出结果」两种触发原因，前者引导新增、后者引导重置筛选。空态是 6 页统一的交付项，缺了会在走查中被 <code>check_tokens.py</code> 第 5 项直接拦下。</li>
+    <li><b>表格列 = ViolationRecord 全字段</b>：ID / 车牌 / 车型 / 桩 ID / 命中规则 / 命中时间 / 提醒状态 / 提醒时间，另加「操作」列。依据契约 §5 与 §1.1「表格列以对应表字段为准」，未新增字段、未自造枚举。</li>
+    <li><b>ID 列必须展示、不可隐藏</b>：契约 v1.2 起 <code>POST /api/notify</code> 的入参<b>必须带 id</b>（§6.3），id 是「定位要更新哪条记录」的唯一键。藏在 tooltip 里会让联调时无法核对。</li>
+    <li><b>表中不出现 rule_hit = 0</b>：契约 §6.2 规定规则 ④（正常充电）判定返回 <code>null</code>，不落库，因此记录里只有 1 / 2 / 3。枚举 0 仅为兼容历史数据保留，所以「命中规则」筛选下拉只给 1 / 2 / 3 三项，不给「正常」。</li>
+    <li><b>不需要前端去重</b>：契约 v1.2 §6.2 已定去重口径——同 <code>pile_id</code> + 同 <code>rule_hit</code> 且未提醒时，视为「同一违规持续中」，后端复用原记录并刷新 <code>occur_time</code>，不新增行。前端<b>不要</b>再自行合并同名记录，否则统计会与后端不一致。</li>
+    <li><b>操作列三态由 notify_status 决定</b>：未提醒 → 「发送提醒」（主色文字按钮）；失败 → 「重试」（同 id 再调一次 notify）；已提醒 → 置灰文字不可点。这是纯前端行为差异，<b>接口只需 id + notify_status</b>，不改契约。</li>
+    <li><b>行内操作用文字按钮而非实心按钮</b>：一屏十余行，实心按钮会把表格变成色块墙。依据 <code>design-tokens.md</code> §3.3 ⑤。</li>
+    <li><b>车型与命中规则必须语义自洽</b>：<code>rule_hit = 1</code>（燃油占位）对应车型「燃油」；<code>rule_hit = 2 / 3</code> 对应车型「新能源」。线框数据已按此规则构造，前端无需校验，但演示数据不能配错，否则答辩现场一眼看穿。</li>
+    <li><b>提醒时间为空显示「—」</b>并降级到 <code>--text-tertiary</code>，不留空白单元格，避免被误认为渲染失败。</li>
+    <li><b>数字与定长标识一律等宽</b>：ID / 车牌 / 桩 ID / 时间用 <code>--font-family-mono</code> + <code>tabular-nums</code>，翻页时列宽不跳动。</li>
+    <li><b>空态两种文案</b>：筛不出结果 → 「重置筛选」引导；库里确实没有 → 提示去录入车辆 / 触发识别。第二种同时是<b>演示前自检</b>：如果 Demo 时看到「暂无违规记录」，说明识别→判定链路没跑通。</li>
   </ol>
 </div>
 
