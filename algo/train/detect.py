@@ -62,17 +62,19 @@ def do_train(epochs: int, model: str) -> int:
     return 0
 
 
-def detect_boxes(image: str, conf: float = 0.5) -> list[dict]:
+def detect_boxes(image: str, conf: float = 0.5, weights: str | None = None) -> list[dict]:
     """对单张图推理，返回检出框列表 ``[{name, conf, bbox_xywh, bbox_xyxy}]``。
 
-    与 ``do_predict`` 分离，便于单测与后续 ``algo/recognize`` 复用。
+    与 ``do_predict`` 分离，便于单测与 ``algo/recognize`` 复用；
+    ``weights`` 缺省用任务 2.3 训练出的 best.pt。
     """
     from ultralytics import YOLO
 
-    if not os.path.isfile(BEST_PT):
-        raise FileNotFoundError(f"缺少 {BEST_PT}，请先执行 train 子命令")
+    src = weights or BEST_PT
+    if not os.path.isfile(src):
+        raise FileNotFoundError(f"缺少 {src}，请先执行 train 子命令")
 
-    yolo = YOLO(BEST_PT)
+    yolo = YOLO(src)
     results = yolo.predict(image, conf=conf, device=0, verbose=False)[0]
     names = results.names
     out: list[dict] = []
