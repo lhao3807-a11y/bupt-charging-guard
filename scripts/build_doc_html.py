@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 """通用文档排版脚本（Stage 2 doc-typeset 执行器）：把 Standard Markdown 渲染为 business-report 版式 HTML。
 用法：python scripts/build_doc_html.py <input.md> <output.html>
 模板与 CSS 来自 tencent-docx 插件 business-modern 主题，已通过 html-review score 100。
 注意：空行不得产出空 <p>（触发 TQ-02）；每个 <h2> 后必须有导语段再进 <h3>（触发 TQ-03）。"""
+
 import html
 import re
 import sys
@@ -323,13 +323,13 @@ def inline(text):
 
     def stash(m):
         codes.append(m.group(1))
-        return "\x00%d\x00" % (len(codes) - 1)
+        return f"\x00{len(codes) - 1}\x00"
 
     text = re.sub(r"`([^`]+)`", stash, text)
     text = html.escape(text, quote=False)
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     for i, c in enumerate(codes):
-        text = text.replace("\x00%d\x00" % i, "<code>" + html.escape(c, quote=False) + "</code>")
+        text = text.replace(f"\x00{i}\x00", "<code>" + html.escape(c, quote=False) + "</code>")
     return text
 
 
@@ -339,7 +339,8 @@ def cells(line):
 
 
 def main():
-    raw = open(SRC, encoding="utf-8").read().splitlines()
+    with open(SRC, encoding="utf-8") as fh:
+        raw = fh.read().splitlines()
 
     # ---- 元信息与正文切分 ----
     # 首个 "## " 之前为封面元信息区（标题行 + 引用块 + 分隔线），只用于封面，不进正文；
@@ -357,8 +358,7 @@ def main():
     # ---- 目录 ----
     h2s = [l[3:].strip() for l in lines if l.startswith("## ")]
     toc = "\n".join(
-        '        <li><a href="#section-%d">%s</a></li>' % (i + 1, inline(t))
-        for i, t in enumerate(h2s)
+        f'        <li><a href="#section-{i + 1}">{inline(t)}</a></li>' for i, t in enumerate(h2s)
     )
 
     # ---- 正文渲染 ----
@@ -371,7 +371,7 @@ def main():
         ln = lines[i]
         s = ln.strip()
 
-        if not s:            # 空行只用于分隔，不产出空 <p>（否则触发 TQ-02）
+        if not s:  # 空行只用于分隔，不产出空 <p>（否则触发 TQ-02）
             i += 1
             continue
 
@@ -379,12 +379,12 @@ def main():
             h2_idx += 1
             title = s[3:].strip()
             in_metrics = "技术指标" in title
-            body.append('      <h2 id="section-%d">%s</h2>' % (h2_idx, inline(title)))
+            body.append(f'      <h2 id="section-{h2_idx}">{inline(title)}</h2>')
             i += 1
             continue
 
         if s.startswith("### "):
-            body.append("      <h3>%s</h3>" % inline(s[4:].strip()))
+            body.append(f"      <h3>{inline(s[4:].strip())}</h3>")
             i += 1
             continue
 
@@ -396,7 +396,9 @@ def main():
                 block.append(lines[i].rstrip())
                 i += 1
             i += 1
-            body.append('      <p class="flow">%s</p>' % "<br>".join(inline(b) for b in block))
+            body.append(
+                '      <p class="flow">{}</p>'.format("<br>".join(inline(b) for b in block))
+            )
             continue
 
         # 表格
@@ -408,12 +410,12 @@ def main():
                 rows.append(cells(lines[i]))
                 i += 1
             cls = ' class="metrics"' if in_metrics else ""
-            buf = ["      <table%s>" % cls, "        <thead>", "          <tr>"]
-            buf += ["            <th>%s</th>" % inline(h) for h in header]
+            buf = [f"      <table{cls}>", "        <thead>", "          <tr>"]
+            buf += [f"            <th>{inline(h)}</th>" for h in header]
             buf += ["          </tr>", "        </thead>", "        <tbody>"]
             for r in rows:
                 buf.append("          <tr>")
-                buf += ["            <td>%s</td>" % inline(c) for c in r]
+                buf += [f"            <td>{inline(c)}</td>" for c in r]
                 buf.append("          </tr>")
             buf += ["        </tbody>", "      </table>"]
             body.append("\n".join(buf))
@@ -421,7 +423,7 @@ def main():
 
         # 引用 -> 提示段
         if s.startswith(">"):
-            body.append('      <p class="note">%s</p>' % inline(s.lstrip("> ").strip()))
+            body.append('      <p class="note">{}</p>'.format(inline(s.lstrip("> ").strip())))
             i += 1
             continue
 
@@ -432,7 +434,7 @@ def main():
                 items.append(lines[i].strip()[2:])
                 i += 1
             buf = ["      <ul>"]
-            buf += ["        <li>%s</li>" % inline(x) for x in items]
+            buf += [f"        <li>{inline(x)}</li>" for x in items]
             buf += ["      </ul>"]
             body.append("\n".join(buf))
             continue
@@ -444,13 +446,13 @@ def main():
                 items.append(re.sub(r"^\d+\.\s", "", lines[i].strip()))
                 i += 1
             buf = ["      <ol>"]
-            buf += ["        <li>%s</li>" % inline(x) for x in items]
+            buf += [f"        <li>{inline(x)}</li>" for x in items]
             buf += ["      </ol>"]
             body.append("\n".join(buf))
             continue
 
         # 普通段落
-        body.append("      <p>%s</p>" % inline(s))
+        body.append(f"      <p>{inline(s)}</p>")
         i += 1
 
     cover = """  <section role="cover">
@@ -511,7 +513,8 @@ def main():
         "</html>",
         "",
     ]
-    open(OUT, "w", encoding="utf-8", newline="\n").write("\n".join(out))
+    with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(out))
     print("H2 sections:", h2_idx)
     print("output:", OUT)
 
