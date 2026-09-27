@@ -1,5 +1,5 @@
 /**
- * 契约类型定义 —— 唯一事实源 docs/CONTRACT.md v1.2
+ * 契约类型定义 —— 唯一事实源 docs/CONTRACT.md v1.4
  *
  * 本文件**手写对齐契约 §4 / §5**，不从后端代码生成。
  * 契约任何结构变动 → 先改 CONTRACT.md → 升版本号 → 再改这里。
@@ -105,6 +105,13 @@ export interface RecordPage {
 export interface RecordQuery {
   page?: number
   size?: number
+  plate?: string
+  vtype?: VType
+  pile_id?: string
+  rule_hit?: number
+  notify_status?: NotifyStatus
+  start_time?: string
+  end_time?: string
 }
 
 /** `GET /api/health` 响应体。 */
@@ -118,9 +125,25 @@ export interface HealthResp {
 export interface Vehicle {
   plate: string
   vtype: VType
-  owner: string
-  phone: string
+  owner: string | null
+  phone: string | null
   created_at: string
+}
+
+export type VehicleCreate = Omit<Vehicle, 'created_at'>
+export type VehicleUpdate = Pick<Vehicle, 'vtype' | 'owner' | 'phone'>
+export interface VehicleQuery {
+  page?: number
+  size?: number
+  plate?: string
+  vtype?: VType
+  owner?: string
+}
+export interface VehiclePage {
+  items: Vehicle[]
+  total: number
+  page: number
+  size: number
 }
 
 /** `charging_pile` 表（契约 §3.2）。 */

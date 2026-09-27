@@ -8,9 +8,7 @@
  * 车牌号、手机号、时间一律等宽字族 + tabular-nums（component-inventory.md §5）。
  * 车牌号是主键，**编辑态只读**。
  *
- * ⚠️ 数据源说明：契约 §6.6 **已定义且后端已实现** vehicle 的 CRUD 接口
- * （`backend/app/routers/vehicles.py`），但本页**尚未切换**，仍用 localStorage
- * （见 stores/vehicle.ts 注释），页面上如实标注「前端待切换」，不假装已接后端。
+ * 数据来源：契约 §6.6 车辆 CRUD，筛选及分页均由服务端完成。
  */
 import { computed, onMounted, reactive, ref } from 'vue'
 
@@ -31,34 +29,7 @@ const store = useVehicleStore()
 
 const vtypeOptions = [VTYPE.新能源, VTYPE.燃油]
 
-/** 筛选条件（前端过滤全量；数据量小，不做服务端分页） */
-const filters = reactive({
-  plate: '',
-  vtype: '' as VType | '',
-  owner: '',
-})
-
-const page = ref(1)
-const size = ref(20)
-
-const filtered = computed(() => {
-  const plate = filters.plate.trim().toUpperCase()
-  const owner = filters.owner.trim()
-  return store.items.filter((v) => {
-    if (plate && !v.plate.toUpperCase().includes(plate)) return false
-    if (filters.vtype && v.vtype !== filters.vtype) return false
-    if (owner && !v.owner.includes(owner)) return false
-    return true
-  })
-})
-
-const paged = computed(() => {
-  const start = (page.value - 1) * size.value
-  return filtered.value.slice(start, start + size.value)
-})
-
-/** 分页条用过滤后的总数（本页为本地数据源，与第 2 页口径不同，页面已标注） */
-const filteredTotal = computed(() => filtered.value.length)
+const filters = computed(() => store.filters)
 
 /* ------------------------------------------------------------------ 弹窗 */
 
@@ -85,12 +56,17 @@ function openCreate() {
   formVisible.value = true
 }
 
-function openEdit(row: { plate: string; vtype: VType; owner: string; phone: string }) {
+function openEdit(row: {
+  plate: string
+  vtype: VType
+  owner: string | null
+  phone: string | null
+}) {
   formMode.value = 'edit'
   form.plate = row.plate
   form.vtype = row.vtype
-  form.owner = row.owner
-  form.phone = row.phone
+  form.owner = row.owner ?? ''
+  form.phone = row.phone ?? ''
   formVisible.value = true
 }
 
@@ -106,7 +82,8 @@ function validate(): string | null {
   return null
 }
 
-function handleSubmit() {
+async function handleSubmit() {
+  if (submitting.value) return
   const err = validate()
   if (err) {
     ElMessage.warning(err)
@@ -116,7 +93,7 @@ function handleSubmit() {
   submitting.value = true
   try {
     if (formMode.value === 'create') {
-      store.create({
+      await store.create({
         plate: form.plate.trim(),
         vtype: form.vtype,
         owner: form.owner.trim(),
@@ -124,7 +101,7 @@ function handleSubmit() {
       })
       ElMessage.success(`已新增车辆 ${form.plate.trim()}`)
     } else {
-      store.update(form.plate, {
+      await store.update(form.plate, {
         vtype: form.vtype,
         owner: form.owner.trim(),
         phone: form.phone.trim(),
@@ -132,8 +109,8 @@ function handleSubmit() {
       ElMessage.success(`已更新车辆 ${form.plate}`)
     }
     formVisible.value = false
-  } catch (e) {
-    ElMessage.error(e instanceof Error ? e.message : '保存失败')
+  } catch {
+    // HTTP 拦截器提示；保留表单供修正或重试。
   } finally {
     submitting.value = false
   }
@@ -155,44 +132,44 @@ function askRemove(row: { plate: string }) {
   confirmVisible.value = true
 }
 
-function handleRemove() {
-  store.remove(pendingPlate.value)
-  ElMessage.success(`已删除车辆 ${pendingPlate.value}`)
-  confirmVisible.value = false
-  // 删除后当前页可能越界
-  if (paged.value.length === 0 && page.value > 1) page.value -= 1
+const removing = ref(false)
+async function handleRemove() {
+  if (removing.value) return
+  removing.value = true
+  try {
+    await store.remove(pendingPlate.value)
+    ElMessage.success(`已删除车辆 ${pendingPlate.value}`)
+    confirmVisible.value = false
+  } catch {
+    // HTTP 拦截器提示；保留确认弹窗。
+  } finally {
+    removing.value = false
+  }
 }
 
-/* ------------------------------------------------------------------ 其他 */
-
-function handleSearch() {
-  page.value = 1
+async function handleLoad() {
+  await store.load().catch(() => undefined)
 }
-
-function handleReset() {
-  filters.plate = ''
-  filters.vtype = ''
-  filters.owner = ''
-  page.value = 1
+async function handleSearch() {
+  await store.search().catch(() => undefined)
 }
-
-function handlePageChange(p: number, s: number) {
-  page.value = p
-  size.value = s
+async function handleReset() {
+  store.resetFilters()
+  await handleSearch()
 }
-
-onMounted(() => {
-  store.init()
-})
+async function handlePageChange(p: number, s: number) {
+  await store.changePage(p, s).catch(() => undefined)
+}
+onMounted(handleLoad)
 </script>
 
 <template>
   <div class="page-container">
     <PageHeader title="车辆信息管理" description="维护绑定车辆的车主与手机号，是自动提醒的数据基础">
       <template #actions>
-        <el-button @click="store.resetToSeed()">
+        <el-button :loading="store.loading" @click="handleLoad">
           <el-icon><RefreshLeft /></el-icon>
-          <span>恢复示例数据</span>
+          <span>刷新</span>
         </el-button>
         <el-button type="primary" @click="openCreate">
           <el-icon><Plus /></el-icon>
@@ -201,15 +178,7 @@ onMounted(() => {
       </template>
     </PageHeader>
 
-    <el-alert
-      class="vehicle__notice"
-      type="warning"
-      :closable="false"
-      show-icon
-      title="数据源说明：契约 §6.6 已定义车辆 CRUD 四端点（GET/POST /api/vehicles、PUT/DELETE /api/vehicles/{plate}）且后端已实现；本页当前仍使用浏览器本地存储（localStorage）演示，属前端待切换，非接口缺失。"
-    />
-
-    <FilterCard @search="handleSearch" @reset="handleReset">
+    <FilterCard :loading="store.loading" @search="handleSearch" @reset="handleReset">
       <el-form-item label="车牌号">
         <el-input
           v-model="filters.plate"
@@ -227,23 +196,24 @@ onMounted(() => {
       </el-form-item>
 
       <el-form-item label="车主">
-        <el-input
-          v-model="filters.owner"
-          placeholder="车主姓名"
-          clearable
-          style="width: 140px"
-        />
+        <el-input v-model="filters.owner" placeholder="车主姓名" clearable style="width: 140px" />
       </el-form-item>
     </FilterCard>
 
     <DataCard
       title="车辆列表"
-      :total="filteredTotal"
-      :page="page"
-      :size="size"
+      :total="store.total"
+      :page="store.page"
+      :size="store.size"
       @page-change="handlePageChange"
     >
-      <el-table :data="paged" stripe style="width: 100%" empty-text=" ">
+      <el-table
+        v-loading="store.loading"
+        :data="store.items"
+        stripe
+        style="width: 100%"
+        empty-text=" "
+      >
         <el-table-column label="车牌号" width="140">
           <template #default="{ row }">
             <span class="mono cell-strong">{{ row.plate }}</span>
@@ -280,7 +250,16 @@ onMounted(() => {
         </el-table-column>
 
         <template #empty>
-          <EmptyState compact description="暂无车辆，点击右上角「新增车辆」添加">
+          <EmptyState
+            compact
+            :description="
+              store.error
+                ? '车辆加载失败，请点击刷新重试'
+                : store.hasFilters
+                  ? '没有符合筛选条件的车辆'
+                  : '暂无车辆，点击右上角「新增车辆」添加'
+            "
+          >
             <el-button type="primary" @click="openCreate">新增车辆</el-button>
           </EmptyState>
         </template>
@@ -319,12 +298,7 @@ onMounted(() => {
         </el-form-item>
 
         <el-form-item label="手机号" required>
-          <el-input
-            v-model="form.phone"
-            class="mono"
-            placeholder="11 位手机号"
-            maxlength="20"
-          />
+          <el-input v-model="form.phone" class="mono" placeholder="11 位手机号" maxlength="20" />
         </el-form-item>
       </el-form>
     </FormDialog>
@@ -332,6 +306,7 @@ onMounted(() => {
     <ConfirmDialog
       v-model="confirmVisible"
       title="删除车辆"
+      :submitting="removing"
       :message="confirmMessage"
       confirm-text="确认删除"
       @confirm="handleRemove"
@@ -340,10 +315,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.vehicle__notice {
-  margin-bottom: var(--space-4);
-}
-
 .cell-strong {
   font-weight: var(--font-weight-medium);
 }

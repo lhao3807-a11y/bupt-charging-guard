@@ -1,7 +1,7 @@
 # frontend —— 「桩」点北邮 · 后台管理平台
 
 > **技术栈** Vue 3 + Vite + TypeScript + Element Plus + Vue Router + Pinia + ECharts
-> **契约** `docs/CONTRACT.md` v1.2（唯一事实源，**任何结构变动先改契约再升版本**）
+> **契约** `docs/CONTRACT.md` v1.4（唯一事实源，**任何结构变动先改契约再升版本**）
 > **设计** `docs/design/**`（`tokens.css` 是唯一色彩与尺寸来源）
 > **排期** `docs/PLAN_4WEEKS.md` §2.1（吕浩第 1 周任务 1.1–1.10）
 
@@ -110,29 +110,30 @@ cp docs/design/tokens.css frontend/src/styles/tokens.css
 | 5 | 系统参数配置 | ⬜ 占位（排第 2 周） |
 | 6 | 实时识别预览 | ⬜ 导航置灰预留（契约 §1.1 明确第 1 周不做） |
 
-## 6. 两处「契约缺口」的处置（**契约与后端均已就绪，等前端切换**）
+## 6. 服务端筛选与车辆 CRUD
 
 > 2026-09-19 契约升至 **v1.3** 补齐两处缺口；同日**后端已实现并合入 `main`**
 > （`backend/app/routers/records.py` 筛选参数、`vehicles.py` 车辆 CRUD，后端 132 passed）。
-> **剩下的是前端任务，不是后端阻塞**：前端需做两处切换（代码里已留好替换点）。
+> 前后端切换已完成：记录筛选与分页调用后端；车辆列表和 CRUD 调用 `/api/vehicles`，页面刷新后数据仍保存在数据库。
 
-### 6.1 第 2 页筛选 → 待切服务端
+### 6.1 第 2 页记录筛选
 
 - **契约现状**：§6.4 已定义 7 个筛选参数（`plate`/`vtype`/`pile_id`/`rule_hit`/`notify_status`/`start_time`/`end_time`），
   AND 关系，`total` 随筛选变化。
 - **后端现状**：**已实现**（实测 `?rule_hit=3` 只返回 `rule_hit=3`，`total` 随筛选变化）。
-- **前端现状**：仍是**前端过滤当前页**（`stores/records.ts`），页面有 info 条如实标注。
-- **待办**：把 `filters` 作为查询参数传给 `fetchRecords`，改为服务端筛选与分页。
-  这样跨页筛选才正确，同时移除页面上的提示条。
+- **前端现状**：`stores/records.ts` 将筛选参数传入 `fetchRecords`，查询结果和筛选后总数均来自后端；修改中的筛选值要点查询后才生效，翻页沿用已提交条件。
+- 页面通过表格加载态和空态提示请求结果；查询失败时展示重试提示。
 
-### 6.2 第 1 页数据源 → 待切后端
+### 6.2 第 1 页车辆 CRUD
 
 - **契约现状**：§6.6 已定义车辆 CRUD 四端点（`GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`）。
 - **后端现状**：**已实现**（201/409/404/204 均正确，删车不级联删违规记录）。
-- **前端现状**：仍是 `localStorage`（`stores/vehicle.ts`），页面顶部有黄色警示条。
-- **待办**：替换 `stores/vehicle.ts` 的实现为 `api/` 调用，并**移除页面顶部的警示条**
-  （该条是"未接后端"的诚实标注，接了就该撤掉）。
-  注意契约口径：`plate` 不可改、重复新增返回 `409`、`DELETE` 返回 `204` 且**不级联删违规记录**。
+- **前端现状**：`stores/vehicle.ts` 通过 API 列表、筛选、分页和 CRUD；页面不再读写 `localStorage` 或浏览器种子。
+- 车牌作为主键不可修改；重复车牌由后端拒绝；删除成功才更新列表，历史违规记录保持不变。
+
+### 6.3 前端验证
+
+`npm run test` 运行 Pinia/API 参数与交互测试，覆盖记录筛选分页、规则编号 `0`、请求乱序与失败、车辆 CRUD 和末页删除。`npm run verify` 会先运行测试，再执行令牌检查、类型检查、lint 与生产构建。
 
 ---
 

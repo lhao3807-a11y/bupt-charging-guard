@@ -14,7 +14,8 @@
     "format": "prettier --write \"src/**/*.{ts,vue,css,json}\"",
     "check:tokens": "node scripts/copy-tokens.mjs",
     "sync:tokens": "node scripts/copy-tokens.mjs --write",
-    "verify": "npm run check:tokens && npm run typecheck && npm run lint && npm run build"
+    "verify": "npm run test && npm run check:tokens && npm run typecheck && npm run lint && npm run build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
@@ -38,6 +39,7 @@
     "sass": "^1.83.0",
     "typescript": "~5.6.3",
     "vite": "^6.0.5",
+    "vitest": "3.2.0",
     "vue-tsc": "^2.2.0"
   }
 }

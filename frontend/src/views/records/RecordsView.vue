@@ -26,7 +26,7 @@ import { ref } from 'vue'
 
 const store = useRecordsStore()
 
-/** 筛选表单的本地副本，点「查询」才写回 store，避免边输边过滤看不清状态 */
+/** 筛选草稿；点查询后生成已提交条件，翻页与刷新沿用该条件 */
 const form = computed(() => store.filters)
 
 const notifyingId = ref<number | null>(null)
@@ -42,23 +42,25 @@ const ruleOptions = [
   { value: 0, label: '正常充电' },
 ]
 
-const filteredCount = computed(() => store.filteredItems.length)
-
 onMounted(() => {
-  void store.load()
+  void handleLoad()
 })
 
+async function handleLoad() {
+  await store.load().catch(() => undefined)
+}
+
 async function handleSearch() {
-  await store.search()
+  await store.search().catch(() => undefined)
 }
 
 async function handleReset() {
   store.resetFilters()
-  await store.search()
+  await store.search().catch(() => undefined)
 }
 
 async function handlePageChange(page: number, size: number) {
-  await store.changePage(page, size)
+  await store.changePage(page, size).catch(() => undefined)
 }
 
 async function handleNotify(row: { id: number | null; plate: string }) {
@@ -85,7 +87,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
       description="数据来自 occupation_record 表；命中即落库，同桩同规则且未提醒的记录会被复用为一条"
     >
       <template #actions>
-        <el-button :loading="store.loading" @click="store.load()">
+        <el-button :loading="store.loading" @click="handleLoad">
           <el-icon><Refresh /></el-icon>
           <span>刷新</span>
         </el-button>
@@ -126,12 +128,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
       </el-form-item>
 
       <el-form-item label="提醒状态">
-        <el-select
-          v-model="form.notify_status"
-          placeholder="全部"
-          clearable
-          style="width: 120px"
-        >
+        <el-select v-model="form.notify_status" placeholder="全部" clearable style="width: 120px">
           <el-option v-for="s in notifyOptions" :key="s" :label="s" :value="s" />
         </el-select>
       </el-form-item>
@@ -148,15 +145,6 @@ async function handleNotify(row: { id: number | null; plate: string }) {
         />
       </el-form-item>
     </FilterCard>
-
-    <el-alert
-      v-if="store.hasFilters"
-      class="records__hint"
-      type="info"
-      :closable="false"
-      show-icon
-      :title="`已启用筛选：本页 ${filteredCount} / ${store.rawItems.length} 条命中。⚠️ 契约 §6.4 已定义服务端筛选参数且后端已实现，但本页仍在前端过滤，故筛选仅作用于当前页；分页总数仍为服务端返回的全表 total。前端切换为服务端筛选后此提示条将移除。`"
-    />
 
     <DataCard
       title="违规记录"
@@ -226,7 +214,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
               text
               type="primary"
               :loading="notifyingId === row.id"
-              :disabled="row.notify_status === NOTIFY_STATUS.已提醒"
+              :disabled="notifyingId !== null || row.notify_status === NOTIFY_STATUS.已提醒"
               @click="handleNotify(row)"
             >
               发送提醒
@@ -238,9 +226,11 @@ async function handleNotify(row: { id: number | null; plate: string }) {
           <EmptyState
             compact
             :description="
-              store.hasFilters
-                ? '当前页没有符合筛选条件的记录'
-                : '暂无违规记录。先调用 POST /api/judge 产生一条，再回来刷新'
+              store.error
+                ? '记录加载失败，请点击刷新重试'
+                : store.hasFilters
+                  ? '没有符合筛选条件的记录'
+                  : '暂无违规记录'
             "
           />
         </template>
@@ -250,10 +240,6 @@ async function handleNotify(row: { id: number | null; plate: string }) {
 </template>
 
 <style scoped>
-.records__hint {
-  margin-bottom: var(--space-4);
-}
-
 .cell-strong {
   font-weight: var(--font-weight-medium);
 }

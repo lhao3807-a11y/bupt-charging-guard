@@ -1,5 +1,5 @@
 /**
- * 契约 §6 五个端点的封装。
+ * 契约 §6 识别闭环与车辆管理端点的封装。
  *
  * | 方法 | 路径 | 说明 |
  * |---|---|---|
@@ -20,6 +20,11 @@ import type {
   RecordPage,
   RecordQuery,
   ViolationRecord,
+  Vehicle,
+  VehicleCreate,
+  VehicleUpdate,
+  VehicleQuery,
+  VehiclePage,
 } from '@/types/contract'
 
 /** `POST /api/recognize` —— 输入帧 → 识别结果（契约 §6.1）。 */
@@ -54,4 +59,20 @@ export async function fetchRecords(query: RecordQuery = {}): Promise<RecordPage>
 export async function health(): Promise<HealthResp> {
   const { data } = await http.get<HealthResp>('/api/health')
   return data
+}
+
+export async function fetchVehicles(query: VehicleQuery = {}): Promise<VehiclePage> {
+  const { data } = await http.get<VehiclePage>('/api/vehicles', { params: query })
+  return data
+}
+export async function createVehicle(payload: VehicleCreate): Promise<Vehicle> {
+  const { data } = await http.post<Vehicle>('/api/vehicles', payload)
+  return data
+}
+export async function updateVehicle(plate: string, payload: VehicleUpdate): Promise<Vehicle> {
+  const { data } = await http.put<Vehicle>(`/api/vehicles/${encodeURIComponent(plate)}`, payload)
+  return data
+}
+export async function deleteVehicle(plate: string): Promise<void> {
+  await http.delete(`/api/vehicles/${encodeURIComponent(plate)}`)
 }
