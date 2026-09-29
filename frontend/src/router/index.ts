@@ -71,6 +71,16 @@ const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/records' },
   ...navRoutes,
   {
+    // 登录页（第 2 周任务 6.6）—— **不属契约 §1.1 的「后台 6 页」**，故不进 `navRoutes`、
+    // 不进侧边导航。`meta.blank` 让 App.vue 跳过 AppShell（登录页没有侧栏/顶栏/页脚）。
+    // 契约尚未定义鉴权接口，因此**不加路由守卫、也不改 `/` 的默认跳转**，
+    // 现有 Demo 主流程（`/` → `/records`）不受影响。
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/login/LoginView.vue'),
+    meta: { title: '登录', blank: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/views/placeholder/NotFoundView.vue'),
