@@ -3,8 +3,11 @@
  * ConfirmDialog —— 危险操作二次确认（component-inventory.md §2：宽 420px）
  *
  * 文案需说明后果（component-inventory.md §4.1 标注 6 的要求），故 `message` 必填。
+ * 图标走官方图标集（第 2 周收口，任务 6.4）。
  */
 import { computed } from 'vue'
+
+import AppIcon from '@/components/common/AppIcon.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -47,7 +50,7 @@ function close() {
   >
     <div class="confirm-dialog">
       <div class="confirm-dialog__icon" :style="iconStyle" aria-hidden="true">
-        <el-icon :size="18"><WarningFilled /></el-icon>
+        <AppIcon name="icon-warning" :size="18" />
       </div>
       <div class="confirm-dialog__message">{{ message }}</div>
     </div>

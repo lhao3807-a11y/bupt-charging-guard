@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="充电状态展示">
+  <path d="M8 20V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V20"/>
+  <path d="M6.4 20h11.2"/>
+  <path d="M12 7.6l-1.5 3h3l-1.5 3"/>
+  <path d="M16 10.4h2.1a1.4 1.4 0 0 1 1.4 1.4v3.6"/>
+</svg>

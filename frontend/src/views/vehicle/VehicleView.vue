@@ -14,6 +14,7 @@
  */
 import { computed, onMounted, reactive, ref } from 'vue'
 
+import AppIcon from '@/components/common/AppIcon.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import DataCard from '@/components/common/DataCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -191,11 +192,11 @@ onMounted(() => {
     <PageHeader title="车辆信息管理" description="维护绑定车辆的车主与手机号，是自动提醒的数据基础">
       <template #actions>
         <el-button @click="store.resetToSeed()">
-          <el-icon><RefreshLeft /></el-icon>
+          <AppIcon name="icon-reset" :size="14" />
           <span>恢复示例数据</span>
         </el-button>
         <el-button type="primary" @click="openCreate">
-          <el-icon><Plus /></el-icon>
+          <AppIcon name="icon-plus" :size="14" />
           <span>新增车辆</span>
         </el-button>
       </template>
@@ -280,7 +281,11 @@ onMounted(() => {
         </el-table-column>
 
         <template #empty>
-          <EmptyState compact description="暂无车辆，点击右上角「新增车辆」添加">
+          <EmptyState
+            compact
+            illustration="no-data"
+            description="暂无车辆，点击右上角「新增车辆」添加"
+          >
             <el-button type="primary" @click="openCreate">新增车辆</el-button>
           </EmptyState>
         </template>

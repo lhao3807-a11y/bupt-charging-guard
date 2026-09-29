@@ -10,6 +10,7 @@
  */
 import { computed, onMounted } from 'vue'
 
+import AppIcon from '@/components/common/AppIcon.vue'
 import DataCard from '@/components/common/DataCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import FilterCard from '@/components/common/FilterCard.vue'
@@ -86,7 +87,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
     >
       <template #actions>
         <el-button :loading="store.loading" @click="store.load()">
-          <el-icon><Refresh /></el-icon>
+          <AppIcon name="icon-refresh" :size="14" />
           <span>刷新</span>
         </el-button>
       </template>
@@ -235,8 +236,11 @@ async function handleNotify(row: { id: number | null; plate: string }) {
         </el-table-column>
 
         <template #empty>
+          <!-- 双空态（对应 wireframes/records.html）：筛选滤空 vs 库本身为空，
+               插画与文案都要区分，否则用户不知道该「重置筛选」还是「去产生数据」 -->
           <EmptyState
             compact
+            :illustration="store.hasFilters ? 'search-empty' : 'no-record'"
             :description="
               store.hasFilters
                 ? '当前页没有符合筛选条件的记录'

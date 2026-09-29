@@ -13,7 +13,6 @@ import { createApp } from 'vue'
 
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import '@/styles/tokens.css'
 import 'element-plus/dist/index.css'
@@ -24,11 +23,11 @@ import router from '@/router'
 
 const app = createApp(App)
 
-// 图标：第 1 周允许全用 @element-plus/icons-vue（docs/design/README.md §4 已明确允许）
-for (const [name, component] of Object.entries(ElementPlusIconsVue)) {
-  app.component(name, component)
-}
-
+// 图标：第 2 周已收口（PLAN_4WEEKS.md §3.3 任务 6.4）。
+// 原第 1 周做法是在这里把 @element-plus/icons-vue 的**全部**图标注册成全局组件，
+// 现已移除 —— 那会把上千个组件塞进产物，且与设计侧的官方图标集并存成两套风格。
+// 业务图标一律走 `@/components/common/AppIcon.vue`（源：docs/design/assets/icons/）。
+// Element Plus 组件自身内部用到的图标由它自己 import，不依赖这里的全局注册。
 app.use(createPinia())
 app.use(router)
 app.use(ElementPlus, { locale: zhCn })
