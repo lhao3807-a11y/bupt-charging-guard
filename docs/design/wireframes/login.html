@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>登录 · 线框（独立页） — 桩点北邮</title>
+
+<!-- ==========================================================================
+     tokens 快照 · 自动生成，请勿手改
+     --------------------------------------------------------------------------
+     来源：docs/design/tokens.css
+     作用：本文件被单独打开（file:// / 独立预览面板）时，相对路径的 tokens.css
+           可能取不到，此快照保证线框永远能正确渲染。
+     约束：tools/check_tokens.py 会逐条校验本快照与 tokens.css 完全一致，
+           两者一旦漂移即测试失败。改颜色请改 tokens.css 后重新生成本块。
+     ========================================================================== -->
+<style id="tokens-snapshot">
+:root {
+  --brand-primary: #1668E3;
+  --brand-primary-hover: #145ECC;
+  --brand-primary-active: #1253B6;
+  --brand-primary-bg: #F0F6FF;
+  --brand-primary-border: #BFDBFF;
+  --brand-primary-light-9: #E8F0FC;
+  --state-danger-solid: #CF1322;
+  --state-danger-text: #A8071A;
+  --state-danger-bg: #FFF1F0;
+  --state-danger-border: #FFCCC7;
+  --state-caution-solid: #FA8C16;
+  --state-caution-text: #C4320A;
+  --state-caution-bg: #FFF7E6;
+  --state-caution-border: #FFD591;
+  --state-warning-solid: #FAAD14;
+  --state-warning-text: #946200;
+  --state-warning-bg: #FFFBE6;
+  --state-warning-border: #FFE58F;
+  --state-success-solid: #0E7A2E;
+  --state-success-text: #0E7A2E;
+  --state-success-bg: #F0FBF2;
+  --state-success-border: #B7EB8F;
+  --state-info-solid: #8A919F;
+  --state-info-text: #4E5969;
+  --state-info-bg: #F2F3F5;
+  --state-info-border: #D9D9D9;
+  --plate-new-energy-text: #0E7A2E;
+  --plate-new-energy-bg: #F0FBF2;
+  --plate-new-energy-border: #B7EB8F;
+  --plate-fuel-text: #1D4FD8;
+  --plate-fuel-bg: #EAF1FF;
+  --plate-fuel-border: #ADC6FF;
+  --text-primary: #1F2329;
+  --text-secondary: #4E5969;
+  --text-tertiary: #64707D;
+  --text-disabled: #C9CDD4;
+  --text-inverse: #FFFFFF;
+  --border-base: #E5E6EB;
+  --border-strong: #C9CDD4;
+  --border-light: #F2F3F5;
+  --fill-light: #F2F3F5;
+  --bg-page: #F7F8FA;
+  --bg-container: #FFFFFF;
+  --bg-mask: rgba(31, 35, 41, 0.5);
+  --font-family-base: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 30px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-tight: 1.3;
+  --line-height-base: 1.5714;
+  --line-height-relaxed: 1.7;
+  --font-variant-numeric: tabular-nums;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --shadow-sm: 0 1px 2px rgba(31, 35, 41, 0.06);
+  --shadow-md: 0 2px 8px rgba(31, 35, 41, 0.08);
+  --shadow-lg: 0 6px 16px rgba(31, 35, 41, 0.12);
+  --layout-sidebar-width: 220px;
+  --layout-sidebar-collapsed-width: 64px;
+  --layout-header-height: 56px;
+  --layout-gutter: 24px;
+  --layout-max-width: 1440px;
+  --layout-card-gap: var(--space-4);
+}
+</style>
+<link rel="stylesheet" href="../tokens.css">
+
+<style>
+  /* 线框自身的布局样式。颜色一律 var(--token)，不写裸色值。 */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+  }
+  .mono { font-family: var(--font-family-mono); font-variant-numeric: var(--font-variant-numeric); }
+  .num { font-variant-numeric: var(--font-variant-numeric); }
+
+  /* ---------- 独立页版式：无侧边导航，居中卡片 ---------- */
+  .auth {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-10) var(--space-4);
+  }
+  .auth-brand { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+  .auth-brand__logo { display: block; }
+  .auth-brand__slogan { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0; }
+
+  .auth-card {
+    width: 400px; max-width: 100%;
+    background: var(--bg-container);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8) var(--space-6) var(--space-6);
+  }
+  .auth-card__title {
+    margin: 0 0 var(--space-1);
+    font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+  }
+  .auth-card__sub { margin: 0 0 var(--space-5); font-size: var(--font-size-sm); color: var(--text-tertiary); }
+
+  .field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-4); }
+  .label { font-size: var(--font-size-sm); color: var(--text-secondary); }
+  .input {
+    height: 36px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-container);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-base);
+    display: flex; align-items: center;
+  }
+  .input.is-placeholder { color: var(--text-tertiary); }
+  .input.is-focus { border-color: var(--brand-primary); box-shadow: 0 0 0 2px var(--brand-primary-bg); }
+  .input.is-error { border-color: var(--state-danger-solid); }
+  .input.is-disabled { background: var(--fill-light); color: var(--text-disabled); border-color: var(--border-base); }
+  .help { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+  .help.is-error { color: var(--state-danger-text); }
+
+  .auth-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: var(--space-5);
+  }
+  .checkbox { display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--font-size-sm); color: var(--text-secondary); }
+  .checkbox-box {
+    width: 16px; height: 16px; flex: 0 0 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xs);
+    background: var(--bg-container);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--text-inverse); font-size: var(--font-size-xs);
+  }
+  .checkbox-box.is-checked { background: var(--brand-primary); border-color: var(--brand-primary); }
+  .link { color: var(--brand-primary); font-size: var(--font-size-sm); text-decoration: none; }
+
+  .btn {
+    height: 36px; padding: 0 var(--space-4);
+    border: 1px solid transparent; border-radius: var(--radius-sm);
+    font-size: var(--font-size-base); font-family: var(--font-family-base);
+    background: var(--bg-container); color: var(--text-primary);
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1);
+    cursor: default;
+  }
+  .btn-block { width: 100%; }
+  .btn-primary { background: var(--brand-primary); color: var(--text-inverse); }
+  .btn-primary.is-hover { background: var(--brand-primary-hover); }
+  .btn-primary.is-loading { background: var(--brand-primary-hover); }
+  .btn.is-disabled { background: var(--fill-light); color: var(--text-disabled); border-color: var(--border-base); }
+
+  /* 错误提示条（el-alert danger） */
+  .auth-alert {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    padding: var(--space-3);
+    border: 1px solid var(--state-danger-border);
+    background: var(--state-danger-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); color: var(--state-danger-text);
+    margin-bottom: var(--space-4);
+  }
+  .auth-alert__icon { flex: 0 0 16px; width: 16px; height: 16px; margin-top: var(--space-1); }
+
+  /* 演示环境提示（el-alert info） */
+  .auth-note {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    margin-top: var(--space-5); padding-top: var(--space-4);
+    border-top: 1px solid var(--border-light);
+    font-size: var(--font-size-xs); color: var(--text-tertiary);
+  }
+  .auth-note__icon { flex: 0 0 14px; width: 14px; height: 14px; margin-top: var(--space-1); }
+
+  .auth-foot { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+  /* 加载中的转圈（演示用静态形态） */
+  .spinner {
+    width: 14px; height: 14px; flex: 0 0 14px;
+    border: 2px solid var(--brand-primary-border);
+    border-top-color: var(--text-inverse);
+    border-radius: var(--radius-pill);
+  }
+  .skip-link {
+    position: absolute; left: var(--space-2); top: calc(-1 * var(--space-10));
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-container); border: 1px solid var(--brand-primary);
+    border-radius: var(--radius-sm); color: var(--brand-primary);
+    font-size: var(--font-size-sm);
+  }
+
+  /* ---------- 标注 ---------- */
+  .anno-wrap { padding: var(--space-8) var(--layout-gutter) var(--space-10); max-width: var(--layout-max-width); margin: 0 auto; }
+  .anno-title { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin: 0 0 var(--space-1); }
+  .anno-desc { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0 0 var(--space-5); }
+  .specimen {
+    background: var(--bg-container); border: 1px solid var(--border-base);
+    border-radius: var(--radius-md); padding: var(--space-5); margin-bottom: var(--layout-card-gap);
+  }
+  .specimen h4 { margin: 0 0 var(--space-4); font-size: var(--font-size-base); font-weight: var(--font-weight-medium); }
+  .specimen-row { display: flex; gap: var(--space-5); flex-wrap: wrap; align-items: flex-start; }
+  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
+  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
+  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  code {
+    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
+    background: var(--fill-light); color: var(--text-secondary);
+    padding: 1px var(--space-1); border-radius: var(--radius-xs);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== 线框主体：系统登录页 ===================== -->
+<!-- 独立页：不属后台 6 页骨架，故**没有侧边导航**。
+     check_tokens.py 把本页归入 STANDALONE_PAGES，只做通用校验（快照/裸色值/间距），
+     不参与导航与列名校验。 -->
+<a class="skip-link" href="#login-form">跳到登录表单</a>
+
+<div class="auth">
+
+  <!-- 品牌区：用 logo-full.svg 的完整版形态（图形 + 主标题 + 副标题） -->
+  <div class="auth-brand">
+    <svg class="auth-brand__logo" width="208" height="32" viewBox="0 0 208 32" role="img" aria-label="桩点北邮 充电桩车位防占系统">
+      <rect x="0" y="2" width="28" height="28" rx="4" style="fill: var(--brand-primary);"/>
+      <path d="M15.7 6.4L8.3 17.5h5.2l-1.2 8.1 7.4-11.1h-5.2z" style="fill: var(--text-inverse);"/>
+      <text x="38" y="15" style="fill: var(--text-primary); font-family: var(--font-family-base); font-size: 16px; font-weight: 600;">「桩」点北邮</text>
+      <text x="38" y="28" style="fill: var(--text-tertiary); font-family: var(--font-family-base); font-size: 10px;">充电桩车位防占系统</text>
+    </svg>
+    <p class="auth-brand__slogan">用视觉识别替代人工巡查，让每一度电都停在对的车位</p>
+  </div>
+
+  <div class="auth-card">
+    <h1 class="auth-card__title">登录</h1>
+    <p class="auth-card__sub">请使用校方分配的账号登录管理后台</p>
+
+    <form id="login-form">
+      <div class="field">
+        <label class="label" for="login-username">用户名</label>
+        <div class="input" id="login-username">admin</div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="login-password">密码</label>
+        <div class="input is-placeholder" id="login-password">请输入密码</div>
+        <span class="help">区分大小写；连续 5 次失败会锁定 10 分钟</span>
+      </div>
+
+      <div class="auth-row">
+        <span class="checkbox">
+          <span class="checkbox-box is-checked">✓</span>
+          记住我
+        </span>
+        <a class="link" href="#">忘记密码？</a>
+      </div>
+
+      <button class="btn btn-primary btn-block" type="submit">登 录</button>
+    </form>
+
+    <div class="auth-note">
+      <svg class="auth-note__icon" viewBox="0 0 16 16" role="img" aria-label="提示">
+        <circle cx="8" cy="8" r="7" style="fill: none; stroke: currentColor;" stroke-width="1.5"/>
+        <line x1="8" y1="7" x2="8" y2="11.5" style="stroke: currentColor;" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="4.6" r="0.9" style="fill: currentColor;"/>
+      </svg>
+      <span>演示环境无真实鉴权：账号仅存于前端 sessionStorage，登录状态不跨设备同步。答辩时请说明这一点。</span>
+    </div>
+  </div>
+
+  <p class="auth-foot">© 2026 「桩」点北邮 · 北京邮电大学</p>
+</div>
+
+<!-- ===================== 状态样张 ===================== -->
+<div class="anno-wrap">
+
+  <h2 class="anno-title">状态样张 · 登录页的 4 个态</h2>
+  <p class="anno-desc">登录页是<b>答辩第一眼看到的页面</b>，四个态都必须做：默认、校验失败、凭据错误（服务端返回）、提交中。少一个，现场就可能卡在一个没设计过的界面上。</p>
+
+  <div class="specimen">
+    <h4>① 默认态（无错误）</h4>
+    <div class="specimen-row">
+      <div style="width: 336px;">
+        <div class="field">
+          <span class="label">用户名</span>
+          <div class="input is-placeholder">请输入用户名</div>
+        </div>
+        <div class="field">
+          <span class="label">密码</span>
+          <div class="input is-placeholder">请输入密码</div>
+        </div>
+        <button class="btn btn-primary btn-block">登 录</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>② 字段校验失败（前端即时校验，逐个字段标错，不用弹窗）</h4>
+    <div class="specimen-row">
+      <div style="width: 336px;">
+        <div class="field">
+          <span class="label">用户名</span>
+          <div class="input is-error">ad</div>
+          <span class="help is-error">用户名至少 3 个字符</span>
+        </div>
+        <div class="field">
+          <span class="label">密码</span>
+          <div class="input is-placeholder">请输入密码</div>
+        </div>
+        <button class="btn is-disabled btn-block">登 录</button>
+      </div>
+      <div class="help" style="max-width: 280px;">
+        校验失败时按钮保持<b>可点但无效果</b>还是<b>置灰</b>？这里选置灰：
+        错误原因已经写在字段下方，不需要再点一次才知道。
+      </div>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>③ 凭据错误（服务端返回，用顶部提示条，不标字段）</h4>
+    <div class="specimen-row">
+      <div style="width: 336px;">
+        <div class="auth-alert">
+          <svg class="auth-alert__icon" viewBox="0 0 16 16" role="img" aria-label="错误">
+            <circle cx="8" cy="8" r="7" style="fill: none; stroke: currentColor;" stroke-width="1.5"/>
+            <line x1="8" y1="4.6" x2="8" y2="9" style="stroke: currentColor;" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="8" cy="11.4" r="0.9" style="fill: currentColor;"/>
+          </svg>
+          <span>用户名或密码不正确。还剩 3 次尝试机会，超过 5 次将锁定 10 分钟。</span>
+        </div>
+        <div class="field">
+          <span class="label">用户名</span>
+          <div class="input">admin</div>
+        </div>
+        <div class="field">
+          <span class="label">密码</span>
+          <div class="input is-focus">••••••••</div>
+        </div>
+        <button class="btn btn-primary btn-block">登 录</button>
+      </div>
+      <div class="help" style="max-width: 280px;">
+        <b>为什么不标红字段</b>：服务端只说「凭据不正确」，并不区分是账号错还是密码错 ——
+        标红某个字段等于凭空告诉攻击者「这个用户名是对的」。所以用顶部提示条。
+      </div>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>④ 提交中（按钮进入 loading，整表单只读）</h4>
+    <div class="specimen-row">
+      <div style="width: 336px;">
+        <div class="field">
+          <span class="label">用户名</span>
+          <div class="input is-disabled">admin</div>
+        </div>
+        <div class="field">
+          <span class="label">密码</span>
+          <div class="input is-disabled">••••••••</div>
+        </div>
+        <button class="btn btn-primary btn-block is-loading">
+          <span class="spinner"></span>
+          登录中…
+        </button>
+      </div>
+      <div class="help" style="max-width: 280px;">
+        loading 期间<b>整个表单置灰 + 按钮不可重复点</b>，避免连点产生多个登录请求。
+        超过 <span class="num">10</span> s 未响应则转③号错误提示条，文案改为「登录服务无响应，请稍后重试」。
+      </div>
+    </div>
+  </div>
+
+  <h2 class="anno-title">标注说明</h2>
+  <ol class="notes">
+    <li><b>本页不属后台 6 页骨架</b>：登录页没有侧边导航与顶栏，故 <code>check_tokens.py</code> 把它列入 <code>STANDALONE_PAGES</code>，只做通用校验（令牌快照、裸色值、间距栅格），<b>不参与</b>导航顺序与表格列名校验。契约 §1.1 的 6 页清单指登录后的后台页面，不含本页，故<b>无需</b>改契约。</li>
+    <li><b>品牌区用 <code>logo-full.svg</code> 的完整版</b>：图形 + 「桩」点北邮 + 副标题「充电桩车位防占系统」。<b>副标题文案与 <code>logo-full.svg</code> 内文字逐字一致</b>，两处不得各写一版。</li>
+    <li><b>卡片宽 <span class="num">400</span> px</b>（介于确认弹窗 420 与表单弹窗 520 之间：登录只有两个字段，再宽会显得空）、圆角 <code>--radius-lg</code>、阴影 <code>--shadow-md</code>（比弹窗的 <code>--shadow-lg</code> 轻一档，因为它不是浮层）。</li>
+    <li><b>输入框高 <span class="num">36</span> px</b>，比后台的 32px 高一档 —— 登录页是「一次性高注意力表单」，间距与点击目标都应更宽松；这是全站唯一例外，已在此登记。</li>
+    <li><b>「记住我」默认勾选</b>：演示环境只有一个账号，不勾会每次答辩都要重新输。记住的是<b>用户名</b>，不是密码（不落密码）。</li>
+    <li><b>错误提示分两类，不可混用</b>：<b>字段级</b>（格式问题，标在字段下方 + 输入框红边）与<b>整体级</b>（凭据错误，顶部提示条）。把「密码错误」标到密码框上，等于泄露「用户名是对的」。</li>
+    <li><b>无真实鉴权，页面必须自己说明</b>：底部说明条写明「账号仅存于前端 sessionStorage，登录状态不跨设备同步」——第 1 周 CLAUDE 级口径是「闭环优先、不做生产部署」，答辩时应主动说明而不是被问出来。</li>
+    <li><b>首屏可跳过导航</b>：左上角 <code>.skip-link</code> 是键盘用户的可达性入口（Tab 第一次落点），配合 6.13 的 a11y 检查。</li>
+    <li><b>颜色全部走令牌</b>：除自动生成的 tokens 快照外无裸色值；<code>check_tokens.py</code> 第 [3] 项会自动校验。</li>
+  </ol>
+</div>
+
+</body>
+</html>

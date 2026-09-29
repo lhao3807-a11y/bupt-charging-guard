@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="theme-dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深色模式样张 · 「桩」点北邮 · 充电桩车位防占系统</title>
+
+<!-- 基座：浅色令牌（唯一事实源） -->
+<link rel="stylesheet" href="../tokens.css">
+<!-- 覆盖：深色令牌方案（方案稿，尚未在前端启用） -->
+<link rel="stylesheet" href="../tokens-dark.css">
+
+<style>
+/* ============================================================================
+   深色模式样张（任务 6.8 交付物之二）
+   ----------------------------------------------------------------------------
+   本页**不是线框**，不参与 check_tokens.py 的线框校验（不在 wireframes/ 目录）。
+   它的唯一目的是：让评审能直接看见深色方案的落地效果，并验证 tokens-dark.css
+   的覆盖块**确实生效**（能加载、能覆盖、层级可辨）。
+
+   纪律：本页同样不出现裸色值，一律 var(--token)。
+   样张 A = 第 1 页「车辆信息管理」（表格 / 标签 / 按钮 / 分页）
+   样张 B = 第 4 页「报警统计」（统计卡 / 图表 / 图例 / 空态）
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--space-6) var(--layout-gutter) var(--space-10);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+/* ---------- 页头 ---------- */
+.doc-head {
+  max-width: var(--layout-max-width);
+  margin: 0 auto var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-base);
+}
+.doc-head h1 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+.doc-head p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------- 提示条（对应 el-alert info） ---------- */
+.notice {
+  max-width: var(--layout-max-width);
+  margin: 0 auto var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--brand-primary-border);
+  border-radius: var(--radius-sm);
+  background: var(--brand-primary-bg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.notice b { color: var(--brand-primary); font-weight: var(--font-weight-medium); }
+
+/* ---------- 样张分区 ---------- */
+.sample {
+  max-width: var(--layout-max-width);
+  margin: 0 auto var(--space-8);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.sample > h2 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+.sample > .sub {
+  margin: 0 0 var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------- 卡片（页头 / 筛选） ---------- */
+.card {
+  padding: var(--space-4);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.card + .card { margin-top: var(--space-4); }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.title {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+.spacer { flex: 1; }
+
+/* ---------- 表单控件 ---------- */
+.field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.input {
+  width: 160px;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+}
+.input::placeholder { color: var(--text-tertiary); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  cursor: default;
+}
+/* 主按钮：深色下实心块是"亮"的，故文字走 --text-inverse（此时为深色） */
+.btn-primary {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  font-weight: var(--font-weight-medium);
+}
+/* 次按钮：描边 + 主文字 */
+.btn-plain {
+  background: var(--bg-container);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+/* ---------- 表格 ---------- */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+.tbl th,
+.tbl td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+.tbl th {
+  background: var(--fill-light);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--border-base);
+}
+.tbl tbody tr:hover { background: var(--brand-primary-bg); }
+.mono {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: var(--font-variant-numeric);
+}
+
+/* ---------- 标签（状态 / 车型） ---------- */
+.tag {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-base);
+}
+.tag-energy { background: var(--plate-new-energy-bg); border-color: var(--plate-new-energy-border); color: var(--plate-new-energy-text); }
+.tag-fuel   { background: var(--plate-fuel-bg);       border-color: var(--plate-fuel-border);       color: var(--plate-fuel-text); }
+.tag-danger { background: var(--state-danger-bg);  border-color: var(--state-danger-border);  color: var(--state-danger-text); }
+.tag-caution{ background: var(--state-caution-bg); border-color: var(--state-caution-border); color: var(--state-caution-text); }
+.tag-warning{ background: var(--state-warning-bg); border-color: var(--state-warning-border); color: var(--state-warning-text); }
+.tag-success{ background: var(--state-success-bg); border-color: var(--state-success-border); color: var(--state-success-text); }
+.tag-info   { background: var(--state-info-bg);    border-color: var(--state-info-border);    color: var(--state-info-text); }
+
+/* 实心填充块：深色下用 --text-inverse 作字色（见 tokens-dark.css 说明） */
+.pill-solid {
+  display: inline-block;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  color: var(--text-inverse);
+  font-weight: var(--font-weight-medium);
+}
+.pill-danger  { background: var(--state-danger-solid); }
+.pill-caution { background: var(--state-caution-solid); }
+.pill-warning { background: var(--state-warning-solid); }
+.pill-success { background: var(--state-success-solid); }
+
+/* 行内操作：文字按钮 */
+.link-primary { color: var(--brand-primary); font-size: var(--font-size-sm); }
+.link-danger  { color: var(--state-danger-text); font-size: var(--font-size-sm); }
+
+/* ---------- 分页 ---------- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.page-item {
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+.page-item.is-current {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+.page-total { color: var(--text-tertiary); }
+
+/* ---------- 统计卡 ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--layout-card-gap);
+}
+.kpi {
+  padding: var(--space-4);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-xl);
+  background: var(--bg-container);
+}
+.kpi .k-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+.kpi .k-value {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: var(--font-variant-numeric);
+  line-height: var(--line-height-tight);
+}
+.kpi .k-foot {
+  margin-top: var(--space-1);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+.k-danger  .k-value { color: var(--state-danger-text); }
+.k-caution .k-value { color: var(--state-caution-text); }
+.k-warning .k-value { color: var(--state-warning-text); }
+.k-success .k-value { color: var(--state-success-text); }
+
+/* 图例色点：与统计卡的小圆点同形 */
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-xs);
+  display: inline-block;
+}
+
+/* ---------- 图表 ---------- */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--layout-card-gap);
+  margin-top: var(--space-4);
+}
+.chart-box {
+  padding: var(--space-4);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.chart-box > h3 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+.bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 230px;
+  padding: var(--space-2) var(--space-4) 0;
+  border-bottom: 1px solid var(--border-base);
+  background-image: repeating-linear-gradient(
+    to top,
+    var(--border-light) 0 1px,
+    transparent 1px calc(230px / 4)
+  );
+}
+.bar {
+  width: 28px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  position: relative;
+}
+.bar span {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  color: var(--text-secondary);
+}
+.bar-danger  { background: var(--state-danger-solid); }
+.bar-caution { background: var(--state-caution-solid); }
+.bar-warning { background: var(--state-warning-solid); }
+.bar-success { background: var(--state-success-solid); }
+.axis {
+  display: flex;
+  justify-content: space-around;
+  margin-top: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+.legend i { display: inline-flex; align-items: center; gap: var(--space-1); font-style: normal; }
+
+/* 环形图：主色梯度（份额序列，不借违规色） */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; }
+.donut { position: relative; width: 240px; height: 240px; }
+.donut .center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.donut .center .n {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: var(--font-variant-numeric);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+.donut .center .t { color: var(--text-tertiary); font-size: var(--font-size-xs); }
+
+/* ---------- 空态 ---------- */
+.empty-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  border: 1px dashed var(--border-base);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------- 页脚说明 ---------- */
+.foot {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-base);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+.foot h2 { font-size: var(--font-size-base); color: var(--text-secondary); margin: 0 0 var(--space-2); }
+.foot ul { margin: 0; padding-left: var(--space-5); }
+.foot li { margin-bottom: var(--space-1); }
+code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+  background: var(--fill-light);
+  color: var(--text-secondary);
+}
+</style>
+</head>
+<body>
+
+<header class="doc-head">
+  <h1>深色模式样张 · 「桩」点北邮 · 充电桩车位防占系统</h1>
+  <p>第 2 周任务 6.8 交付物 · 方案稿（第 4 周视工期决定是否实施）· 本页真加载 <code>tokens-dark.css</code>，用于验证覆盖块生效</p>
+</header>
+
+<div class="notice">
+  <b>说明</b>：本页不是线框，不参与 <code>check_tokens.py</code> 的线框校验。
+  深色令牌的数值由 <code>python docs/design/tools/check_darkmode.py</code> 逐条断言（含反例打靶 <code>selftest_darkmode.py</code>）。
+</div>
+
+<!-- ============================ 样张 A ============================ -->
+<section class="sample">
+  <h2>样张 A · 第 1 页 车辆信息管理</h2>
+  <p class="sub">覆盖：页头按钮 / 筛选区 / 表格三色（表头底、行线、悬浮行）/ 车型标签 / 行内操作 / 分页。手机号已按口径脱敏。</p>
+
+  <div class="card">
+    <div class="row">
+      <h3 class="title">车辆信息管理</h3>
+      <div class="spacer"></div>
+      <button class="btn btn-primary">+ 新增车辆</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label class="field">车牌号 <input class="input" value="京A12345" readonly></label>
+      <label class="field">车型 <input class="input" value="新能源" readonly></label>
+      <label class="field">车主 <input class="input" placeholder="请输入车主姓名" readonly></label>
+      <button class="btn btn-primary">查询</button>
+      <button class="btn btn-plain">重置</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th style="width: 160px;">车牌号</th>
+          <th style="width: 120px;">车型</th>
+          <th style="width: 140px;">车主</th>
+          <th style="width: 160px;">手机号</th>
+          <th style="width: 200px;">录入时间</th>
+          <th style="width: 140px;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">京A12345</td>
+          <td><span class="tag tag-energy">新能源</span></td>
+          <td>张伟</td>
+          <td class="mono">138****6621</td>
+          <td class="mono">2026-09-13 09:24:11</td>
+          <td><span class="link-primary">编辑</span> · <span class="link-danger">删除</span></td>
+        </tr>
+        <tr>
+          <td class="mono">京B8F2K1</td>
+          <td><span class="tag tag-fuel">燃油</span></td>
+          <td>李静</td>
+          <td class="mono">139****0334</td>
+          <td class="mono">2026-09-13 10:02:47</td>
+          <td><span class="link-primary">编辑</span> · <span class="link-danger">删除</span></td>
+        </tr>
+        <tr>
+          <td class="mono">京CD77N9</td>
+          <td><span class="tag tag-energy">新能源</span></td>
+          <td>王强</td>
+          <td class="mono">137****9012</td>
+          <td class="mono">2026-09-13 11:41:03</td>
+          <td><span class="link-primary">编辑</span> · <span class="link-danger">删除</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pager" style="padding: 0 var(--space-4) var(--space-4);">
+      <span class="page-total">共 3 条</span>
+      <span class="page-item">‹</span>
+      <span class="page-item is-current">1</span>
+      <span class="page-item">›</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 样张 B ============================ -->
+<section class="sample">
+  <h2>样张 B · 第 4 页 报警统计</h2>
+  <p class="sub">覆盖：统计卡大数（等宽）/ 语义序列柱状图（红→橙→黄→绿，顺序即严重度）/ 份额序列环形图（主色梯度）/ 图例 / 无数据态。</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="k-label"><i class="dot" style="background: var(--state-info-solid);"></i>违规总数</div>
+      <div class="k-value" style="color: var(--text-primary);">128</div>
+      <div class="k-foot">近 7 天累计</div>
+    </div>
+    <div class="kpi k-danger">
+      <div class="k-label"><i class="dot" style="background: var(--state-danger-solid);"></i>燃油车占位</div>
+      <div class="k-value">56</div>
+      <div class="k-foot">占比 43.8%</div>
+    </div>
+    <div class="kpi k-caution">
+      <div class="k-label"><i class="dot" style="background: var(--state-caution-solid);"></i>异常占位</div>
+      <div class="k-value">44</div>
+      <div class="k-foot">占比 34.4%</div>
+    </div>
+    <div class="kpi k-warning">
+      <div class="k-label"><i class="dot" style="background: var(--state-warning-solid);"></i>充满未移车</div>
+      <div class="k-value">28</div>
+      <div class="k-foot">占比 21.9%</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>按命中规则分布（柱状图 · 语义序列）</h3>
+      <div class="bars">
+        <div class="bar bar-danger" style="height: 180px;"><span>56</span></div>
+        <div class="bar bar-caution" style="height: 142px;"><span>44</span></div>
+        <div class="bar bar-warning" style="height: 90px;"><span>28</span></div>
+      </div>
+      <div class="axis">
+        <span>燃油车占位</span><span>异常占位</span><span>充满未移车</span>
+      </div>
+      <div class="legend">
+        <i><span class="dot" style="background: var(--state-danger-solid);"></span>rule_hit=1</i>
+        <i><span class="dot" style="background: var(--state-caution-solid);"></span>rule_hit=2</i>
+        <i><span class="dot" style="background: var(--state-warning-solid);"></span>rule_hit=3</i>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h3>按桩占比（环形图 · 份额序列）</h3>
+      <div class="donut-wrap">
+        <div class="donut">
+          <svg viewBox="0 0 120 120" width="240" height="240" role="img" aria-label="按桩占比环形图，共 128 条">
+            <circle cx="60" cy="60" r="48" fill="none" stroke="var(--brand-primary)"
+                    stroke-width="16" stroke-dasharray="48.3 253.3" transform="rotate(-90 60 60)"></circle>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="var(--brand-primary-light-3)"
+                    stroke-width="16" stroke-dasharray="36.2 265.4" transform="rotate(46.6 60 60)"></circle>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="var(--brand-primary-light-5)"
+                    stroke-width="16" stroke-dasharray="27.1 274.5" transform="rotate(148.4 60 60)"></circle>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="var(--brand-primary-light-7)"
+                    stroke-width="16" stroke-dasharray="18.1 283.5" transform="rotate(224.6 60 60)"></circle>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="var(--state-info-solid)"
+                    stroke-width="16" stroke-dasharray="14.5 287.1" transform="rotate(275.2 60 60)"></circle>
+          </svg>
+          <div class="center">
+            <span class="n">128</span>
+            <span class="t">近 7 天</span>
+          </div>
+        </div>
+        <div class="legend" style="flex-direction: column; align-items: flex-start; gap: var(--space-1);">
+          <i><span class="dot" style="background: var(--brand-primary);"></span>1 号桩</i>
+          <i><span class="dot" style="background: var(--brand-primary-light-3);"></span>2 号桩</i>
+          <i><span class="dot" style="background: var(--brand-primary-light-5);"></span>3 号桩</i>
+          <i><span class="dot" style="background: var(--brand-primary-light-7);"></span>4 号桩</i>
+          <i><span class="dot" style="background: var(--state-info-solid);"></span>其他</i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-demo">
+    <strong style="color: var(--state-success-text);">✓ 暂无违规记录</strong>
+    <span>近 7 天系统未产生违规事件（确无数据 → 空态，不画一张全 0 的图）</span>
+  </div>
+</section>
+
+<footer class="foot">
+  <h2>本方案的关键决策（评审时看这四条就够）</h2>
+  <ul>
+    <li><b>主按钮反相</b>：深色下主色 <code>--brand-primary</code> 提亮到 <code>#5B9BFF</code>，实心块变亮，
+        因此按钮文字走 <code>--text-inverse</code>（此时为深色 <code>#14161A</code>）—— 与浅色模式的白字相反。
+        照抄浅色会让主按钮白字掉到 2.77:1。</li>
+    <li><b>层级靠描边不靠底差</b>：三档底 <code>#0F1115</code> / <code>#1B1F25</code> / <code>#262A31</code> 之间仅 1.14–1.15:1，
+        容器边界由 <code>--border-base</code> 承担。这是深色模式的通用做法，不要为了"看得见层级"把底压成纯黑。</li>
+    <li><b>状态色 <code>-solid</code> 仍只做填充</b>：深色下 <code>-solid</code> 档亮度提升（3.6–7.8:1 对卡片底），
+        但语义分工不变 —— 白底/深底上的文字与图形一律走 <code>-text</code> 档。</li>
+    <li><b>份额序列不借违规色</b>：环形图用主色梯度，不用红橙黄绿（同 <code>component-inventory.md</code> §3.1 ②）。</li>
+  </ul>
+</footer>
+
+</body>
+</html>

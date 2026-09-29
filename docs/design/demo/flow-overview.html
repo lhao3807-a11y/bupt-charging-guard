@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>演示流程图 · 「桩」点北邮 · 充电桩车位防占系统</title>
+
+<link rel="stylesheet" href="../tokens.css">
+
+<style>
+/* ============================================================================
+   演示流程图（任务 6.10 交付物之一）
+   ----------------------------------------------------------------------------
+   用途：答辩时展示「识别 → 判定 → 提醒 → 落库」的业务闭环与系统分层。
+   本页可整页截图（建议 1920×1200 视口、devicePixelRatio 2），直接进 PPT。
+
+   纪律：不出现裸色值，一律 var(--token)。
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--space-8) var(--space-8) var(--space-10);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+.sheet {
+  width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  background: var(--bg-container);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- 页头 ---------- */
+.head {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 2px solid var(--brand-primary);
+  margin-bottom: var(--space-8);
+}
+.head h1 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  letter-spacing: 0.5px;
+}
+.head .sub {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-base);
+  padding-bottom: 4px;
+}
+.head .tag {
+  margin-left: auto;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary-bg);
+  color: var(--brand-primary);
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--brand-primary-border);
+}
+
+/* ---------- 章节标题 ---------- */
+.sec {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-5);
+}
+.sec .bar { width: 4px; height: 18px; border-radius: var(--radius-xs); background: var(--brand-primary); }
+.sec h2 { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); }
+.sec .note { color: var(--text-tertiary); font-size: var(--font-size-sm); }
+
+/* ---------- ① 业务闭环四阶段 ---------- */
+.flow {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-bottom: var(--space-10);
+}
+.step {
+  flex: 1;
+  position: relative;
+  padding: var(--space-4) var(--space-4) var(--space-5);
+  border: 1px solid var(--border-base);
+  border-top: 4px solid var(--step-color, var(--brand-primary));
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.step__no {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-bottom: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--step-color, var(--brand-primary));
+  color: var(--text-inverse);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-mono);
+}
+.step__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+.step__desc {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  min-height: 60px;
+}
+.step__meta {
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border-base);
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+}
+.step__meta code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  background: var(--fill-light);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-xs);
+}
+.arrow {
+  align-self: center;
+  flex-shrink: 0;
+  color: var(--border-strong);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 四阶段的强调色：与违规色序同一套（红→橙→黄→绿），语义一致 */
+.s1 { --step-color: var(--state-danger-solid); }
+.s2 { --step-color: var(--state-caution-solid); }
+.s3 { --step-color: var(--state-warning-solid); }
+.s4 { --step-color: var(--state-success-solid); }
+
+/* ---------- ② 架构分层 ---------- */
+.layers { display: flex; flex-direction: column; gap: var(--space-2); }
+.layer {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-base);
+  border-left: 4px solid var(--layer-color, var(--brand-primary));
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.layer__name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+.layer__name span {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-family-mono);
+}
+.layer__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.chip {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.chip--accent {
+  border-color: var(--brand-primary-border);
+  background: var(--brand-primary-bg);
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+.chip--mono { font-family: var(--font-family-mono); font-size: var(--font-size-xs); }
+.l1 { --layer-color: var(--brand-primary); }
+.l2 { --layer-color: var(--state-info-solid); }
+.l3 { --layer-color: var(--state-caution-solid); }
+.l4 { --layer-color: var(--state-success-solid); }
+
+/* ---------- ③ 判定规则 ---------- */
+.rules {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.rule {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--rule-border, var(--border-base));
+  border-radius: var(--radius-md);
+  background: var(--rule-bg, var(--bg-container));
+}
+.rule__tag {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-family-mono);
+  background: var(--rule-bg, var(--bg-container));
+  border: 1px solid var(--rule-border, var(--border-base));
+  color: var(--rule-text, var(--text-secondary));
+}
+.rule__name { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--rule-text, var(--text-primary)); }
+.rule__desc { margin-top: var(--space-1); font-size: var(--font-size-xs); color: var(--text-tertiary); line-height: var(--line-height-base); }
+.r1 { --rule-bg: var(--state-danger-bg); --rule-border: var(--state-danger-border); --rule-text: var(--state-danger-text); }
+.r2 { --rule-bg: var(--state-caution-bg); --rule-border: var(--state-caution-border); --rule-text: var(--state-caution-text); }
+.r3 { --rule-bg: var(--state-warning-bg); --rule-border: var(--state-warning-border); --rule-text: var(--state-warning-text); }
+.r0 { --rule-bg: var(--state-success-bg); --rule-border: var(--state-success-border); --rule-text: var(--state-success-text); }
+
+/* ---------- 页脚 ---------- */
+.foot {
+  margin-top: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-base);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+.foot .spacer { flex: 1; }
+.spacer { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <header class="head">
+    <h1>「桩」点北邮 · 充电桩车位防占系统</h1>
+    <div class="sub">识别 → 判定 → 提醒 → 落库 闭环</div>
+    <div class="tag">演示流程图 · 答辩用</div>
+  </header>
+
+  <!-- ================= ① 业务闭环 ================= -->
+  <div class="sec">
+    <div class="bar"></div>
+    <h2>一、业务闭环</h2>
+    <div class="note">一次完整判定：从摄像头取帧到违规记录落库，全程自动，无需人工干预</div>
+  </div>
+
+  <div class="flow">
+    <div class="step s1">
+      <div class="step__no">1</div>
+      <h3 class="step__title">车辆识别</h3>
+      <p class="step__desc">
+        摄像头取帧送入视觉模型：<b>YOLOv8</b> 检出车辆目标并给出置信度，
+        <b>HyperLPR</b> 识别车牌字符，输出车牌号、车型（绿牌→新能源 / 蓝牌→燃油）与检测框。
+      </p>
+      <div class="step__meta">
+        <code>POST /api/recognize</code><br>
+        输入：帧引用 · 输出：RecognitionResult
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step s2">
+      <div class="step__no">2</div>
+      <h3 class="step__title">违规判定</h3>
+      <p class="step__desc">
+        以车牌为键联结<b>充电桩状态</b>与<b>系统阈值</b>，依次命中四条规则；
+        命中即落库并生成违规记录，<b>规则 ④（正常充电）不产生记录</b>。
+      </p>
+      <div class="step__meta">
+        <code>POST /api/judge</code><br>
+        阈值一律读 <code>system_config</code>，禁止硬编码
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step s3">
+      <div class="step__no">3</div>
+      <h3 class="step__title">主动提醒</h3>
+      <p class="step__desc">
+        按违规记录的车牌查绑定车主手机号，推送到<b>短信沙箱</b>（演示期不真实下发），
+        回写提醒状态：未提醒 → 已提醒 / 失败。
+      </p>
+      <div class="step__meta">
+        <code>POST /api/notify</code><br>
+        手机号展示按 <code>138****6621</code> 脱敏
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <div class="step s4">
+      <div class="step__no">4</div>
+      <h3 class="step__title">记录落库</h3>
+      <p class="step__desc">
+        违规记录写入 <b>occupation_record</b>，后台「违规记录查询」页可见；
+        同桩同规则且未提醒的记录<b>复用为一条</b>，避免轮询导致记录爆炸。
+      </p>
+      <div class="step__meta">
+        <code>GET /api/records</code><br>
+        支持车牌 / 车型 / 桩 ID / 规则 / 状态 / 时间筛选
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ② 架构分层 ================= -->
+  <div class="sec">
+    <div class="bar"></div>
+    <h2>二、系统分层</h2>
+    <div class="note">四层职责单一：上层只依赖下层的接口，判定语义全部收敛在判定层</div>
+  </div>
+
+  <div class="layers">
+    <div class="layer l1">
+      <div class="layer__name">展示层<span>Vue 3 + Vite</span></div>
+      <div class="layer__body">
+        <span class="chip chip--accent">后台 6 页</span>
+        <span class="chip">车辆信息管理</span>
+        <span class="chip">违规记录查询</span>
+        <span class="chip">充电状态展示</span>
+        <span class="chip">报警统计</span>
+        <span class="chip">系统参数配置</span>
+        <span class="chip">实时识别预览</span>
+        <span class="chip chip--mono">Element Plus · ECharts</span>
+      </div>
+    </div>
+
+    <div class="layer l2">
+      <div class="layer__name">接口层<span>FastAPI</span></div>
+      <div class="layer__body">
+        <span class="chip chip--mono">POST /api/recognize</span>
+        <span class="chip chip--mono">POST /api/judge</span>
+        <span class="chip chip--mono">POST /api/notify</span>
+        <span class="chip chip--mono">GET /api/records</span>
+        <span class="chip chip--mono">GET /api/health</span>
+        <span class="chip chip--mono">GET /api/frame/latest（预留）</span>
+      </div>
+    </div>
+
+    <div class="layer l3">
+      <div class="layer__name">判定层<span>rule_engine</span></div>
+      <div class="layer__body">
+        <span class="chip chip--accent">四条规则</span>
+        <span class="chip">规则 ① 燃油车占位</span>
+        <span class="chip">规则 ② 异常占位</span>
+        <span class="chip">规则 ③ 充满未移车</span>
+        <span class="chip">规则 ④ 正常充电（不提醒）</span>
+      </div>
+    </div>
+
+    <div class="layer l4">
+      <div class="layer__name">数据层<span>SQLAlchemy</span></div>
+      <div class="layer__body">
+        <span class="chip chip--mono">vehicle</span>
+        <span class="chip chip--mono">charging_pile</span>
+        <span class="chip chip--mono">occupation_record</span>
+        <span class="chip chip--mono">system_config</span>
+        <span class="chip chip--accent">开发期 SQLite → 目标 MySQL 8</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ③ 判定规则 ================= -->
+  <div class="sec" style="margin-top: var(--space-8);">
+    <div class="bar"></div>
+    <h2>三、四条判定规则</h2>
+    <div class="note">颜色顺序 = 严重度顺序，后台所有页面同序，不换色</div>
+  </div>
+
+  <div class="rules">
+    <div class="rule r1">
+      <span class="rule__tag">rule_hit = 1</span>
+      <div class="rule__name">燃油车占位</div>
+      <div class="rule__desc">蓝牌燃油车停在充电位上 —— 最严重，立即提醒驶离</div>
+    </div>
+    <div class="rule r2">
+      <span class="rule__tag">rule_hit = 2</span>
+      <div class="rule__name">异常占位</div>
+      <div class="rule__desc">新能源车停在充电位但未充电，且久停超过阈值（默认 30 分钟）</div>
+    </div>
+    <div class="rule r3">
+      <span class="rule__tag">rule_hit = 3</span>
+      <div class="rule__name">充满未移车</div>
+      <div class="rule__desc">充电已完成但超时未离场（默认 30 分钟），占用紧缺资源</div>
+    </div>
+    <div class="rule r0">
+      <span class="rule__tag">rule_hit = 0</span>
+      <div class="rule__name">正常充电</div>
+      <div class="rule__desc">合规使用，不产生违规记录、不发送提醒</div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>数据来源：<code style="font-family: var(--font-family-mono);">CONTRACT.md</code> v1.5（唯一事实源）</span>
+    <div class="spacer"></div>
+    <span>配色与排版遵循 <code style="font-family: var(--font-family-mono);">docs/design/tokens.css</code></span>
+    <div class="spacer"></div>
+    <span>演示原型 · 第 2 周</span>
+  </footer>
+
+</div>
+
+</body>
+</html>

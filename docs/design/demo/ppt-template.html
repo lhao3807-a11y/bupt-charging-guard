@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>答辩 PPT 视觉模板 · 「桩」点北邮</title>
+
+<link rel="stylesheet" href="../tokens.css">
+
+<style>
+/* ============================================================================
+   答辩 PPT 视觉模板（任务 6.10 交付物之三）
+   ----------------------------------------------------------------------------
+   四页骨架：封面 / 目录 / 内容 / 结束。每页 16:9（1280×720），可直接整页截图
+   贴进 PPT，或按此规范在 PowerPoint 里 1:1 复刻。
+
+   用法：浏览器打开 → 逐页截图（建议视口 1280×720、devicePixelRatio 2）
+        → 贴进 PPT 母版。
+
+   纪律：不出现裸色值，一律 var(--token)；字号只用 --font-size-* 阶梯。
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--space-8) 0;
+  background: var(--bg-page);
+  font-family: var(--font-family-base);
+  color: var(--text-primary);
+}
+
+.slide {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  margin: 0 auto var(--space-8);
+  padding: var(--space-12) var(--space-12) var(--space-10);
+  background: var(--bg-container);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* 页码（右下角） */
+.slide__no {
+  position: absolute;
+  right: var(--space-8);
+  bottom: var(--space-6);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  color: var(--text-disabled);
+}
+
+/* 通用页眉（内容页用） */
+.slide__head {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 2px solid var(--brand-primary);
+  margin-bottom: var(--space-8);
+}
+.slide__head h2 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+.slide__head .kicker {
+  margin-left: auto;
+  padding-bottom: 6px;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================ ① 封面 ============================ */
+.cover { display: flex; flex-direction: column; }
+.cover__mark {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 460px;
+  height: 460px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary-bg);
+}
+.cover__mark2 {
+  position: absolute;
+  bottom: -160px;
+  right: 180px;
+  width: 320px;
+  height: 320px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success-bg);
+}
+.cover__logo { position: relative; margin-bottom: auto; }
+.cover__logo img { height: 48px; display: block; }
+.cover__body { position: relative; }
+.cover__eyebrow {
+  display: inline-block;
+  margin-bottom: var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary-bg);
+  border: 1px solid var(--brand-primary-border);
+  color: var(--brand-primary);
+  font-size: var(--font-size-sm);
+}
+.cover h1 {
+  margin: 0 0 var(--space-4);
+  font-size: 56px;
+  line-height: 1.2;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 1px;
+}
+.cover h1 em { font-style: normal; color: var(--brand-primary); }
+.cover__sub {
+  margin: 0 0 var(--space-8);
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+.cover__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-base);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+}
+.cover__meta b { color: var(--text-secondary); font-weight: var(--font-weight-medium); }
+
+/* ============================ ② 目录 ============================ */
+.toc { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5) var(--space-8); }
+.toc__item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.toc__no {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--brand-primary);
+  line-height: 1;
+}
+.toc__title { font-size: var(--font-size-md); font-weight: var(--font-weight-medium); margin-bottom: var(--space-1); }
+.toc__desc { font-size: var(--font-size-sm); color: var(--text-tertiary); line-height: var(--line-height-base); }
+
+/* ============================ ③ 内容页 ============================ */
+.content { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--space-8); }
+.points { margin: 0; padding: 0; list-style: none; }
+.points li {
+  position: relative;
+  padding: var(--space-3) 0 var(--space-3) var(--space-6);
+  border-bottom: 1px dashed var(--border-light);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+}
+.points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22px;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-xs);
+  background: var(--brand-primary);
+}
+.points li b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+.points li:last-child { border-bottom: 0; }
+
+.chart-demo {
+  padding: var(--space-4);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.chart-demo__title { font-size: var(--font-size-sm); color: var(--text-secondary); font-weight: var(--font-weight-medium); }
+.bars { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; border-bottom: 1px solid var(--border-base); }
+.bars .b { width: 40px; border-radius: var(--radius-xs) var(--radius-xs) 0 0; position: relative; }
+.bars .b span {
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-family-mono); font-size: var(--font-size-xs); color: var(--text-secondary);
+}
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.kpi {
+  padding: var(--space-3);
+  border: 1px solid var(--border-base);
+  border-radius: var(--radius-md);
+  background: var(--bg-container);
+}
+.kpi .n { font-family: var(--font-family-mono); font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); line-height: var(--line-height-tight); }
+.kpi .l { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: var(--space-1); }
+.k-danger .n { color: var(--state-danger-text); }
+.k-caution .n { color: var(--state-caution-text); }
+.k-warning .n { color: var(--state-warning-text); }
+
+/* ============================ ④ 结束页 ============================ */
+.end { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.end__mark { width: 72px; height: 72px; margin-bottom: var(--space-6); }
+.end h2 { margin: 0 0 var(--space-4); font-size: 44px; font-weight: var(--font-weight-semibold); letter-spacing: 2px; }
+.end p { margin: 0 0 var(--space-8); font-size: var(--font-size-lg); color: var(--text-secondary); }
+.end__row { display: flex; gap: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--border-base); color: var(--text-tertiary); font-size: var(--font-size-sm); }
+.end__row b { color: var(--text-secondary); font-weight: var(--font-weight-medium); }
+.end__wash {
+  position: absolute;
+  inset: auto -120px -200px auto;
+  width: 420px; height: 420px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary-bg);
+}
+
+/* 打印：去圆角与阴影，按页分页 */
+@media print {
+  body { background: var(--bg-container); padding: 0; }
+  .slide { margin: 0; border: 0; border-radius: 0; page-break-after: always; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ ① 封面 ============================ -->
+<section class="slide cover">
+  <div class="cover__mark"></div>
+  <div class="cover__mark2"></div>
+
+  <div class="cover__logo">
+    <img src="../assets/logos/logo-full.svg" alt="「桩」点北邮 · 充电桩车位防占系统">
+  </div>
+
+  <div class="cover__body">
+    <div class="cover__eyebrow">北京邮电大学 · 项目答辩</div>
+    <h1>「桩」点北邮<br><em>充电桩车位防占系统</em></h1>
+    <p class="cover__sub">
+      用「计算机视觉 + 充电桩状态」融合，自动识别燃油车占位与充满未移车，<br>
+      主动提醒车主，形成「识别 — 判定 — 提醒」闭环。
+    </p>
+    <div class="cover__meta">
+      <span>技术栈 <b>FastAPI · Vue 3 · MySQL 8 · YOLOv8 · HyperLPR</b></span>
+      <div class="spacer"></div>
+      <span>答辩人 <b>吕浩 · 汤瑾睿 · 吴和庆</b></span>
+      <div class="spacer"></div>
+      <span class="mono" style="font-family: var(--font-family-mono);">2026-09</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ② 目录 ============================ -->
+<section class="slide">
+  <div class="slide__head">
+    <h2>目录</h2>
+    <div class="kicker">Contents</div>
+  </div>
+
+  <div class="toc">
+    <div class="toc__item">
+      <div class="toc__no">01</div>
+      <div>
+        <div class="toc__title">项目背景与问题</div>
+        <div class="toc__desc">充电车位被燃油车与已充满车辆长期占用，管理靠人工巡查</div>
+      </div>
+    </div>
+    <div class="toc__item">
+      <div class="toc__no">02</div>
+      <div>
+        <div class="toc__title">系统方案与架构</div>
+        <div class="toc__desc">识别 → 判定 → 提醒 → 落库 闭环；四层架构与五组接口</div>
+      </div>
+    </div>
+    <div class="toc__item">
+      <div class="toc__no">03</div>
+      <div>
+        <div class="toc__title">四条判定规则</div>
+        <div class="toc__desc">燃油车占位 / 异常占位 / 充满未移车 / 正常充电，阈值可配</div>
+      </div>
+    </div>
+    <div class="toc__item">
+      <div class="toc__no">04</div>
+      <div>
+        <div class="toc__title">后台功能演示</div>
+        <div class="toc__desc">车辆管理 / 违规查询 / 充电状态 / 报警统计 / 参数配置 / 识别预览</div>
+      </div>
+    </div>
+    <div class="toc__item">
+      <div class="toc__no">05</div>
+      <div>
+        <div class="toc__title">工程与质量保障</div>
+        <div class="toc__desc">契约驱动的接口协作、自动化校验、测试覆盖</div>
+      </div>
+    </div>
+    <div class="toc__item">
+      <div class="toc__no">06</div>
+      <div>
+        <div class="toc__title">总结与展望</div>
+        <div class="toc__desc">已完成范围、遗留问题与后续演进方向</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide__no">02</div>
+</section>
+
+<!-- ============================ ③ 内容页 ============================ -->
+<section class="slide">
+  <div class="slide__head">
+    <h2>报警统计（示例内容页）</h2>
+    <div class="kicker">04 · 后台功能演示</div>
+  </div>
+
+  <div class="content">
+    <ul class="points">
+      <li><b>按命中规则分布</b> —— 三条违规规则按严重度降序排列，颜色与后台表格完全同序。</li>
+      <li><b>违规趋势</b> —— 支持近 7 天 / 30 天切换，单序列用品牌主色 + 浅色面积。</li>
+      <li><b>按桩占比</b> —— 分类份额改用主色梯度，避免「份额大 = 更严重」的误读。</li>
+      <li><b>下钻联动</b> —— 点击柱体即按该规则过滤下方明细表，不新增路由。</li>
+      <li><b>自检口径</b> —— 三个分项之和必须等于总数（本页 56 + 44 + 28 = 128）。</li>
+    </ul>
+
+    <div class="chart-demo">
+      <div class="chart-demo__title">按命中规则分布（近 7 天）</div>
+      <div class="bars">
+        <div class="b" style="height: 176px; background: var(--state-danger-solid);"><span>56</span></div>
+        <div class="b" style="height: 138px; background: var(--state-caution-solid);"><span>44</span></div>
+        <div class="b" style="height: 88px; background: var(--state-warning-solid);"><span>28</span></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi k-danger"><div class="n">56</div><div class="l">燃油车占位</div></div>
+        <div class="kpi k-caution"><div class="n">44</div><div class="l">异常占位</div></div>
+        <div class="kpi k-warning"><div class="n">28</div><div class="l">充满未移车</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide__no">03</div>
+</section>
+
+<!-- ============================ ④ 结束页 ============================ -->
+<section class="slide end">
+  <div class="end__wash"></div>
+  <img class="end__mark" src="../assets/logos/logo-mark.svg" alt="">
+  <h2>感谢聆听</h2>
+  <p>恳请各位老师批评指正</p>
+  <div class="end__row">
+    <span>「桩」点北邮 · 充电桩车位防占系统</span>
+    <span>吕浩 · 汤瑾睿 · 吴和庆</span>
+  </div>
+</section>
+
+</body>
+</html>

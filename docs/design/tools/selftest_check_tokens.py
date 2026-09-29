@@ -11,6 +11,10 @@
 或者断言写错了根本没查到。这个脚本能区分这两种情况。
 结论记录见 `docs/design/walkthrough.md` §3。
 
+两类用例：
+  * CASES        —— 文本替换（改坏某个文件里的一段内容）
+  * MISSING_CASES —— 文件级整体缺失（把文件临时移走，模拟「交付物没交」）
+
 纯标准库，无第三方依赖。
 """
 
@@ -27,8 +31,10 @@ REPO_ROOT = os.path.dirname(os.path.dirname(DESIGN_DIR))  # 仓库根
 CHECKER = os.path.join(TOOLS_DIR, "check_tokens.py")
 REC = os.path.join(DESIGN_DIR, "wireframes", "records.html")
 STAT = os.path.join(DESIGN_DIR, "wireframes", "statistics.html")
+PREVIEW = os.path.join(DESIGN_DIR, "wireframes", "preview.html")
 ICON = os.path.join(DESIGN_DIR, "assets", "icons", "icon-search.svg")
 CONTRACT = os.path.join(REPO_ROOT, "docs", "CONTRACT.md")
+INV = os.path.join(DESIGN_DIR, "component-inventory.md")
 
 # (用例名, 目标文件, 原串, 替换串, 期望出现的失败信息, 是否替换全部)
 CASES = [
@@ -88,6 +94,41 @@ CASES = [
      "### 3.5 显示列名映射表",
      "### 3.5X 已移除",
      "无法从 CONTRACT.md §3.5 解析", False),
+    # --- 2026-09-26 第 2 周补入：覆盖本轮新增/反转的断言 ---
+    # 导航解禁断言从「恰有 1 个 is-reserved」反转为「不得有」，
+    # 必须证明**反转后的断言**也在工作（只反转不验证 = 新的空跑风险）。
+    ("第 6 页被重新置灰", PREVIEW,
+     '<a class="nav-item is-active"><span class="nav-idx">6</span>实时识别预览</a>',
+     '<a class="nav-item is-active is-reserved"><span class="nav-idx">6</span>实时识别预览</a>',
+     "不应再有 is-reserved", False),
+    # 加载态规格（任务 6.2）：章节没了必须拦下
+    ("§2.1 加载态规格缺失", INV,
+     "### 2.1 加载态规格",
+     "### 2.1X 已移除",
+     "缺 §2.1 加载态规格", False),
+    # 骨架屏样张（任务 6.2/6.12）：把所有独立 skeleton 类名改掉
+    ("骨架屏样张缺失", PREVIEW,
+     'class="skeleton',
+     'class="skel',
+     "缺骨架屏样张", True),
+    # 线框登记（任务 6.12）：把 §3.5 里**全部** P6 行挪到不存在的 P7，
+    # 第 6 页会从派生结果里整个消失 → 该页的导航/空态/列名/间距校验全被跳过。
+    # 必须失败而非静默。注意要整页搬走：只挪一行的话该页仍算「已登记」，
+    # 只会报「缺少契约字段列」，构造不出「未登记」这个条件（首版用例就是这么写错的）。
+    ("线框未登记 §3.5", CONTRACT,
+     "| P6 |",
+     "| P7 |",
+     "未在 CONTRACT.md §3.5 登记", True),
+]
+
+# 文件级用例：(用例名, 目标文件, 期望出现的失败信息)
+MISSING_CASES = [
+    ("第 6 页线框缺失",
+     os.path.join(DESIGN_DIR, "wireframes", "preview.html"),
+     "第 6 页线框缺失"),
+    ("空结果插画缺失",
+     os.path.join(DESIGN_DIR, "assets", "illustrations", "empty-state-search-empty.svg"),
+     "空态插画缺失"),
 ]
 
 
@@ -133,13 +174,32 @@ def main():
             shutil.copy2(bak, path)
             os.remove(bak)
 
+    # 文件级：把交付物临时移走，确认「缺失」会被拦下（而不是静默少检一项）
+    for name, path, expect in MISSING_CASES:
+        if not os.path.isfile(path):
+            print("  %-16s 目标文件不存在，用例需更新" % name)
+            failed.append(name + "(文件缺失)")
+            continue
+        hidden = path + ".selftest.hidden"
+        try:
+            os.rename(path, hidden)
+            code, out = run_checker()
+            hit = expect in out
+            ok = (code == 1 and hit)
+            print("  %-16s exit=%d  失败信息命中=%s  %s"
+                  % (name, code, "是" if hit else "否", "✓" if ok else "✗ 未拦下"))
+            if not ok:
+                failed.append(name)
+        finally:
+            os.rename(hidden, path)
+
     code, out = run_checker()
     print()
     print("还原后复跑 exit=%d（应为 0）%s" % (code, "✓" if code == 0 else "✗"))
     if failed:
         print("未通过的用例：%s" % " / ".join(failed))
         return 1
-    print("全部 %d 个用例：改坏即被拦下 ✓" % len(CASES))
+    print("全部 %d 个用例：改坏即被拦下 ✓" % (len(CASES) + len(MISSING_CASES)))
     return 0
 
 

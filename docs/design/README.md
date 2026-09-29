@@ -133,6 +133,22 @@ docs/design/
 > `assets/icons/`，可直接替换 Element Plus 图标。前端若第 1 周来不及替换，**不影响 Demo 验收**；
 > 但第 2 周必须换完，否则侧边导航会出现两套图标风格并存。
 
+> **（2026-09-26 更新）第 2 周已完成替换与收口（任务 6.4 / 6.7）**：
+>
+> - 图标共 **18 个**已同步到 `frontend/src/assets/icons/`，由 `AppIcon.vue` 统一渲染
+>   （**CSS `mask-image` + `currentColor`**）——组件里**不再直接引用 `@element-plus/icons-vue`**；
+> - 新增 2 个通用图标：`icon-reset.svg`（重置）、`icon-warning.svg`（警示，`ConfirmDialog` 用）；
+> - 新增 1 个空态插画 `empty-state-search-empty.svg`（**筛选无结果**，与「暂无数据」「暂无违规记录」语义区分），
+>   插画合计 **3 个**；
+> - Logo 3 个已接入：侧边栏 28×28 用 `logo-mark.svg`（替换原「桩」字占位）、`favicon.svg` 进浏览器标签页；
+> - 素材总数 **24 个**（18 图标 + 3 Logo + 3 插画），由 `check_tokens.py` 第 [4] 项校验命名与取色。
+>
+> ⚠️ **素材 SVG 里 `aria-label` 的真实作用范围**（详见 `a11y-report.md` §2.2）：
+> 本项目通过 **CSS `mask-image`** 渲染图标，`mask` 只取形状、**不继承被遮罩元素的任何语义**，
+> 因此 SVG 内部的 `role="img"` / `aria-label` **不会**被屏幕阅读器读到（改走 `<img src>` 同样需要 `alt`）。
+> 它们只在「直接打开 SVG」或「内联 SVG」时有意义。**图标的无障碍语义必须靠 `AppIcon` 的 `label` prop
+> 或外层按钮的 `aria-label` 提供** —— 这是约定缺口，已列 `a11y-report.md` A2 待回签。
+
 ---
 
 ## 5. 校验
