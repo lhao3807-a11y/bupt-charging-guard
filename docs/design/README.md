@@ -14,23 +14,41 @@
 ```
 docs/design/
 ├── README.md                    本文件：目录说明 + 切图与命名规范
-├── design-tokens.md             设计系统基线：颜色/字体/圆角/间距/阴影/布局 + 对比度实测值
-├── tokens.css                   令牌代码实现，前端直接 import
-├── component-inventory.md       6 页组件清单、Element Plus 映射、图表规格（§3.1）、列名↔契约字段映射（§4.0）、素材清单（§6）
-├── walkthrough.md              设计走查记录：9 项检查单结论 + 发现项 + 待确认项（第 1 周）
-├── wireframes/                  线框（5 页就位；第 6 页第 1 周不做）
+├── design-tokens.md             设计系统基线：颜色/字体/圆角/间距/阴影/布局 + 对比度实测值（§13 深色模式方案）
+├── tokens.css                   令牌代码实现，前端直接 import（**未被深色方案改动**，见 walkthrough §9.6 R8）
+├── tokens-dark.css              深色模式覆盖块（方案件，未启用；由 check_darkmode.py 校验）
+├── component-inventory.md       6 页组件清单、Element Plus 映射、加载态规格（§2.1）、图表规格（§3.1）、
+│                                ECharts 主题规范（§3.2）、列名↔契约字段映射（§4.0）、素材清单（§6）
+├── copywriting.md               界面文案规范：术语表 + 按钮/错误/确认/空态 + 与前端逐条核对清单（§7）
+├── a11y-report.md               可访问性基础检查：键盘可达性 / aria 覆盖 / 对比度复核 + 问题清单
+├── walkthrough.md               设计走查记录：检查单结论 + 发现项 + 待回签项（第 1 周 §8、第 2 周 §9 含 §9.9 复验）
+├── wireframes/                  线框 7 个：后台 6 页 + 独立登录页
 │   ├── vehicle-management.html  第 1 页 · 风格样板（表格列 = vehicle 全字段）
 │   ├── records.html             第 2 页 · 违规记录查询（Demo 验收项）
 │   ├── pile-status.html         第 3 页 · 充电状态展示（卡片 + 列表双视图）
 │   ├── statistics.html          第 4 页 · 报警统计（ECharts 三图 + 下钻）
-│   └── system-config.html       第 5 页 · 系统参数配置（阈值行内编辑）
+│   ├── system-config.html       第 5 页 · 系统参数配置（阈值行内编辑）
+│   ├── preview.html             第 6 页 · 实时识别预览（第 2 周解禁，任务 6.1）
+│   └── login.html               登录页 · **独立页**（无侧边导航，进 `STANDALONE_PAGES` 豁免，任务 6.6）
+├── dark-mode/
+│   └── sample.html              深色模式样张（真加载 tokens-dark.css，任务 6.8）
+├── demo/                        答辩演示素材（任务 6.10）
+│   ├── README.md                素材规范 + 可复现的截图方法 + 脱敏口径
+│   ├── flow-overview.html       演示流程图：识别→判定→提醒→落库 + 四层架构 + 四规则
+│   ├── ppt-template.html        答辩 PPT 视觉模板（封面/目录/内容/结束，16:9）
+│   └── screenshots/
+│       ├── raw/                 原始实拍截图（未加工，作为「真实页面」的证据）
+│       └── *-framed.png         美化版（统一设备框 + 标题条 + 图注）
 ├── assets/                      切图与素材（本目录下文件名与取色受校验脚本约束）
-│   ├── icons/                   16 个图标：侧边导航 6 + 违规规则 4 + 通用操作 6
+│   ├── icons/                   18 个图标：侧边导航 6 + 违规规则 4 + 通用操作 8
 │   ├── logos/                   logo-full / logo-mark / logo-mono
-│   └── illustrations/           空状态插画（第 2 周继续补筛选无结果版）
+│   └── illustrations/           空状态插画 3 个（暂无数据 / 暂无违规记录 / 筛选无结果）
 └── tools/
-    ├── check_tokens.py          自动化校验（令牌完整性 / 对比度 / 裸色值 / 快照一致 / 素材命名与取色 / 跨页一致性）
-    └── selftest_check_tokens.py 反例自测：改坏 8 处确认每条断言都会拦下（验证断言不是空跑）
+    ├── check_tokens.py          设计校验 6 项（令牌完整性 / 对比度 / 裸色值 / 快照一致 / 素材命名与取色 / 交付物与规格）
+    ├── selftest_check_tokens.py 反例打靶 21 例：改坏即 exit 1（验证断言不是空跑）
+    ├── check_darkmode.py        深色方案校验（覆盖完整性 / 白底残留 / 对比度 / 底层级）
+    ├── selftest_darkmode.py     反例打靶 7 例
+    └── demo_screenshots.py      答辩截图：真实页面拍摄 + 统一设备框美化（取色自 tokens.css）
 ```
 
 ---
@@ -212,6 +230,7 @@ python docs/design/tools/selftest_check_tokens.py   # 改坏 9 处，期望每�
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| — | 2026-09-29（**交付后复核**） | 二次核对「第 2 周 14 项是否全部完成」时发现本文件 §1 目录树已过时（仍写「第 6 页第 1 周不做」「16 个图标」「2 个工具脚本」）。按**实际文件**重写目录树：线框 7 个（含 `preview.html` 与独立页 `login.html`）、图标 18、插画 3、新增 `dark-mode/`、`demo/`（含截图）、`copywriting.md`、`a11y-report.md` 与 4 个校验脚本 + `demo_screenshots.py`。同时当日补齐 6.6 前端骨架与 6.10 截图，见 `walkthrough.md` §9.9。**同日终检**：新增「答辩截图可追溯」断言（`*-framed.png` 必须对得上 `screenshots/raw/` 原件，守住 6.10「不许用线框冒充」），反例 `selftest_check_tokens.py` **19 → 21 例**，见 `walkthrough.md` §9.10 | 吴和庆 |
 | — | 2026-09-19（**交付前终检**） | 终检发现第 2 页 `plate` 列名写「车牌号」，而 `occupation_record` 的契约说明与第 4 页均为「车牌」，文档/契约/线框三方分叉（白名单出自同一手，抓不到）。已统一为「车牌」；`component-inventory.md` 升 **v1.2** 新增 §4.0 列名↔契约字段映射表；`check_tokens.py` 增**同表跨页列名**断言，`selftest` 用例 **8 → 9** | 吴和庆 |
 | — | 2026-09-19 | 第 1 周：5 页线框全部就位；新增 `walkthrough.md`（走查记录）；§5 校验扩到 7 项（新增跨页一致性）；§1 目录结构更新；图标提前落地（§4 已更新说明）。表格列名白名单进脚本，**自造字段会被直接拦下** | 吴和庆 |
 | v1.0 | 2026-09-13 | 首版。目录说明、切图规范（格式/图标/位图/Logo）、命名规范、语义命名约定、校验与交付流程、与契约的边界 | 吴和庆 |

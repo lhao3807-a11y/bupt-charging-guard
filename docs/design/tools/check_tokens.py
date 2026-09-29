@@ -30,6 +30,7 @@
 
 import os
 import re
+import struct
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET
@@ -780,6 +781,19 @@ REQUIRED_ILLUSTRATIONS = [
 REQUIRED_SKELETON_KINDS = ["表格", "卡片", "图表"]
 
 
+def png_size(path):
+    """读 PNG 的 IHDR 拿宽高。只用标准库（不引 Pillow），坏文件返回 None。"""
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(24)
+    except OSError:
+        return None
+    if len(head) < 24 or head[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    width, height = struct.unpack(">II", head[16:24])
+    return (width, height)
+
+
 def check_deliverables():
     """第 2 周新增：交付物存在性与规格完整性。
 
@@ -880,6 +894,46 @@ def check_deliverables():
     if not os.path.isdir(DEMO_DIR):
         print("  （提示）%s 尚不存在，答辩素材目录不在本次解析范围"
               % os.path.relpath(DEMO_DIR, REPO_ROOT))
+
+    # --- 6.10 答辩截图：每张「美化版」都必须对得上一张原始实拍图 ---
+    # 任务书对 6.10 的硬要求是「截图须真实页面，**不许用线框冒充**」。
+    # 这句话原先只能靠自觉执行，这里把它变成机制：*-framed.png 必须在 raw/ 里有同名
+    # 原件，且美化版必须比原件大（设备框会加留白与标题条）—— 拿线框图或别的图凑数，
+    # 这两条必有一条过不去。
+    # 注意**不要求 6 页齐全**：第 3/4/5/6 页尚未实现，缺属正常（已在 walkthrough §9.7 挂起）；
+    # 但已交付的那几张必须自证来源。
+    shots_dir = os.path.join(DEMO_DIR, "screenshots")
+    raw_dir = os.path.join(shots_dir, "raw")
+    if os.path.isdir(shots_dir):
+        framed_names = sorted(n for n in os.listdir(shots_dir) if n.endswith("-framed.png"))
+        orphan, wrong_scale, raw_sizes = [], [], {}
+        for name in framed_names:
+            stem = name[: -len("-framed.png")]
+            raw_path = os.path.join(raw_dir, stem + ".png")
+            if not os.path.isfile(raw_path):
+                orphan.append(name)
+                continue
+            rs = png_size(raw_path)
+            fs = png_size(os.path.join(shots_dir, name))
+            if rs and fs and not (fs[0] > rs[0] and fs[1] > rs[1]):
+                wrong_scale.append("%s（原图 %dx%d → 美化 %dx%d）" % (name, rs[0], rs[1], fs[0], fs[1]))
+            if rs:
+                raw_sizes.setdefault(rs, []).append(stem)
+        for name in orphan:
+            fail("答辩截图缺原始图：demo/screenshots/raw/%s 不存在，只有美化版 %s。"
+                 "任务书 6.10 要求「截图须真实页面，不许用线框冒充」——没有原件就"
+                 "无法证明这张是实拍的；补拍用 tools/demo_screenshots.py，或删掉美化版"
+                 % (name[: -len("-framed.png")] + ".png", name))
+        for item in wrong_scale:
+            fail("答辩截图尺寸异常：%s —— 美化版必须比原始实拍图更大（设备框加留白与标题条），"
+                 "否则说明它不是由这张原件生成的" % item)
+        if len(raw_sizes) > 1:
+            fail("答辩截图的原始图尺寸不统一：%s —— 同一批必须同一视口"
+                 "（tools/demo_screenshots.py 的 VIEWPORT），否则并排进 PPT 会一高一低"
+                 % " / ".join("%dx%d" % k for k in raw_sizes))
+        if framed_names and not orphan and not wrong_scale and len(raw_sizes) <= 1:
+            print("  答辩截图 %d 组：美化版均可追溯到原始实拍图，原图尺寸统一 %s ✓"
+                  % (len(framed_names), " / ".join("%dx%d" % k for k in raw_sizes)))
     print()
 
 
