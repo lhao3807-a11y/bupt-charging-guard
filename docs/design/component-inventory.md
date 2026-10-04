@@ -47,6 +47,59 @@
 | 侧边导航项 | 高 `40px` | `--radius-sm` | `--font-size-base` | 选中 `--brand-primary-bg` + `--brand-primary` |
 | 顶栏 | 高 `56px` | — | `--font-size-sm` | 白底 + `--border-base` 下边线 |
 
+### 2.1 加载态规格（v1.4 新增 · 对应 PLAN §3.3 任务 6.2）
+
+§5 第 8 项在第 1 周自述「加载态是前端实现细节，线框不画骨架屏，**第 2 周补**」—— 本节即补齐。
+给出三类骨架的 `el-skeleton` 规格，**全部取自 `tokens.css`，不要另定数值**。
+线框观感见 `wireframes/preview.html` 的「加载态样张」一节，实现照那三块做即可。
+
+**三类共用的四条约束**
+
+1. 骨架块底色 `--fill-light`、圆角 `--radius-sm`；**不加渐变扫光动画**（演示环境不需要，且会与真实内容抢注意力）。
+2. 骨架块与真实内容**同位置、同尺寸** —— 数据到达后不产生位移，即「不跳版」。
+3. 骨架期间**禁用容器内交互**（与 `FilterCard` 的 `loading` 行为一致），避免用户点到还没渲染出来的按钮。
+4. **已知文本不套骨架条**：表头、卡片标题、页头文案这些不依赖接口，直接显示真实文案；只有「数字/内容未知」的部分才用骨架条。
+
+**① 表格骨架**（第 1、2、5、6 页）
+
+| 项 | 规格 |
+|---|---|
+| 行数 | **`8` 行** = 一屏可见行数。**不要按「每页 20 条」画满** —— 会比真实内容还长，反而像卡死 |
+| 行高 | 与真实行一致：单元格 `padding: var(--space-3) var(--space-4)`，行高 `44px` |
+| 列宽对齐 | 复用真实表头列宽（第 1 页为 `160 / 120 / 140 / 160 / 200 / 140`） |
+| 骨架条宽度 | 取所在列宽的 **60% / 80% 交替**，避免排成整齐色块阵列 |
+| 骨架条高度 | `12px`，圆角 `--radius-sm` |
+| 列数 | **等于真实列数**，含「操作」列也要留骨架（否则数据到达时整行会重排） |
+
+**② 卡片骨架**（第 3 页桩卡片）
+
+| 项 | 规格 |
+|---|---|
+| 网格 | **`3` 列 × `2` 行 = 6 张** = 一屏可见卡片数 |
+| 列间距 / 行间距 | `gap: var(--space-4)` |
+| 卡片内边距 | `var(--space-4)` |
+| 卡片描边 / 圆角 | `1px solid var(--border-base)` + `--radius-md`（与真实卡片一致；`--shadow-sm` 可省略） |
+| 卡内骨架条 | 3 条：标题 `40%` / 副信息 `64%` / 正文 `100%`，条高 `12px`，条间距 `var(--space-3)` |
+| 窄屏 | 宽度 < `1280px` 降为 `2` 列，**仍保持 2 行**（行数不随列数变，否则卡片会被拉长） |
+
+**③ 图表骨架**（第 4 页 ECharts）
+
+| 项 | 规格 |
+|---|---|
+| 容器高度 | **必须锁定**，与真实图一致：柱 `230px`、环 `240px`、线 `200px`。不锁定就会出现「图加载完成时整页跳一下」 |
+| 容器描边 / 圆角 | `1px solid var(--border-base)` + `--radius-md`；图内不加圆角容器（同 §3.1 ③） |
+| 柱状占位 | 4 根柱，宽 `28px`，高按 `48 / 72 / 36 / 60` 错落，`align-items: flex-end`，柱间距 `var(--space-3)` |
+| 文案 | 容器居中「图表区加载中…」，字号 `var(--font-size-sm)`、色 `--text-tertiary` |
+
+> **与空态的区别（最容易做错的一处）**：**加载中**显示骨架屏；**确无数据**显示 `el-empty`（§3.1 ⑤ 已定）。
+> 两者语义相反 —— 骨架是「等一下就有」，空态是「等也没有」。混用会让演示时看不出系统是否正常。
+
+**④ 时长与超时**
+
+- 骨架出现即请求已发出，**不设最小展示时长**（本地接口很快，强行延时反而显得卡）。
+- 超过 `10s` 未返回则转**失败态**：`el-alert`（danger）+「重试」按钮，**不要无限转圈**。
+- 若接口返回 `404`（如第 6 页取不到帧），直接进空态，不进失败态 —— 那是「确实没有」，不是「出错」。
+
 ---
 
 ## 3. 全局 Element Plus 组件清单
@@ -159,6 +212,182 @@
 
 ---
 
+### 3.2 ECharts 主题规范（v1.4 新增 · 对应 PLAN §3.3 任务 6.9）
+
+> **与 §3.1 的分工**：§3.1 回答「第 4 页画什么」（图型 / 序列 / 下钻口径），
+> 本节回答「怎么让 ECharts 长成设计系统要求的样子」—— 给出一份**可注册的 theme**，
+> 吕浩照抄即可，不需要在 `option` 里逐项写样式。
+
+**0) 一条硬约束：JS 里不出现十六进制色值**
+
+ECharts 的配置吃的是**真实色值**，不认 `var(--token)`。若为了省事直接抄令牌的 hex，
+就违反了红线 1（页面里不出现裸色值），且改主题时图表不跟随。正确做法是
+**运行时从 `:root` 读 CSS 变量**，再交给 ECharts：
+
+```ts
+// frontend/src/charts/tokens.ts —— 图表侧的令牌读取层
+const TOKENS = getComputedStyle(document.documentElement)
+
+/** 读令牌原值，如 '#CF1322' / '12px' */
+export const token = (name: string): string => TOKENS.getPropertyValue(name).trim()
+
+/** 读数值型令牌，如 '--font-size-xs' → 12 */
+export const px = (name: string, fallback: number): number =>
+  Number.parseFloat(token(name)) || fallback
+
+/** hex → rgba，用于 areaStyle 的透明度，避免在代码里写 rgba(...) 裸值 */
+export const alpha = (hex: string, a: number): string => {
+  const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16))
+  return `rgba(${r}, ${g}, ${b}, ${a})`
+}
+```
+
+> 令牌快照必须在**挂载后**读取（`onMounted`），早于样式表生效会读到空串。
+> `check_tokens.py` 第 [3] 项只扫线框 HTML，扫不到 TS，**这条靠评审守**。
+
+**① 色板序列（两套，用途不同不可混用）**
+
+| 用途 | 序位 | 令牌 | 说明 |
+|---|---|---|---|
+| **语义序列**（按 `rule_hit` 分布 / 趋势按规则拆分） | 1 / 2 / 3 / 4 | `--state-danger-solid` / `--state-caution-solid` / `--state-warning-solid` / `--state-success-solid` | **顺序 = 严重度**，见 §3.1 ①。任何图里出现这四色，顺序不得变 |
+| **份额序列**（按桩占比等分类份额） | 1–6 | `--brand-primary` / `--brand-primary-light-3` / `--brand-primary-light-5` / `--brand-primary-light-7` / `--state-info-solid` / `--state-info-border` | 见 §3.1 ②。份额不是严重度，**不得**借语义色 |
+
+**② 网格与坐标轴**
+
+| 项 | 规格（全部取令牌） |
+|---|---|
+| 容器内边距 | `grid: { left: 8, right: 8, top: 24, bottom: 8, containLabel: true }`（单位为 px 的**数字**，ECharts 不支持 var） |
+| 横向网格线 | `splitLine: { show: true, lineStyle: { color: token('--border-light'), type: 'dashed' } }` |
+| 纵向网格线 | **关闭**（`splitLine.show = false`）—— 纵向线会和柱体/折线抢视觉 |
+| 坐标轴主线 | `axisLine: { show: true, lineStyle: { color: token('--border-base') } }` |
+| 轴刻度 | `axisTick: { show: false }`（有网格线就不需要刻度） |
+| 轴文字 | `axisLabel: { color: token('--text-tertiary'), fontSize: px('--font-size-xs', 12) }` |
+| 轴文字截断 | 类目名超 6 字用 `axisLabel.formatter` 截断加 `…`，**不倾斜文字**（倾斜后字号观感变小） |
+| 数值轴起点 | `min: 0`，**不截断**（§3.1 ④ 已定）；`scale: false` |
+| 字体 | `textStyle.fontFamily = token('--font-family-base')`（数值标签另用 `--font-family-mono`） |
+
+**③ 提示框（tooltip）**
+
+| 项 | 规格 |
+|---|---|
+| 触发 | 柱/环 `trigger: 'item'`；折线 `trigger: 'axis'` + `axisPointer: { type: 'line', lineStyle: { color: token('--border-strong') } }` |
+| 背景 | `backgroundColor: token('--bg-container')` |
+| 描边 | `borderColor: token('--border-base')`，`borderWidth: 1` |
+| 阴影 | `extraCssText: 'box-shadow: ' + token('--shadow-lg')` |
+| 文字 | 标题/键 `color: token('--text-secondary')`，值 `color: token('--text-primary')` |
+| 数值字体 | `fontFamily: token('--font-family-mono')` + `font-variant-numeric: tabular-nums`（等宽，避免数字跳动） |
+| 默认样式 | **关掉 ECharts 自带的 `color`/`border` 覆盖**，`confine: true` 防溢出容器 |
+
+**④ 图例**
+
+| 项 | 规格 |
+|---|---|
+| 位置 | 底部横向：`legend: { bottom: 0, left: 'center', orient: 'horizontal' }` |
+| 图标 | `itemWidth: 8, itemHeight: 8, itemGap: px('--space-4', 16)`，**方形**（`icon: 'rect'`），与 `StatusPill` 色块同形 |
+| 文字 | `textStyle: { color: token('--text-secondary'), fontSize: px('--font-size-xs', 12) }` |
+| 选中态 | 默认 ECharts 行为（置灰未选项）即可，未选项用 `inactiveColor: token('--text-disabled')` |
+| 环图 | 分类 ≥ 5 项时图例改**右侧竖排**（`orient: 'vertical', right: 0, top: 'middle'`），否则底部会挤成两行 |
+
+**⑤ 无数据态：** **不画空图**
+
+- 判定：`total === 0`（或所有 series 的 `value` 求和为 0）→ **不渲染图表**，替换为 `el-empty`
+  （第 4 页用 `--state-success-solid` 打勾插画那版文案，见 §3.1 ⑤）。
+- **禁止**用 ECharts 的 `graphic` 或 `title.subtext` 在空图里写「暂无数据」——
+  会出现「有坐标轴没有柱子」的破图，演示时最像系统坏了。
+- 与加载态的分工见 §2.1 ③：**加载中**给骨架、**确无数据**给空态，两者不可互换。
+
+**⑥ 主题注册（可直接复制）**
+
+```ts
+// frontend/src/charts/theme.ts
+import * as echarts from 'echarts'
+import { token, px } from './tokens'
+
+let registered = false
+
+/** 注册并返回主题名；重复调用只注册一次 */
+export function ensureChartTheme(): string {
+  const name = 'bupt-guard'
+  if (registered) return name
+
+  const mono = token('--font-family-mono')
+  const axisLabel = { color: token('--text-tertiary'), fontSize: px('--font-size-xs', 12) }
+
+  echarts.registerTheme(name, {
+    color: [
+      token('--state-danger-solid'), token('--state-caution-solid'),
+      token('--state-warning-solid'), token('--state-success-solid'),
+    ],
+    backgroundColor: 'transparent',            // 底色交给外层 el-card
+    textStyle: { fontFamily: token('--font-family-base') },
+    grid: { left: 8, right: 8, top: 24, bottom: 8, containLabel: true },
+    categoryAxis: {
+      axisLine:  { show: true, lineStyle: { color: token('--border-base') } },
+      axisTick:  { show: false },
+      axisLabel,
+      splitLine: { show: false },
+    },
+    valueAxis: {
+      axisLine:  { show: false },
+      axisTick:  { show: false },
+      axisLabel,
+      splitLine: { show: true, lineStyle: { color: token('--border-light'), type: 'dashed' } },
+    },
+    legend: {
+      bottom: 0, left: 'center', icon: 'rect',
+      itemWidth: 8, itemHeight: 8, itemGap: px('--space-4', 16),
+      textStyle: { color: token('--text-secondary'), fontSize: px('--font-size-xs', 12) },
+      inactiveColor: token('--text-disabled'),
+    },
+    tooltip: {
+      backgroundColor: token('--bg-container'),
+      borderColor: token('--border-base'),
+      borderWidth: 1,
+      textStyle: { color: token('--text-primary') },
+      extraCssText: `box-shadow: ${token('--shadow-lg')}`,
+      confine: true,
+    },
+    line: { itemStyle: { borderWidth: 2 }, symbolSize: 6 },
+    bar:  { itemStyle: { borderRadius: [Number(token('--radius-xs').replace('px', '')) || 2] } },
+  })
+
+  registered = true
+  return name
+}
+```
+
+用法（`vue-echarts`）：
+
+```vue
+<VChart :option="option" :theme="chartTheme" autoresize class="chart-canvas" />
+```
+```ts
+import { ensureChartTheme } from '@/charts/theme'
+const chartTheme = ensureChartTheme()   // 在 onMounted 之后调用
+```
+
+**⑦ 复核清单：与吕浩第 4 页实现逐条对齐（待回签）**
+
+> 以下 8 条**由吕浩实现后逐条回签**；吴和庆负责比对，**不直接改代码**（同任务 6.5 的原则）。
+
+| # | 检查点 | 期望 | 回签 |
+|---|---|---|---|
+| 1 | TS 里无十六进制色值 | `grep -nE '#[0-9A-Fa-f]{6}' frontend/src/charts/` 无输出 | ☐ |
+| 2 | 主题已注册且被 3 张图共用 | 无 `option` 内联 `color: [...]` | ☐ |
+| 3 | 语义序列顺序 | 红 → 橙 → 黄 → 绿（柱图/趋势图按规则拆分时） | ☐ |
+| 4 | 份额序列未借用违规色 | 环图用主色梯度，无红/橙/黄 | ☐ |
+| 5 | 网格线 | 仅横向、`--border-light`、虚线 | ☐ |
+| 6 | tooltip 数值等宽 | `--font-family-mono` + `tabular-nums` | ☐ |
+| 7 | 无数据态 | total=0 时 `el-empty` 替换图表；**无「有轴无柱」的破图** | ☐ |
+| 8 | 三分项之和 = 总数 | 自检口径，见 §3.1 ⑥ | ☐ |
+
+> ⚠️ **前置依赖**：契约 **C2（`GET /api/stats`）尚未定义**（`CONTRACT.md` §6 目前只有 `GET /api/records`）。
+> 本节把**与数据结构无关的视觉部分**（色板 / 网格 / 坐标轴 / tooltip / 图例 / 空态）先定死；
+> 等 C2 落地后，只需复核 **序列与维度映射**（第 3、4 条）是否仍成立，其余条款不受影响。
+> 任务书 §附 亦提示「6.9 建议等 C2 定义后再做」—— 故本节的**收口时点定在 C2 之后**。
+
+---
+
 ## 4. 逐页清单
 
 ### 4.0 列名与 `prop` 的取用方式（v1.3 改为指针，不再复述列名）
@@ -257,7 +486,7 @@
 | 区域 | 组件 | 字段 / 内容 |
 |---|---|---|
 | 页头 | `PageHeader` | 标题 + 时间范围（近 7 天 / 近 30 天）+ 导出 |
-| 统计卡 | `el-statistic` × 4 | 总违规数、燃油占位、异常占位、充满未移车（各自用对应状态色） |
+| 统计卡 | `el-statistic` × 4 | 总违规数、燃油车占位、异常占位、充满未移车（各自用对应状态色） |
 | 维度切换 | `el-radio-group` | 按 `rule_hit` / 按天 / 按桩 |
 | 图表 | **ECharts** | 柱状图（按 `rule_hit` 分布）、折线图（按天趋势）、环形图（按桩占比） |
 | 图例色 | ECharts 配色 | 见 §3.1：红 → 橙 → 黄 → 绿；分类份额改用主色梯度 |
@@ -291,17 +520,25 @@
 
 ---
 
-### 4.6 第 6 页 · 实时识别预览（**第 1 周不做，仅预留**）
+### 4.6 第 6 页 · 实时识别预览（**第 2 周解禁导航，页面仍属占位**）
+
+线框 `wireframes/preview.html` 已于第 2 周交付（任务 6.1），导航**不再置灰**。
+但页面本身仍是**未就绪占位**：后端 `GET /api/frame/latest`（契约 §6.5）尚未实现，
+故本页**不进第 2 周验收**，完整实现排在第 3 周。
 
 | 区域 | 组件 | 字段 / 内容 |
 |---|---|---|
-| 导航 | `el-menu-item` `disabled` | 置灰 + 「第 1 周预留」角标 |
-| 页面 | `el-image` | 最近一帧截图，`el-skeleton` 占位 |
-| 轮询 | — | 依赖预留端点 `GET /api/frame/latest`（契约 §6.5） |
+| 导航 | `el-menu-item` | **第 2 周起不置灰**（`check_tokens.py` 第 [5] 项要求 6 页均无 `is-reserved`） |
+| 最近一帧 | 卡片 + `el-image` | 最近一帧截图；取不到帧时进空态（**非失败态**，见 §2.1 ④） |
 | 说明 | `el-alert`（info） | 「仅展示最近一帧截图（轮询刷新），不接实时视频流」——开发大纲已确认 |
+| 本次识别结果 | 描述列表（KV） | 车牌 / 车型 / 桩 ID / 命中规则 / 命中时间 |
+| 最近识别记录 | `el-table` | 5 列，**复用 `occupation_record` 同名列名**（见 §4.0） |
+| 加载 / 空态 | `el-skeleton` / `el-empty` | 骨架规格见 §2.1；两种空态：**取不到帧** vs **未命中规则** |
 
-> `CONTRACT.md` §1.1 明确：本页第 1 周 Demo **不验收**。
-> 线框里只做导航占位，不做页面。
+> ⚠️ **线框与前端的有意差异（待吕浩确认）**：`frontend/src/router/index.ts` 里本页仍标
+> `meta.reserved: true`（接口未就绪，前端继续置灰）。这是**有意为之**——线框表达的是
+> 「设计侧已解禁」，前端表达的是「实现侧未就绪」。二者不对齐属预期，不需要改前端；
+> 待第 3 周接口落地后由吕浩一并放开。已记入 `walkthrough.md` §9 待回签项。
 
 ---
 
@@ -312,18 +549,22 @@
 
 | # | 检查项 | 自动 | 说明 |
 |---|---|---|---|
-| 1 | 6 页的侧边导航顺序一致，第 6 页置灰 | ✅ | 逐页比对导航文案与 `CONTRACT.md` §1.1 顺序，并要求恰有 1 个 `is-active`、第 6 项 `is-reserved` |
+| 1 | 6 页的侧边导航顺序一致，**第 6 页不置灰** | ✅ | 逐页比对导航文案与 `CONTRACT.md` §1.1 顺序，要求恰有 1 个 `is-active`、**且 6 页均不得出现 `is-reserved`**（契约 v1.5 起第 6 页解禁） |
 | 2 | 所有表格：表头 `--fill-light`、行线 `--border-light`、悬浮 `--brand-primary-bg` | ✅ | 正则校验三条 CSS 声明存在 |
 | 3 | 所有车牌/桩 ID/手机号/时间：等宽字族 + `tabular-nums` | ✅ | 每页 `.mono` 使用数 ≥ 4 |
 | 4 | 所有状态标记：白底上用 `-text` 档，实心块上橙/黄配深字 | ⚠️ 部分 | 对比度由第 [2] 项断言；「白底用 `-text` 档」靠 `StatusPill` 的类名约定 + 人工确认 |
 | 5 | 所有违规色：严格按 `design-tokens.md` §3.3 映射，无自选色 | 👁 人工 | 语义映射表见 §3.3① ②，线框标注里逐条引用 |
 | 6 | 所有间距：只取 `--space-*` 与 `--layout-*` | ✅ | 扫描 `padding/margin/gap`，出现 ≥4px 的裸 px 即失败 |
 | 7 | 页面里没有裸色值 | ✅ | 逐页扫描 `#hex`（快照块除外） |
-| 8 | 空态 `el-empty`、加载态 `el-skeleton` 都有 | ✅ 空态 / — 加载 | 空态逐页必查；加载态是前端实现细节，线框不画骨架屏，第 2 周补 |
-| 9 | 表格列名与契约字段一一对应，没有自造字段 | ✅ | 逐页对照契约字段白名单（§4.0 映射表），越界即失败；**同一张表被多页引用时列名必须同一写法**，分叉即失败；新增页面须先登记 |
+| 8 | 空态 `el-empty`、加载态 `el-skeleton` 都有 | ✅ 空态 / ✅ 样张 | 空态逐页必查；加载态规格见 **§2.1**，`preview.html` 内出可读样张（类名 `.skeleton`），由第 [6] 项断言三类齐全 |
+| 9 | 表格列名与契约字段一一对应，没有自造字段 | ✅ | 逐页对照 `CONTRACT.md` **§3.5 显示列名映射表**（v1.4 起为唯一入口），越界即失败；**同一张表被多页引用时列名必须同一写法**，分叉即失败；**新增线框须先登记**（无表格的独立页走 `STANDALONE_PAGES` 豁免，见下） |
 
-> 第 9 项是**最值得自动化**的一条：`CONTRACT_COLUMNS` 白名单写在 `check_tokens.py` 里，
-> 想加一个自造字段，绕过校验的唯一办法是去改 `CONTRACT.md` —— 这正是契约流程想要的。
+> 第 9 项是**最值得自动化**的一条：列名白名单不再硬编码在脚本里，而是**解析 `CONTRACT.md` §3.5 派生**
+> （v1.4 改造，见 §7 变更记录）。想加一个自造字段，绕过校验的唯一办法是去改 `CONTRACT.md` —— 这正是契约流程想要的。
+>
+> **独立页豁免**：`login.html`（任务 6.6）不属后台 6 页骨架，无侧边导航、无契约表格，
+> 因此登记进脚本的 `STANDALONE_PAGES` 白名单豁免列名与导航校验；**豁免项必须写明理由**，
+> 否则「未登记」一律判失败（v1.5 起由警告改为**失败**，防止新增线框被静默漏检 —— `preview.html` 当初正是踩了这个坑）。
 >
 > **但白名单挡不住「自己写错自己」**：白名单和线框出自同一手，写错时两边一起错，比对不出来
 > （2026-09-19 终检就是这么踩到的 —— 第 2 页写「车牌号」而第 4 页写「车牌」）。
@@ -344,7 +585,7 @@
 | 3 充电状态展示 | `assets/icons/icon-nav-pile-status.svg` |
 | 4 报警统计 | `assets/icons/icon-nav-stats.svg` |
 | 5 系统参数配置 | `assets/icons/icon-nav-config.svg` |
-| 6 实时识别预览（第 1 周置灰） | `assets/icons/icon-nav-preview.svg` |
+| 6 实时识别预览（第 2 周起不置灰） | `assets/icons/icon-nav-preview.svg` |
 
 ### 6.2 违规规则图标（4 个，对应 `rule_hit`）
 
@@ -358,7 +599,7 @@
 > 规则图标**自带语义**，可以直接给第 2 页表格的规则列或第 4 页图表自定义图例用；
 > 上色必须走 `--state-*-text`（白底）或 `--state-*-solid`（实心块），不要给图标写死颜色。
 
-### 6.3 界面通用图标（6 个）
+### 6.3 界面通用图标（8 个）
 
 | 文件 | 用于 |
 |---|---|
@@ -368,6 +609,19 @@
 | `icon-edit.svg` | 行内「编辑」 |
 | `icon-delete.svg` | 行内「删除」 |
 | `icon-send.svg` | 行内「发送提醒」（第 2 页） |
+| `icon-reset.svg` | 「重置」（筛选区，v1.4 新增） |
+| `icon-warning.svg` | 二次确认弹窗的警示图标（v1.4 新增） |
+
+> **v1.4 起前端已移除组件中的 Element Plus 图标引用**（任务 6.4）：18 个图标同步到 `frontend/src/assets/icons/`，
+> 由 `AppIcon.vue` 用 **CSS `mask-image` + `currentColor`** 渲染，组件里不再引用
+> `@element-plus/icons-vue`。选 `mask` 而非 `<img>` 的原因：`<img>` 是独立的替换元素，
+> `currentColor` 不参与级联，图标无法跟随主题色。
+> 当前使用导航、查询、刷新、新增、重置和警告图标；规则、编辑、删除、发送图标已备齐素材，
+> 其业务位置尚未全部接入，不能将「素材同步」计为 18 个图标都已实际展示。
+>
+> ⚠️ 副作用（已知并接受）：`mask` 只取形状，**不继承语义**，所以素材 SVG 里的
+> `aria-label` 在 mask 模式下读不到 —— 图标的无障碍语义必须由 `AppIcon` 的 `label` prop
+> 或外层按钮的 `aria-label` 提供。详见 `a11y-report.md` §2.2。
 
 ### 6.4 Logo（3 个）
 
@@ -380,17 +634,21 @@
 > Logo / 插画里的色值写成 `var(--brand-primary, #1668E3)` 形式：内联时跟随主题，
 > 以 `<img>` 引入时 CSS 变量不参与级联，兜底值保证仍显示品牌色。
 
-### 6.5 空状态插画（2 个）
+### 6.5 空状态插画（3 个）
 
 | 文件 | 用于 |
 |---|---|
 | `assets/illustrations/empty-state-no-data.svg` | 通用「暂无数据」（表格/列表为空） |
 | `assets/illustrations/empty-state-no-record.svg` | 「暂无违规记录」（第 2 页，带绿色对勾语义） |
+| `assets/illustrations/empty-state-search-empty.svg` | 「筛选无结果」（第 2 页筛选滤空，v1.4 补齐） |
 
 > 线框里的空态插画是**内联 SVG 简化版**（为了单文件可直接预览）；
 > 素材目录里的是正式版，前端实现时用素材替换，尺寸按 160×120 等比缩放。
-> `assets/illustrations/empty-state-search-empty.svg`（筛选无结果）留待第 2 周补，
-> 本期线框用同一插画 + 不同文案区分。
+>
+> **三类空态必须同时用插画 + 文案区分**（`EmptyState.vue` 的 `illustration` prop 取
+> `no-data` / `no-record` / `search-empty`）：第 2 页的两种空态语义相反 ——
+> 「筛选无结果」要引导**重置筛选**，「暂无违规记录」才是"真的没数据"。
+> 用同一张插画只换文案，用户会不知道该点哪里。
 
 ---
 
@@ -398,6 +656,7 @@
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v1.4** | 2026-09-26 | **第 2 周设计交付**（任务 6.1/6.2/6.4/6.9/6.12）：① **新增 §2.1 加载态规格**（表格 8 行 / 卡片 3×2 / 图表锁定高度三类骨架，附与空态的区别、时长与超时口径）；② **新增 §3.2 ECharts 主题规范**（两套色板序列、网格与坐标轴、tooltip、图例、无数据态、**可注册的 theme 代码**、8 条待回签复核清单；前置依赖契约 C2）；③ **§4.6 第 6 页改写为「导航解禁、页面仍属占位」**，并记入「设计侧解禁 vs 前端仍 `reserved`」的有意差异（待吕浩确认）；④ §5 第 1 项断言**反转为「6 页均不得 `is-reserved`」**、第 8 项加载态改为「规格 + 样张」、第 9 项补独立页豁免与「未登记即失败」；⑤ §6.1/6.3/6.5 素材数量更新（图标 16→**18**、插画 2→**3**），并补记 `mask-image` 渲染对 `aria-label` 的影响；⑥ 依据升级为**契约 v1.5** | 吴和庆 |
 | **v1.3** | 2026-09-19 | **列名单一事实源改造**：① §4.0 由「逐条列名映射表」改为**指针式说明**（原来那张表是列名的第四份副本，改一处要动四处）—— 列名唯一入口改为 `CONTRACT.md` **§3.5 显示列名映射表**，本节只留「label/prop 怎么取用」的三步法与两条边界；② 依据升级为契约 v1.4；③ §5 第 9 项对应断言的实现说明更新（白名单已由硬编码改为**解析契约 §3.5 生成**，并新增「§3.x 说明档 ↔ §3.5 一致」断言） | 吕浩 |
 | **v1.2** | 2026-09-19 | **终检修正**：① 新增 **§4.0 线框列名 ↔ 契约字段映射表**（逐条给出显示标签 → 契约表.字段 → 契约说明，吕浩写 `prop` 直接照抄）；② 第 2 页筛选与列表的 `plate` 列名由「车牌号」统一为**「车牌」**（`occupation_record` 的契约说明是「车牌」，且第 4 页原本就写「车牌」，原先三处分叉）；③ §5 第 9 项补入**同表跨页列名一致性**断言，并说明「白名单挡不住自己写错自己」的原因 | 吴和庆 |
 | **v1.1** | 2026-09-19 | 第 1 周设计交付：① 新增 **§3.1 第 4 页图表规格**（序列严重度顺序、分类份额改主色梯度、图元→令牌映射、三图规格、交互与空态、数据来源与契约风险）；② 补齐 §4.2–4.5 四页线框引用与硬约束，§4.1 标注空态已补；③ §5 走查清单改为「自动校验覆盖情况」表；④ 新增 §6 素材清单（16 图标 + 3 Logo + 2 插画）；⑤ 第 9 项「表格列名不越界」进 `check_tokens.py` 白名单 | 吴和庆 |

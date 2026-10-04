@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" role="img" aria-label="筛选无结果">
+  <!-- 颜色一律走 CSS 变量并带兜底值：以 img 标签引入时用兜底值，内联时跟随主题。
+       SVG 是 XML，注释内不得出现连续两个连字符，故此处用文字描述，不写变量全名。
+       语义区分：本图是「筛选条件把数据滤空了」，故主体是漏斗；
+       与「暂无数据」（文档 + 空放大镜）、「暂无违规记录」（文档 + 绿勾）可一眼分开。 -->
+  <path d="M44 26 H116 L90 58 V82 L70 73 V58 Z" style="fill: var(--fill-light, #F2F3F5); stroke: var(--border-strong, #C9CDD4);" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="30" y1="96" x2="92" y2="96" style="stroke: var(--border-base, #E5E6EB);" stroke-width="2" stroke-linecap="round"/>
+  <line x1="30" y1="107" x2="72" y2="107" style="stroke: var(--border-base, #E5E6EB);" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="112" cy="80" r="17" style="fill: var(--bg-container, #FFFFFF); stroke: var(--text-tertiary, #64707D);" stroke-width="2"/>
+  <line x1="105" y1="80" x2="119" y2="80" style="stroke: var(--text-tertiary, #64707D);" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="124.5" y1="92.5" x2="136" y2="104" style="stroke: var(--text-tertiary, #64707D);" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,148 @@
+/* ============================================================================
+ * tokens-dark.css —— 「桩」点北邮 · 深色模式令牌方案（**方案稿，尚未启用**）
+ * ----------------------------------------------------------------------------
+ * 归属：吴和庆（UI / 美术）· 第 2 周任务 6.8（PLAN_4WEEKS §3.3 / TASK_WU_WEEK2）
+ * 状态：**只出方案，不实施**。第 4 周视工期决定是否启用。
+ *
+ * ⚠️ 三条纪律：
+ *   1. 本文件**不被任何线框或前端页面引用**。线框仍以内联浅色快照 + tokens.css 为准。
+ *   2. `tokens.css`（浅色唯一事实源）**本文件不修改其一行**；启用时由吕浩按
+ *      「`:root[data-theme="dark"]` 覆盖块」的方式接入，接入点在浅色值之后。
+ *   3. 深色值一律**重新验算对比度**，不照搬浅色 hex。验算脚本：
+ *      `python docs/design/tools/check_darkmode.py`（每次跑都会断言，改坏了直接 exit 1）
+ *
+ * 设计口径（与浅色模式一一对应，便于评审对照）：
+ *   - 三档底：page 最深 → container 提亮 → fill-light 再提亮（**深色下"更高"= 更亮**）
+ *   - 文字不用纯白：最高只到 #E8EAED，避免深底上的光晕（halation）
+ *   - 品牌主色在深底提亮：#1668E3 在 #1B1F25 上仅 2.4:1，直接不可用
+ *   - 状态色 `-text` 档提亮（深底上是浅色），`-solid` 档略微降饱和以降低刺眼感
+ *   - `--text-inverse` 在深色下**反相为深色**：它是"放在实心块上的字"，而深色模式下
+ *     实心块（主按钮 / 状态块）是**亮的**，所以字要深 —— 这一条与浅色模式正好相反，
+ *     是深色模式最容易搞错的地方（照抄浅色会导致主按钮白字仅 2.77:1）
+ * ========================================================================== */
+
+:root[data-theme='dark'],
+.theme-dark {
+  /* ---------- 1. 品牌主色 ---------- */
+  --brand-primary:            #5B9BFF;
+  --brand-primary-hover:      #7AB0FF;
+  --brand-primary-active:     #4A88E5;
+  --brand-primary-bg:         #1B2735;  /* 深底上的主色浅底：选中行、主色标签底 */
+  --brand-primary-border:     #2F4A6E;
+
+  --brand-primary-light-3:    #4A88E5;
+  --brand-primary-light-5:    #3C6FB8;
+  --brand-primary-light-7:    #2F558C;
+  --brand-primary-light-8:    #284A78;
+  --brand-primary-light-9:    #223E63;
+
+  /* ---------- 2. 语义状态色（四档） ---------- */
+  /* 违规红 danger */
+  --state-danger-solid:       #E5484D;
+  --state-danger-text:        #FF7B72;
+  --state-danger-bg:          #2A1A1B;
+  --state-danger-border:      #5C2B2E;
+
+  /* 异常橙 caution */
+  --state-caution-solid:      #E0863A;
+  --state-caution-text:       #FFA657;
+  --state-caution-bg:         #2A2015;
+  --state-caution-border:     #5C3D1F;
+
+  /* 超时黄 warning */
+  --state-warning-solid:      #D9AC3C;
+  --state-warning-text:       #F0C674;
+  --state-warning-bg:         #2A2515;
+  --state-warning-border:     #5C4D1F;
+
+  /* 正常绿 success */
+  --state-success-solid:      #3FB950;
+  --state-success-text:       #6BD97A;
+  --state-success-bg:         #12261A;
+  --state-success-border:     #2B5A38;
+
+  /* 中性 info */
+  --state-info-solid:         #6E7681;
+  --state-info-text:          #A9B1BA;
+  --state-info-bg:            #22262C;
+  --state-info-border:        #3D434B;
+
+  /* ---------- 3. 车牌底色（深色版，仍与真实车牌色相呼应） ---------- */
+  --plate-new-energy-text:    #6BD97A;  /* 新能源（绿牌） */
+  --plate-new-energy-bg:      #12261A;
+  --plate-new-energy-border:  #2B5A38;
+
+  --plate-fuel-text:          #7BA7FF;  /* 燃油（蓝牌） */
+  --plate-fuel-bg:            #17243D;
+  --plate-fuel-border:        #2F4A6E;
+
+  /* ---------- 4. 中性色 ---------- */
+  --text-primary:             #E8EAED;  /* 最高不用纯白，避免光晕 */
+  --text-secondary:           #B0B7C0;
+  --text-tertiary:            #8A929C;
+  --text-disabled:            #5A616B;  /* WCAG 1.4.3 豁免，同浅色口径 */
+  --text-inverse:             #14161A;  /* 实心块上的字：实心块是亮的，字取深色 */
+
+  --border-base:              #33383F;  /* 表格线、输入框描边 */
+  --border-strong:            #4A515A;
+  --border-light:             #2A2E35;  /* 行线、弹窗内分隔 */
+
+  --fill-light:               #262A31;  /* 表头底、斑马纹、禁用底 */
+  --bg-page:                  #0F1115;  /* 页面底色（最深） */
+  --bg-container:             #1B1F25;  /* 卡片 / 表格 / 弹窗底（比页面亮） */
+  --bg-mask:                  rgba(0, 0, 0, 0.65);
+
+  /* ---------- 5. 阴影：深色下靠"描边 + 更深的影"分层 ---------- */
+  --shadow-sm:                0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-md:                0 2px 8px rgba(0, 0, 0, 0.48);
+  --shadow-lg:                0 6px 16px rgba(0, 0, 0, 0.56);
+
+  /* ---------- 6. Element Plus 覆盖（只列需要改的，其余继承浅色变量映射） ---------- */
+  --el-color-primary:              var(--brand-primary);
+  --el-color-primary-hover:        var(--brand-primary-hover);
+  --el-color-primary-light-3:      var(--brand-primary-light-3);
+  --el-color-primary-light-5:      var(--brand-primary-light-5);
+  --el-color-primary-light-7:      var(--brand-primary-light-7);
+  --el-color-primary-light-8:      var(--brand-primary-light-8);
+  --el-color-primary-light-9:      var(--brand-primary-light-9);
+  --el-color-primary-dark-2:       var(--brand-primary-active);
+
+  --el-color-success:              var(--state-success-solid);
+  --el-color-success-light-9:      var(--state-success-bg);
+  --el-color-warning:              var(--state-warning-solid);
+  --el-color-warning-light-9:      var(--state-warning-bg);
+  --el-color-danger:               var(--state-danger-solid);
+  --el-color-danger-light-9:       var(--state-danger-bg);
+  --el-color-error:                var(--state-danger-solid);
+  --el-color-error-light-9:        var(--state-danger-bg);
+  --el-color-info:                 var(--state-info-solid);
+  --el-color-info-light-9:         var(--state-info-bg);
+
+  --el-text-color-primary:         var(--text-primary);
+  --el-text-color-regular:         var(--text-secondary);
+  --el-text-color-secondary:       var(--text-tertiary);
+  --el-text-color-placeholder:     var(--text-tertiary);
+  --el-text-color-disabled:        var(--text-disabled);
+  --el-text-color-inverse:         var(--text-inverse);
+
+  --el-border-color:               var(--border-base);
+  --el-border-color-light:         var(--border-base);
+  --el-border-color-lighter:       var(--border-light);
+  --el-border-color-extra-light:   var(--border-light);
+  --el-border-color-dark:          var(--border-strong);
+  --el-border-color-darker:        var(--border-strong);
+
+  --el-fill-color:                 var(--fill-light);
+  --el-fill-color-light:           var(--fill-light);
+  --el-fill-color-lighter:         var(--border-light);
+  --el-fill-color-blank:           var(--bg-container);
+
+  --el-bg-color:                   var(--bg-container);
+  --el-bg-color-page:              var(--bg-page);
+  --el-bg-color-overlay:           var(--bg-container);
+
+  --el-disabled-bg-color:          var(--fill-light);
+  --el-disabled-text-color:        var(--text-disabled);
+  --el-disabled-border-color:      var(--border-base);
+  --el-mask-color:                 var(--bg-mask);
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120" viewBox="0 0 160 120" role="img" aria-label="暂无违规记录">
+  <rect x="30" y="24" width="76" height="66" rx="8" style="fill: var(--fill-light, #F2F3F5); stroke: var(--border-strong, #C9CDD4);" stroke-width="2"/>
+  <path d="M106 24 L106 46 L128 46" style="fill: none; stroke: var(--border-strong, #C9CDD4);" stroke-width="2"/>
+  <path d="M50 62 l12 12 l24 -28" style="fill: none; stroke: var(--state-success-solid, #0E7A2E);" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="34" y1="102" x2="126" y2="102" style="stroke: var(--border-base, #E5E6EB);" stroke-width="2" stroke-linecap="round"/>
+</svg>

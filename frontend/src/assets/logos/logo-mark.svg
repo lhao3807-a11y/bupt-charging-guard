@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" role="img" aria-label="桩点北邮 图形标识">
+  <!-- 品牌色走 CSS 变量并带兜底值：以 img 标签引入时变量不参与级联，兜底值保证仍显示品牌色。
+       SVG 是 XML，注释内不得出现连续两个连字符，故此处用文字描述，不写变量全名。 -->
+  <rect x="0" y="0" width="28" height="28" rx="4" style="fill: var(--brand-primary, #1668E3);"/>
+  <path d="M15.7 4.4L8.3 15.5h5.2l-1.2 8.1 7.4-11.1h-5.2z" style="fill: var(--text-inverse, #FFFFFF);"/>
+</svg>

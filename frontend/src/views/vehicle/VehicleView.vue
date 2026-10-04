@@ -12,6 +12,7 @@
  */
 import { computed, onMounted, reactive, ref } from 'vue'
 
+import AppIcon from '@/components/common/AppIcon.vue'
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue'
 import DataCard from '@/components/common/DataCard.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
@@ -168,11 +169,11 @@ onMounted(handleLoad)
     <PageHeader title="车辆信息管理" description="维护绑定车辆的车主与手机号，是自动提醒的数据基础">
       <template #actions>
         <el-button :loading="store.loading" @click="handleLoad">
-          <el-icon><RefreshLeft /></el-icon>
+          <AppIcon name="icon-refresh" :size="14" />
           <span>刷新</span>
         </el-button>
         <el-button type="primary" @click="openCreate">
-          <el-icon><Plus /></el-icon>
+          <AppIcon name="icon-plus" :size="14" />
           <span>新增车辆</span>
         </el-button>
       </template>
@@ -252,6 +253,7 @@ onMounted(handleLoad)
         <template #empty>
           <EmptyState
             compact
+            :illustration="store.hasFilters ? 'search-empty' : 'no-data'"
             :description="
               store.error
                 ? '车辆加载失败，请点击刷新重试'

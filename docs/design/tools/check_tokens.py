@@ -7,27 +7,33 @@
 
     python docs/design/tools/check_tokens.py
 
-校验项：
-  1. tokens.css 可解析、无重复令牌名
-  2. 必需令牌齐全（前端契约：这些名字吕浩会直接引用，不能少）
-  3. 颜色令牌取值合法（#hex 或已定义的 var() 引用）
-  4. 对比度：白底文字/图形 ≥ 4.5:1、浅底标签文字 ≥ 4.5:1、
-     实心填充上的文字 ≥ 4.5:1（WCAG 2.1 AA）
-  5. 线框 HTML 不出现裸色值，且引用的每个 var(--x) 都已定义
-  6. assets/ 下素材文件名符合 kebab-case 命名规范，且取色合规
-     （图标只用 currentColor；Logo / 插画只允许 var(--x, #hex) 兜底写法）
-  7. 跨页一致性（对应 component-inventory.md §5 的走查清单）：
-     导航 6 项顺序、当前页高亮、空态齐备、表头底/行线/悬浮行、
-     定长标识用等宽、表格列名 ⊆ 契约字段白名单、间距取 4px 栅格、
-     同一张表被多页引用时列名写法一致
+校验项（与输出的小节编号一致）：
+  [1] tokens.css 可解析、无重复令牌名、必需令牌齐全、颜色取值合法
+  [2] 对比度：白底文字/图形 ≥ 4.5:1、浅底标签文字 ≥ 4.5:1、
+      实心填充上的文字 ≥ 4.5:1（WCAG 2.1 AA）
+  [3] 线框：内联令牌快照与 tokens.css 一致（防漂移）、不出现裸色值、
+      引用的每个 var(--x) 都已定义
+  [4] assets/ 素材命名符合 kebab-case，且取色合规
+      （图标只用 currentColor；Logo / 插画只允许 var(--x, #hex) 兜底写法）
+  [5] 跨页一致性（对应 component-inventory.md §5 的走查清单）：
+      导航 6 项顺序、当前页高亮、**6 项全部解禁（v1.5 起不再允许 is-reserved）**、
+      空态齐备、表头底/行线/悬浮行、定长标识用等宽、
+      表格列名 ⊆ 契约字段白名单（**白名单由 CONTRACT.md §3.5 派生**）、
+      间距取 4px 栅格、同一张表被多页引用时列名写法一致、
+      线框必须在 §3.5 登记（未登记即失败，否则整页校验被静默跳过）
+  [6] 交付物与规格（v1.5 新增）：第 6 页线框存在、`component-inventory.md` §2.1
+      加载态规格三类齐全且用令牌表述、线框内有骨架屏样张、空态插画三件套齐全、
+      所有 SVG 可被 XML 解析（注释内连续两个连字符会让图静默失效）
 
 退出码 0 = 全部通过；1 = 存在失败项。
 """
 
 import os
 import re
+import struct
 import sys
 import unicodedata
+import xml.etree.ElementTree as ET
 
 # ---------------------------------------------------------------- 路径
 SCRIPT = os.path.abspath(__file__)
@@ -36,6 +42,9 @@ REPO_ROOT = os.path.dirname(os.path.dirname(DESIGN_DIR))   # 仓库根
 TOKENS_CSS = os.path.join(DESIGN_DIR, "tokens.css")
 WIREFRAME_DIR = os.path.join(DESIGN_DIR, "wireframes")
 ASSETS_DIR = os.path.join(DESIGN_DIR, "assets")
+ILLUSTRATION_DIR = os.path.join(ASSETS_DIR, "illustrations")
+DEMO_DIR = os.path.join(DESIGN_DIR, "demo")
+COMPONENT_INVENTORY = os.path.join(DESIGN_DIR, "component-inventory.md")
 
 # ---------------------------------------------------------------- WCAG 工具
 
@@ -457,6 +466,14 @@ PAGE_WIREFRAME = {
     "P3": "pile-status.html",
     "P4": "statistics.html",
     "P5": "system-config.html",
+    "P6": "preview.html",
+}
+# 独立页：**不属契约 §1.1 的 6 页后台骨架**，没有侧边导航/顶栏/表格，
+# 故不进 §3.5 列名登记，也不参与导航顺序与表格规格校验；但仍要过
+# [3] 项的通用校验（令牌快照一致、无裸色值、引用令牌已定义）与间距栅格。
+# 目前只有登录页（第 2 周任务 6.6）：登录发生在进入后台之前，天然不在 6 页壳内。
+STANDALONE_PAGES = {
+    "login.html": "登录页（任务 6.6）",
 }
 # 每页「必须出现」的列（即该表在主视图页上的全部列）。下钻视图页（P4）只要求
 # 是已登记列的子集，不要求齐全，故不进本表。
@@ -465,6 +482,8 @@ REQUIRED_COLUMNS = {
     "P2": {"ID", "车牌", "车型", "桩 ID", "命中规则", "命中时间", "提醒状态", "提醒时间"},
     "P3": {"桩 ID", "状态", "绑定车牌", "开始充电时间", "充满时间"},
     "P5": {"参数键", "参数值", "说明"},
+    # P6「最近识别记录」表：登记 5 列即要求 5 列齐全（该页不展示提醒状态/提醒时间）
+    "P6": {"车牌", "车型", "桩 ID", "命中规则", "命中时间"},
 }
 
 
@@ -498,7 +517,8 @@ def load_contract_columns():
 
     # 页面 → 表名（用于报错信息与同表跨页比对）
     page_table = {"P1": "vehicle", "P2": "occupation_record", "P3": "charging_pile",
-                  "P4": "occupation_record(下钻)", "P5": "system_config"}
+                  "P4": "occupation_record(下钻)", "P5": "system_config",
+                  "P6": "occupation_record"}
     for page, wire in PAGE_WIREFRAME.items():
         cols = [c for _, c in by_page.get(page, [])]
         if not cols:
@@ -524,6 +544,9 @@ CONTRACT_COLUMNS, CONTRACT_COLUMN_INDEX = load_contract_columns()
 # 两页读的是同一张 occupation_record，用户在页间要重新认一遍列。
 SHARED_TABLE_PAGES = [
     ("occupation_record", "records.html", "statistics.html"),
+    # v1.5：第 6 页的「最近识别记录」与第 2 页同读 occupation_record，
+    # 同样必须同写法（该页只展示 5 列，是子集，故用 ⊆ 判定）。
+    ("occupation_record", "records.html", "preview.html"),
 ]
 
 # §3.x 说明档位置：用「表名 → 该表字段说明行的中文名」与 §3.5 映射表比对，
@@ -540,6 +563,8 @@ BARE_SPACING_RE = re.compile(r"\b(?:padding|margin|gap|row-gap|column-gap)"
                              r"(?:-[a-z]+)?\s*:\s*([^;{}]+)")
 PX_RE = re.compile(r"(\d+(?:\.\d+)?)px")
 MONO_RE = re.compile(r"class=\"[^\"]*\bmono\b")
+# 逐个 class 属性取值（供「类名精确匹配」用，别用 \bxxx\b 边界匹配前后缀类名）
+CLASS_ATTR_RE = re.compile(r'class="([^"]*)"')
 # 间距栅格的最小裸值：<4px 视为描边/字内微调，不算间距
 SPACING_MIN = 4
 
@@ -574,10 +599,18 @@ def check_consistency():
         return
 
     files = [f for f in sorted(os.listdir(WIREFRAME_DIR)) if f.lower().endswith((".html", ".htm"))]
-    for f in files:
-        if f not in CONTRACT_COLUMNS:
-            warn("线框 %s 未在 CONTRACT.md §3.5 登记列名；新增页面须先改契约（§1.1 页面清单 + §3.5 列名映射）" % f)
-    print("  已登记 %d 页，目录内共 %d 个线框" % (len(CONTRACT_COLUMNS), len(files)))
+    # v1.5 起由「警告并跳过」改为**失败**：未登记 = 该页的导航/空态/列名/间距
+    # 四项校验**全被跳过**，却仍打印「已登记 N 页」看着像通过 —— 这是静默漏检，
+    # 比漏报更危险。（第 6 页线框加入时正是踩到这一点：不登记 §3.5 就整页不校验。）
+    # 独立页（登录页）本就不该进 §3.5，故豁免。
+    unregistered = [f for f in files
+                    if f not in CONTRACT_COLUMNS and f not in STANDALONE_PAGES]
+    for f in unregistered:
+        fail("线框 %s 未在 CONTRACT.md §3.5 登记列名 → 本页的导航/空态/列名/间距校验会被整体跳过。"
+             "新增页面须先改契约（§1.1 页面清单 + §3.5 列名映射 + 升版本号），"
+             "或若确属无表格的独立页，登记进 STANDALONE_PAGES 并说明理由" % f)
+    print("  已登记 %d 页，独立页 %d 个，目录内共 %d 个线框"
+          % (len(CONTRACT_COLUMNS), len(STANDALONE_PAGES), len(files)))
     print()
 
     for f in files:
@@ -587,7 +620,10 @@ def check_consistency():
         text = open(os.path.join(WIREFRAME_DIR, f), encoding="utf-8").read()
         problems = []
 
-        # --- 5.1 导航：顺序一致 + 当前页高亮 + 第 6 页预留 ---
+        # --- 5.1 导航：顺序一致 + 当前页高亮 + 6 项全部解禁 ---
+        # v1.5（第 2 周）：第 6 页导航解禁，断言由「恰有 1 个 is-reserved」
+        # 反转为「**不得有** is-reserved」。反转而非删除，是为了让「谁想把某页
+        # 重新置灰」必须显式改这一行 —— 排期口径变化应当留下痕迹。
         items = NAV_ITEM_RE.findall(text)
         texts = [nav_text(i) for i in items]
         if texts != NAV_ORDER:
@@ -595,9 +631,10 @@ def check_consistency():
         actives = [nav_text(i) for i in items if "is-active" in i]
         if len(actives) != 1:
             problems.append("应恰有 1 个当前页高亮（is-active），实际 %d 个" % len(actives))
-        reserved = [i for i in items if "is-reserved" in i]
-        if len(reserved) != 1 or nav_text(reserved[0]) != NAV_ORDER[-1]:
-            problems.append("第 6 页「%s」应且仅应标记 is-reserved（第 1 周预留）" % NAV_ORDER[-1])
+        reserved = [nav_text(i) for i in items if "is-reserved" in i]
+        if reserved:
+            problems.append("第 6 页导航已于 v1.5 解禁，不应再有 is-reserved 置灰项（实际：%s）"
+                            % " / ".join(reserved))
 
         titles = [strip_tags(t) for t in H1_RE.findall(text)]
         if len(titles) != 1:
@@ -732,6 +769,178 @@ def check_narrative_vs_mapping():
         print("  契约 §3.x 说明档 ↔ §3.5 映射表：%d 个字段列名词一致" % compared)
 
 
+# ---------------------------------------------------------------- 6 交付物与规格
+
+# 空态插画三件套：三者语义必须能区分（第 1 周只交付前两个，第三个第 2 周补）
+REQUIRED_ILLUSTRATIONS = [
+    ("empty-state-no-data.svg", "通用「暂无数据」"),
+    ("empty-state-no-record.svg", "「暂无违规记录」"),
+    ("empty-state-search-empty.svg", "「筛选无结果」"),
+]
+# §2.1 加载态规格必须覆盖的三类骨架
+REQUIRED_SKELETON_KINDS = ["表格", "卡片", "图表"]
+
+
+def png_size(path):
+    """读 PNG 的 IHDR 拿宽高。只用标准库（不引 Pillow），坏文件返回 None。"""
+    try:
+        with open(path, "rb") as fh:
+            head = fh.read(24)
+    except OSError:
+        return None
+    if len(head) < 24 or head[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    width, height = struct.unpack(">II", head[16:24])
+    return (width, height)
+
+
+def check_deliverables():
+    """第 2 周新增：交付物存在性与规格完整性。
+
+    这些都是「文档承诺了但很容易只写一半」的东西 —— 规格写了、素材没画，
+    或者素材画了、线框里没有可照搬的样张。逐条断言，比走查时靠记性靠谱。
+    """
+    print("=" * 78)
+    print("[6] 交付物与规格：第 6 页线框 / 加载态规格 / 骨架样张 / 插画三件套 / SVG 可解析")
+    print("=" * 78)
+
+    # --- 6.1 第 6 页线框必须存在 ---
+    preview = os.path.join(WIREFRAME_DIR, "preview.html")
+    if not os.path.isfile(preview):
+        fail("第 6 页线框缺失：docs/design/wireframes/preview.html（PLAN §3.3 任务 6.1 的交付物）。"
+             "缺了它第 [5] 项导航校验只有 5 页，第 6 项解禁无从验证")
+    else:
+        print("  第 6 页线框 preview.html 存在 ✓")
+
+    # --- 6.2 加载态规格 §2.1 必须存在，且三类骨架齐全、用令牌表述 ---
+    if not os.path.isfile(COMPONENT_INVENTORY):
+        fail("找不到 component-inventory.md，加载态规格无法校验")
+    else:
+        with open(COMPONENT_INVENTORY, encoding="utf-8") as fh:
+            inv = fh.read()
+        # 锚点必须精确到标题本身（`### 2.1` 后跟空白），**不能**用 inv.find("### 2.1")：
+        # 那样「### 2.1X 已移除」也会命中，章节内容照旧能比出三类骨架 → 断言在假跑。
+        # 这一条不是想出来的：是 `selftest_check_tokens.py` 打靶打出来的（该用例一度 exit=0）。
+        m = re.search(r"^### 2\.1\s", inv, re.M)
+        head = m.start() if m else -1
+        if head < 0:
+            fail("component-inventory.md 缺 §2.1 加载态规格（PLAN §3.3 任务 6.2 的交付物）。"
+                 "§5 第 8 项既已自述「加载态第 2 周补」，补完必须落在本文件里")
+        else:
+            stop = min(x for x in (inv.find("\n## ", head + 1),
+                                   inv.find("\n### ", head + 1), len(inv)) if x > 0)
+            section = inv[head:stop]
+            missing = [k for k in REQUIRED_SKELETON_KINDS if k not in section]
+            token_refs = len(re.findall(r"--(?:space|radius|fill|border|text)-[a-z0-9-]+", section))
+            if missing:
+                fail("§2.1 加载态规格缺骨架类型：%s（要求「表格 / 卡片 / 图表」三类都给规格）"
+                     % " / ".join(missing))
+            if token_refs < 6:
+                fail("§2.1 加载态规格里令牌引用仅 %d 处：规格必须用 var(--token) 表述，"
+                     "写裸 px 会让前端实现时各写各的" % token_refs)
+            if not missing and token_refs >= 6:
+                print("  §2.1 加载态规格：表格/卡片/图表三类齐全，令牌引用 %d 处 ✓" % token_refs)
+
+    # --- 6.3 线框里要有可照搬的骨架屏样张 ---
+    # 判定用**类名精确匹配**（class 列表里恰好有一个 skeleton），
+    # 不能用 \bskeleton\b 之类：那会把 skeleton-card / skeleton-line 也算命中，
+    # 断言会变得比看起来松（假装查了、其实没查）。
+    with_skeleton = []
+    if os.path.isdir(WIREFRAME_DIR):
+        for name in sorted(os.listdir(WIREFRAME_DIR)):
+            if not name.lower().endswith(".html"):
+                continue
+            with open(os.path.join(WIREFRAME_DIR, name), encoding="utf-8") as fh:
+                body = strip_comments(fh.read())
+            if any("skeleton" in classes.split()
+                   for classes in CLASS_ATTR_RE.findall(body)):
+                with_skeleton.append(name)
+    if "preview.html" not in with_skeleton:
+        fail('preview.html 缺骨架屏样张（class 列表里要有独立的 "skeleton" 类）。'
+             "加载态规格不能只写在文档里，线框要给出可照搬的观感，吕浩据此实现 el-skeleton")
+    else:
+        print("  骨架屏样张：%s" % " / ".join(with_skeleton))
+
+    # --- 6.4 空态插画三件套齐全 ---
+    missing_ill = [f for f, _ in REQUIRED_ILLUSTRATIONS
+                   if not os.path.isfile(os.path.join(ILLUSTRATION_DIR, f))]
+    for f in missing_ill:
+        desc = dict(REQUIRED_ILLUSTRATIONS)[f]
+        fail("空态插画缺失：assets/illustrations/%s（%s）" % (f, desc))
+    if not missing_ill:
+        print("  空态插画 %d/%d 齐全（暂无数据 / 暂无违规记录 / 筛选无结果）"
+              % (len(REQUIRED_ILLUSTRATIONS), len(REQUIRED_ILLUSTRATIONS)))
+
+    # --- 6.5 SVG 必须能被 XML 解析 ---
+    # 注释里出现连续两个连字符（例如写 CSS 变量名）会让整份图**静默失效**，
+    # 编辑器里看不出问题，只有浏览器不渲染。第 1 周 F7 踩过一次，故变成断言。
+    parsed, failed_files = 0, 0
+    for base in (ASSETS_DIR, DEMO_DIR):
+        if not os.path.isdir(base):
+            continue
+        for root, _dirs, names in os.walk(base):
+            for name in sorted(names):
+                if not name.lower().endswith(".svg"):
+                    continue
+                rel = os.path.relpath(os.path.join(root, name), REPO_ROOT)
+                try:
+                    ET.parse(os.path.join(root, name))
+                    parsed += 1
+                except ET.ParseError as exc:
+                    failed_files += 1
+                    fail("SVG 无法被 XML 解析：%s → %s（常见原因：注释里出现连续两个连字符）"
+                         % (rel, exc))
+    print("  SVG XML 解析：%d 个通过，%d 个失败" % (parsed, failed_files))
+    if not os.path.isdir(DEMO_DIR):
+        print("  （提示）%s 尚不存在，答辩素材目录不在本次解析范围"
+              % os.path.relpath(DEMO_DIR, REPO_ROOT))
+
+    # --- 6.10 答辩截图：每张「美化版」都必须对得上一张原始实拍图 ---
+    # 任务书对 6.10 的硬要求是「截图须真实页面，**不许用线框冒充**」。
+    # 自动检查配对原件、PNG 尺寸和统一视口；真实页面来源仍须人工复核，
+    # 单靠文件配对和尺寸无法排除用线框或其他图片冒充。
+    # 注意**不要求 6 页齐全**：第 3/4/5/6 页尚未实现，缺属正常（已在 walkthrough §9.7 挂起）；
+    # 但已交付的那几张必须自证来源。
+    shots_dir = os.path.join(DEMO_DIR, "screenshots")
+    raw_dir = os.path.join(shots_dir, "raw")
+    if os.path.isdir(shots_dir):
+        framed_names = sorted(n for n in os.listdir(shots_dir) if n.endswith("-framed.png"))
+        orphan, unreadable, wrong_scale, raw_sizes = [], [], [], {}
+        for name in framed_names:
+            stem = name[: -len("-framed.png")]
+            raw_path = os.path.join(raw_dir, stem + ".png")
+            if not os.path.isfile(raw_path):
+                orphan.append(name)
+                continue
+            rs = png_size(raw_path)
+            fs = png_size(os.path.join(shots_dir, name))
+            if rs is None or fs is None:
+                unreadable.append(name)
+                continue
+            if not (fs[0] > rs[0] and fs[1] > rs[1]):
+                wrong_scale.append("%s（原图 %dx%d → 美化 %dx%d）" % (name, rs[0], rs[1], fs[0], fs[1]))
+            if rs:
+                raw_sizes.setdefault(rs, []).append(stem)
+        for name in orphan:
+            fail("答辩截图缺原始图：demo/screenshots/raw/%s 不存在，只有美化版 %s。"
+                 "任务书 6.10 要求「截图须真实页面，不许用线框冒充」——没有原件就"
+                 "无法证明这张是实拍的；补拍用 tools/demo_screenshots.py，或删掉美化版"
+                 % (name[: -len("-framed.png")] + ".png", name))
+        for item in wrong_scale:
+            fail("答辩截图尺寸异常：%s —— 美化版必须比原始实拍图更大（设备框加留白与标题条），"
+                 "否则说明它不是由这张原件生成的" % item)
+        for name in unreadable:
+            fail("答辩截图 PNG 无法读取：%s 或对应原图的 PNG 文件头无效" % name)
+        if len(raw_sizes) > 1:
+            fail("答辩截图的原始图尺寸不统一：%s —— 同一批必须同一视口"
+                 "（tools/demo_screenshots.py 的 VIEWPORT），否则并排进 PPT 会一高一低"
+                 % " / ".join("%dx%d" % k for k in raw_sizes))
+        if framed_names and not orphan and not unreadable and not wrong_scale and len(raw_sizes) <= 1:
+            print("  答辩截图 %d 组：PNG 配对与尺寸通过，原图尺寸统一 %s（页面来源须人工复核）✓"
+                  % (len(framed_names), " / ".join("%dx%d" % k for k in raw_sizes)))
+    print()
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -747,6 +956,7 @@ def main():
     check_wireframes(tokens)
     check_assets()
     check_consistency()
+    check_deliverables()
 
     print("=" * 78)
     if WARNINGS:

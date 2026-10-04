@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>实时识别预览 · 线框（第 6 页） — 桩点北邮</title>
+
+<!-- ==========================================================================
+     tokens 快照 · 自动生成，请勿手改
+     --------------------------------------------------------------------------
+     来源：docs/design/tokens.css
+     作用：本文件被单独打开（file:// / 独立预览面板）时，相对路径的 tokens.css
+           可能取不到，此快照保证线框永远能正确渲染。
+     约束：tools/check_tokens.py 会逐条校验本快照与 tokens.css 完全一致，
+           两者一旦漂移即测试失败。改颜色请改 tokens.css 后重新生成本块。
+     ========================================================================== -->
+<style id="tokens-snapshot">
+:root {
+  --brand-primary: #1668E3;
+  --brand-primary-hover: #145ECC;
+  --brand-primary-active: #1253B6;
+  --brand-primary-bg: #F0F6FF;
+  --brand-primary-border: #BFDBFF;
+  --brand-primary-light-9: #E8F0FC;
+  --state-danger-solid: #CF1322;
+  --state-danger-text: #A8071A;
+  --state-danger-bg: #FFF1F0;
+  --state-danger-border: #FFCCC7;
+  --state-caution-solid: #FA8C16;
+  --state-caution-text: #C4320A;
+  --state-caution-bg: #FFF7E6;
+  --state-caution-border: #FFD591;
+  --state-warning-solid: #FAAD14;
+  --state-warning-text: #946200;
+  --state-warning-bg: #FFFBE6;
+  --state-warning-border: #FFE58F;
+  --state-success-solid: #0E7A2E;
+  --state-success-text: #0E7A2E;
+  --state-success-bg: #F0FBF2;
+  --state-success-border: #B7EB8F;
+  --state-info-solid: #8A919F;
+  --state-info-text: #4E5969;
+  --state-info-bg: #F2F3F5;
+  --state-info-border: #D9D9D9;
+  --plate-new-energy-text: #0E7A2E;
+  --plate-new-energy-bg: #F0FBF2;
+  --plate-new-energy-border: #B7EB8F;
+  --plate-fuel-text: #1D4FD8;
+  --plate-fuel-bg: #EAF1FF;
+  --plate-fuel-border: #ADC6FF;
+  --text-primary: #1F2329;
+  --text-secondary: #4E5969;
+  --text-tertiary: #64707D;
+  --text-disabled: #C9CDD4;
+  --text-inverse: #FFFFFF;
+  --border-base: #E5E6EB;
+  --border-strong: #C9CDD4;
+  --border-light: #F2F3F5;
+  --fill-light: #F2F3F5;
+  --bg-page: #F7F8FA;
+  --bg-container: #FFFFFF;
+  --bg-mask: rgba(31, 35, 41, 0.5);
+  --font-family-base: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 30px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --line-height-tight: 1.3;
+  --line-height-base: 1.5714;
+  --line-height-relaxed: 1.7;
+  --font-variant-numeric: tabular-nums;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --shadow-sm: 0 1px 2px rgba(31, 35, 41, 0.06);
+  --shadow-md: 0 2px 8px rgba(31, 35, 41, 0.08);
+  --shadow-lg: 0 6px 16px rgba(31, 35, 41, 0.12);
+  --layout-sidebar-width: 220px;
+  --layout-sidebar-collapsed-width: 64px;
+  --layout-header-height: 56px;
+  --layout-gutter: 24px;
+  --layout-max-width: 1440px;
+  --layout-card-gap: var(--space-4);
+}
+</style>
+<link rel="stylesheet" href="../tokens.css">
+
+<style>
+  /* 线框自身的布局样式。颜色一律 var(--token)，不写裸色值。 */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+  }
+  .mono { font-family: var(--font-family-mono); font-variant-numeric: var(--font-variant-numeric); }
+  .num { font-variant-numeric: var(--font-variant-numeric); }
+
+  /* ---------- 页面骨架 ---------- */
+  .shell { display: flex; min-height: 100vh; align-items: stretch; }
+  .sidebar {
+    flex: 0 0 var(--layout-sidebar-width);
+    width: var(--layout-sidebar-width);
+    background: var(--bg-container);
+    border-right: 1px solid var(--border-base);
+  }
+  .logo {
+    height: var(--layout-header-height);
+    display: flex; align-items: center; gap: var(--space-2);
+    padding: 0 var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    font-size: var(--font-size-md); font-weight: var(--font-weight-semibold);
+  }
+  .logo-mark {
+    width: 28px; height: 28px; flex: 0 0 28px;
+    border-radius: var(--radius-sm);
+    background: var(--brand-primary); color: var(--text-inverse);
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold);
+  }
+  .logo-sub { font-size: var(--font-size-xs); color: var(--text-tertiary); font-weight: var(--font-weight-regular); }
+  .nav { padding: var(--space-3) var(--space-2); }
+  .nav-item {
+    display: flex; align-items: center; gap: var(--space-2);
+    height: 40px; padding: 0 var(--space-3); margin-bottom: var(--space-1);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary); font-size: var(--font-size-base);
+    text-decoration: none;
+  }
+  .nav-item.is-active {
+    background: var(--brand-primary-bg); color: var(--brand-primary);
+    font-weight: var(--font-weight-medium);
+  }
+  .nav-item.is-reserved { color: var(--text-disabled); }
+  .nav-idx {
+    width: 18px; height: 18px; flex: 0 0 18px; border-radius: var(--radius-xs);
+    background: var(--fill-light); color: var(--text-tertiary);
+    font-size: var(--font-size-xs); text-align: center; line-height: 18px;
+  }
+  .nav-item.is-active .nav-idx { background: var(--brand-primary); color: var(--text-inverse); }
+
+  .main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+  .header {
+    height: var(--layout-header-height); flex: 0 0 var(--layout-header-height);
+    background: var(--bg-container); border-bottom: 1px solid var(--border-base);
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: 0 var(--layout-gutter);
+  }
+  .crumb { color: var(--text-tertiary); font-size: var(--font-size-sm); }
+  .crumb b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: var(--space-3); }
+  .avatar {
+    width: 28px; height: 28px; border-radius: var(--radius-pill);
+    background: var(--brand-primary-light-9); color: var(--brand-primary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--font-size-xs); font-weight: var(--font-weight-medium);
+  }
+
+  .content {
+    padding: var(--space-5) var(--layout-gutter) var(--space-10);
+    max-width: var(--layout-max-width); width: 100%;
+  }
+  .page-head { display: flex; align-items: flex-start; gap: var(--space-4); margin-bottom: var(--space-4); }
+  .page-title { margin: 0; font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); line-height: var(--line-height-tight); }
+  .page-desc { margin: var(--space-1) 0 0; font-size: var(--font-size-sm); color: var(--text-tertiary); }
+  .page-actions { margin-left: auto; display: flex; gap: var(--space-2); }
+
+  .card {
+    background: var(--bg-container);
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+  .card + .card { margin-top: var(--layout-card-gap); }
+  .card-body { padding: var(--space-4); }
+
+  /* ---------- 按钮 ---------- */
+  .btn {
+    height: 32px; padding: 0 var(--space-4);
+    border: 1px solid transparent; border-radius: var(--radius-sm);
+    font-size: var(--font-size-base); font-family: var(--font-family-base);
+    background: var(--bg-container); color: var(--text-primary);
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    cursor: default;
+  }
+  .btn-primary { background: var(--brand-primary); color: var(--text-inverse); }
+  .btn-default { border-color: var(--border-strong); }
+  .btn-danger-text { color: var(--state-danger-text); background: none; padding: 0; height: auto; }
+  .btn-link { color: var(--brand-primary); background: none; border: none; padding: 0; height: auto; }
+  .btn.is-disabled { background: var(--fill-light); color: var(--text-disabled); border-color: var(--border-base); }
+
+  /* ---------- 说明条（el-alert info） ---------- */
+  .alert {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--state-info-border);
+    background: var(--state-info-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); color: var(--state-info-text);
+    margin-bottom: var(--layout-card-gap);
+  }
+  .alert.is-info-brand {
+    border-color: var(--brand-primary-border);
+    background: var(--brand-primary-bg);
+    color: var(--brand-primary);
+  }
+  .alert-icon { flex: 0 0 16px; width: 16px; height: 16px; margin-top: var(--space-1); }
+
+  /* ---------- 预览区 ---------- */
+  .preview-grid {
+    display: grid; gap: var(--space-4);
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .frame {
+    position: relative;
+    border: 1px solid var(--border-base);
+    border-radius: var(--radius-sm);
+    background: var(--fill-light);
+    aspect-ratio: 16 / 9;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .frame-art { width: 96px; height: 72px; display: block; }
+  .frame-meta {
+    margin-top: var(--space-3);
+    display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5);
+    font-size: var(--font-size-xs); color: var(--text-tertiary);
+  }
+  .frame-meta b { color: var(--text-secondary); font-weight: var(--font-weight-regular); }
+  .frame-badge {
+    position: absolute; top: var(--space-2); left: var(--space-2);
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    height: 22px; padding: 0 var(--space-2);
+    border-radius: var(--radius-xs); border: 1px solid var(--state-info-border);
+    background: var(--bg-container); color: var(--state-info-text);
+    font-size: var(--font-size-xs);
+  }
+
+  .kv { display: grid; gap: var(--space-3); }
+  .kv-row { display: flex; align-items: baseline; gap: var(--space-3); }
+  .kv-key { flex: 0 0 88px; font-size: var(--font-size-sm); color: var(--text-tertiary); }
+  .kv-val { font-size: var(--font-size-base); color: var(--text-primary); }
+  .section-title {
+    margin: 0 0 var(--space-3); font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+  }
+
+  /* ---------- 标签 / 胶囊 ---------- */
+  .tag {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 22px; padding: 0 var(--space-2);
+    border-radius: var(--radius-xs); border: 1px solid;
+    font-size: var(--font-size-xs);
+  }
+  .tag-new-energy { color: var(--plate-new-energy-text); background: var(--plate-new-energy-bg); border-color: var(--plate-new-energy-border); }
+  .tag-fuel { color: var(--plate-fuel-text); background: var(--plate-fuel-bg); border-color: var(--plate-fuel-border); }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    height: 24px; padding: 0 var(--space-3);
+    border-radius: var(--radius-pill); border: 1px solid;
+    font-size: var(--font-size-xs); white-space: nowrap;
+  }
+  .pill-danger { color: var(--state-danger-text); background: var(--state-danger-bg); border-color: var(--state-danger-border); }
+  .pill-caution { color: var(--state-caution-text); background: var(--state-caution-bg); border-color: var(--state-caution-border); }
+  .pill-warning { color: var(--state-warning-text); background: var(--state-warning-bg); border-color: var(--state-warning-border); }
+  .pill-success { color: var(--state-success-text); background: var(--state-success-bg); border-color: var(--state-success-border); }
+  .pill-info { color: var(--state-info-text); background: var(--state-info-bg); border-color: var(--state-info-border); }
+  .dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: var(--radius-pill); }
+  .dot-danger { background: var(--state-danger-solid); }
+  .dot-caution { background: var(--state-caution-solid); }
+  .dot-warning { background: var(--state-warning-solid); }
+  .dot-success { background: var(--state-success-solid); }
+  .dot-info { background: var(--state-info-solid); }
+
+  /* ---------- 表格 ---------- */
+  .table-toolbar {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .table-toolbar h3 { margin: 0; font-size: var(--font-size-md); font-weight: var(--font-weight-medium); }
+  .count { font-size: var(--font-size-sm); color: var(--text-tertiary); }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  thead th {
+    background: var(--fill-light);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm); font-weight: var(--font-weight-medium);
+    text-align: left; padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-base);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    font-size: var(--font-size-base);
+    vertical-align: middle;
+  }
+  tbody tr.is-hover td { background: var(--brand-primary-bg); }
+  .col-plate { font-weight: var(--font-weight-medium); letter-spacing: 0.5px; }
+
+  /* ---------- 加载态骨架屏（§2.1 规格 · 线框样张） ---------- */
+  .skeleton {
+    background: var(--fill-light);
+    border-radius: var(--radius-sm);
+    display: block;
+  }
+  .skeleton-line { height: 12px; }
+  .skeleton-line.is-short { width: 40%; }
+  .skeleton-line.is-mid { width: 64%; }
+  .skeleton-block { border-radius: var(--radius-sm); }
+  .skeleton-rows { display: grid; gap: var(--space-3); }
+  .skeleton-cell { display: grid; gap: var(--space-2); }
+  .skeleton-card-grid {
+    display: grid; gap: var(--space-4);
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+  }
+  .skeleton-card {
+    border: 1px solid var(--border-base); border-radius: var(--radius-md);
+    padding: var(--space-4); display: grid; gap: var(--space-3);
+  }
+  .skeleton-chart {
+    height: 200px; border: 1px solid var(--border-base);
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    gap: var(--space-2); color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+  }
+
+  /* ---------- 空态 ---------- */
+  .empty {
+    border: 1px dashed var(--border-strong); border-radius: var(--radius-md);
+    padding: var(--space-8) var(--space-4) var(--space-8);
+    text-align: center; background: var(--bg-container);
+  }
+  .empty-art { width: 96px; height: 72px; margin: 0 auto var(--space-4); display: block; }
+  .empty-title { font-size: var(--font-size-base); color: var(--text-secondary); margin: 0 0 var(--space-1); }
+  .empty-desc { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0 0 var(--space-4); }
+  .empty-desc:last-child { margin-bottom: 0; }
+
+  /* ---------- 标注 ---------- */
+  .anno-wrap { padding: var(--space-8) var(--layout-gutter) var(--space-10); max-width: var(--layout-max-width); }
+  .anno-title { font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin: 0 0 var(--space-1); }
+  .anno-desc { font-size: var(--font-size-sm); color: var(--text-tertiary); margin: 0 0 var(--space-5); }
+  .specimen {
+    background: var(--bg-container); border: 1px solid var(--border-base);
+    border-radius: var(--radius-md); padding: var(--space-5); margin-bottom: var(--layout-card-gap);
+  }
+  .specimen h4 { margin: 0 0 var(--space-4); font-size: var(--font-size-base); font-weight: var(--font-weight-medium); }
+  ol.notes { margin: 0; padding-left: var(--space-5); font-size: var(--font-size-sm); color: var(--text-secondary); }
+  ol.notes li { margin-bottom: var(--space-2); line-height: var(--line-height-relaxed); }
+  ol.notes b { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+  code {
+    font-family: var(--font-family-mono); font-size: var(--font-size-xs);
+    background: var(--fill-light); color: var(--text-secondary);
+    padding: 1px var(--space-1); border-radius: var(--radius-xs);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== 线框主体：实时识别预览（第 6 页） ===================== -->
+<div class="shell">
+
+  <!-- 侧边导航 —— 顺序即 CONTRACT.md §1.1 的 6 页顺序，第 6 页第 2 周已解禁（CONTRACT v1.5） -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 28 28" width="16" height="16" role="img" aria-label="桩点北邮图形标识">
+          <path d="M15.7 4.4L8.3 15.5h5.2l-1.2 8.1 7.4-11.1h-5.2z" style="fill: var(--text-inverse);"/>
+        </svg>
+      </span>
+      <span>
+        「桩」点北邮
+        <span class="logo-sub">充电桩车位防占系统</span>
+      </span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item"><span class="nav-idx">1</span>车辆信息管理</a>
+      <a class="nav-item"><span class="nav-idx">2</span>违规记录查询</a>
+      <a class="nav-item"><span class="nav-idx">3</span>充电状态展示</a>
+      <a class="nav-item"><span class="nav-idx">4</span>报警统计</a>
+      <a class="nav-item"><span class="nav-idx">5</span>系统参数配置</a>
+      <a class="nav-item is-active"><span class="nav-idx">6</span>实时识别预览</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="header">
+      <span class="crumb">后台管理 / <b>实时识别预览</b></span>
+      <div class="header-right">
+        <span class="crumb">识别桩 stub 模式 · 不接实时视频流</span>
+        <span class="avatar">吴</span>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- 页头 -->
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">实时识别预览</h1>
+          <p class="page-desc">人工确认识别效果：查看最近一帧与本次判定结果，用来演示「识别 → 判定」这一段链路。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-default">暂停轮询</button>
+          <button class="btn btn-primary">立即刷新</button>
+        </div>
+      </div>
+
+      <!-- 说明条（el-alert info）—— 开发大纲已确认的表述，答辩时避免被误解为真实视频流 -->
+      <div class="alert is-info-brand">
+        <svg class="alert-icon" viewBox="0 0 16 16" role="img" aria-label="提示">
+          <circle cx="8" cy="8" r="7" style="fill: none; stroke: currentColor;" stroke-width="1.5"/>
+          <line x1="8" y1="7" x2="8" y2="11.5" style="stroke: currentColor;" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="8" cy="4.6" r="0.9" style="fill: currentColor;"/>
+        </svg>
+        <span>
+          <b>仅展示最近一帧截图（轮询刷新），不接实时视频流。</b>
+          数据来自识别桩 <code>POST /api/recognize</code>（<code>RECOGNITION_MODE=stub</code>），
+          判定来自 <code>POST /api/judge</code>；本页不提供视频回放、不提供手动标注。
+        </span>
+      </div>
+
+      <!-- 预览区：最近一帧 + 本次识别结果 -->
+      <section class="card">
+        <div class="card-body">
+          <div class="preview-grid">
+
+            <!-- 左：最近一帧 -->
+            <div>
+              <h2 class="section-title">最近一帧</h2>
+              <div class="frame">
+                <span class="frame-badge"><i class="dot dot-info"></i>静态帧</span>
+                <svg class="frame-art" viewBox="0 0 120 90" role="img" aria-label="最近一帧截图占位">
+                  <rect x="6" y="14" width="108" height="62" rx="4" style="fill: none; stroke: var(--border-strong);" stroke-width="2"/>
+                  <path d="M34 52V44l5-9a5 5 0 0 1 4.4-2.6h17.2a5 5 0 0 1 4.4 2.6l5 9v8" style="fill: none; stroke: var(--border-strong);" stroke-width="2" stroke-linejoin="round"/>
+                  <line x1="34" y1="52" x2="70" y2="52" style="stroke: var(--border-strong);" stroke-width="2"/>
+                  <circle cx="42" cy="58" r="4" style="fill: var(--bg-container); stroke: var(--border-strong);" stroke-width="2"/>
+                  <circle cx="62" cy="58" r="4" style="fill: var(--bg-container); stroke: var(--border-strong);" stroke-width="2"/>
+                  <rect x="78" y="26" width="26" height="14" rx="2" style="fill: none; stroke: var(--border-strong);" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="frame-meta">
+                <span>帧引用 <b class="mono">001.jpg</b></span>
+                <span>帧时间 <b class="mono num">2026-09-26 10:00:00</b></span>
+                <span>轮询间隔 <b class="num">5</b> s</span>
+                <span>识别耗时 <b class="num">86</b> ms</span>
+              </div>
+            </div>
+
+            <!-- 右：本次识别结果 -->
+            <div>
+              <h2 class="section-title">本次识别结果</h2>
+              <div class="kv">
+                <div class="kv-row">
+                  <span class="kv-key">车牌</span>
+                  <span class="kv-val mono">京AD67890</span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">车型</span>
+                  <span class="kv-val"><span class="tag tag-new-energy">新能源</span></span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">置信度</span>
+                  <span class="kv-val mono num">0.97</span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">桩 ID</span>
+                  <span class="kv-val mono">PILE-003</span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">判定结果</span>
+                  <span class="kv-val"><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">命中时间</span>
+                  <span class="kv-val mono num">2026-09-26 10:00:05</span>
+                </div>
+                <div class="kv-row">
+                  <span class="kv-key">提醒状态</span>
+                  <span class="kv-val"><span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span></span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- 最近识别记录（表：occupation_record 最近命中） -->
+      <section class="card">
+        <div class="table-toolbar">
+          <h3>最近识别记录</h3>
+          <span class="count">共 <span class="num">6</span> 条 · 按命中时间倒序</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 160px;">车牌</th>
+              <th style="width: 120px;">车型</th>
+              <th style="width: 140px;">桩 ID</th>
+              <th style="width: 160px;">命中规则</th>
+              <th style="width: 200px;">命中时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="is-hover">
+              <td class="col-plate mono">京AD67890</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-003</td>
+              <td><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></td>
+              <td class="mono num">2026-09-26 10:00:05</td>
+            </tr>
+            <tr>
+              <td class="col-plate mono">京A12345</td>
+              <td><span class="tag tag-fuel">燃油</span></td>
+              <td class="mono">PILE-001</td>
+              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
+              <td class="mono num">2026-09-26 09:58:12</td>
+            </tr>
+            <tr>
+              <td class="col-plate mono">京AD12345</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-002</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span></td>
+              <td class="mono num">2026-09-26 09:30:44</td>
+            </tr>
+            <tr>
+              <td class="col-plate mono">京AD24680</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-005</td>
+              <td><span class="pill pill-warning"><i class="dot dot-warning"></i>充满未移车</span></td>
+              <td class="mono num">2026-09-26 08:12:31</td>
+            </tr>
+            <tr>
+              <td class="col-plate mono">京AD13579</td>
+              <td><span class="tag tag-new-energy">新能源</span></td>
+              <td class="mono">PILE-006</td>
+              <td><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></td>
+              <td class="mono num">2026-09-26 07:45:09</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== 状态样张：加载态 / 空态 ===================== -->
+<div class="anno-wrap">
+
+  <h2 class="anno-title">加载态样张 · 骨架屏（对应 component-inventory.md §2.1）</h2>
+  <p class="anno-desc">线框不画骨架屏是第 1 周的临时口径；第 2 周起加载态有规格，故此处给出三类的实际观感，吕浩照此实现 <code>el-skeleton</code>。骨架块一律 <code>--fill-light</code> + <code>--radius-sm</code>，不用渐变扫光动画（演示环境不需要，且会与真实内容抢注意力）。</p>
+
+  <div class="specimen">
+    <h4>① 表格骨架 —— 8 行，列宽与真实表头对齐</h4>
+    <div class="skeleton-rows">
+      <div class="skeleton-cell"><span class="skeleton skeleton-line is-mid"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line is-short"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line is-mid"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line is-short"></span></div>
+      <div class="skeleton-cell"><span class="skeleton skeleton-line is-mid"></span></div>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>② 卡片骨架 —— 3 列 × 2 行（第 3 页桩卡片）</h4>
+    <div class="skeleton-card-grid">
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+      <div class="skeleton-card">
+        <span class="skeleton skeleton-line is-short"></span>
+        <span class="skeleton skeleton-line is-mid"></span>
+        <span class="skeleton skeleton-line"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>③ 图表骨架 —— 容器高度锁定，避免数据到达后跳版</h4>
+    <div class="skeleton-chart">
+      <span class="skeleton skeleton-block" style="width: 28px; height: 48px;"></span>
+      <span class="skeleton skeleton-block" style="width: 28px; height: 72px;"></span>
+      <span class="skeleton skeleton-block" style="width: 28px; height: 36px;"></span>
+      <span class="skeleton skeleton-block" style="width: 28px; height: 60px;"></span>
+      <span>图表区加载中…</span>
+    </div>
+  </div>
+
+  <h2 class="anno-title">空态与边界态</h2>
+  <p class="anno-desc">本页有两种空态，触发原因不同、文案与引导也不同，<b>不能都用「暂无数据」</b>。</p>
+
+  <div class="specimen">
+    <h4>① 识别服务未返回帧（stub 无可用帧 / 接口未就绪）</h4>
+    <div class="empty">
+      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="暂无可用帧">
+        <rect x="14" y="20" width="92" height="54" rx="4" style="fill: none; stroke: var(--border-strong);" stroke-width="2"/>
+        <path d="M14 34h92" style="stroke: var(--border-strong);" stroke-width="2"/>
+        <circle cx="24" cy="27" r="2" style="fill: var(--border-strong);"/>
+        <path d="M46 62l10-12 8 9 6-6 10 9" style="fill: none; stroke: var(--border-strong);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="empty-title">还没有可预览的帧</p>
+      <p class="empty-desc">识别桩按 <code>frame_ref</code> 去 <code>algo/samples/frames/</code> 取帧，取不到会返回 <code>404</code>。请确认样例帧已就位，或稍后重试。</p>
+      <button class="btn btn-default">重试</button>
+    </div>
+  </div>
+
+  <div class="specimen">
+    <h4>② 已取到帧但尚未命中任何规则（规则 ④ 正常充电返回 <code>null</code>）</h4>
+    <div class="empty">
+      <svg class="empty-art" viewBox="0 0 120 90" role="img" aria-label="暂无命中记录">
+        <circle cx="60" cy="45" r="26" style="fill: none; stroke: var(--border-strong);" stroke-width="2"/>
+        <path d="M48 45l8 8 16-17" style="fill: none; stroke: var(--state-success-solid);" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="empty-title">最近尚未命中任何规则</p>
+      <p class="empty-desc">规则 ④（正常充电）返回 <code>null</code>、不落库（契约 §6.2），因此这里为空是正常状态，不代表系统异常。</p>
+    </div>
+  </div>
+
+  <h2 class="anno-title">标注说明</h2>
+  <ol class="notes">
+    <li><b>导航第 6 项已解禁</b>：CONTRACT v1.5 §1.1 起本页导航不再 <code>disabled</code> 置灰，「第 1 周预留」角标同步移除。<code>tools/check_tokens.py</code> 第 [5] 项已从「要求恰有 1 个 <code>is-reserved</code>」改为「<b>要求 0 个</b>」，6 页同改。</li>
+    <li><b>但接口仍未就绪</b>：<code>GET /api/frame/latest</code> 按契约 §6.5 仍是预留端点。所以第 2 周本页是<b>「可进入、有骨架、无真实数据」的占位页</b>，<b>不进第 2 周验收</b>；完整实现为第 3 周。前端在接口就绪前打开本页，应显示上面的空态与说明条，<b>不要报错、也不要伪造数据</b>。</li>
+    <li><b>表格列严格取契约 §3.5 的 P6 登记</b>：车牌 / 车型 / 桩 ID / 命中规则 / 命中时间，对应 <code>occupation_record</code> 的 <code>plate</code> / <code>vtype</code> / <code>pile_id</code> / <code>rule_hit</code> / <code>occur_time</code>。<b>不新增业务字段</b>；「操作」列本页不需要（发送提醒在第 2 页做）。</li>
+    <li><b>右侧「本次识别结果」不是表格列</b>：<code>confidence</code> / <code>frame_time</code> 属 <code>RecognitionResult</code>（契约 §4）的<b>接口字段</b>，故不进 §3.5、也不算自造列。左侧「帧引用 / 轮询间隔 / 识别耗时」同理，是运行参数而非业务数据。</li>
+    <li><b>说明条是硬要求</b>：<code>el-alert</code>（info）写明「仅展示最近一帧截图（轮询刷新），不接实时视频流」—— 开发大纲已确认此表述，<b>答辩时避免被误解为真实视频流接入</b>，不得删。</li>
+    <li><b>两种空态语义不同</b>：①「取不到帧」是<b>异常/未就绪</b>，引导重试；②「未命中规则」是<b>正常状态</b>（规则 ④ 返回 <code>null</code>），不引导任何操作。混用会让演示时看不出系统到底是否正常。</li>
+    <li><b>规则色与其余 5 页同序</b>：燃油车占位红 / 异常占位橙 / 充满未移车黄，与第 2 页表格、第 4 页图表完全一致（<code>design-tokens.md</code> §3.3①）。</li>
+    <li><b>数据与第 2 页自洽</b>：本页「最近识别记录」取的就是第 2 页那批记录（PILE-003 异常占位对应京AD67890），仅是数量更少、时间更近，<b>演示时两页数字必须对得上</b>。</li>
+    <li><b>加载态样张是第 2 周新增交付</b>：规格见 <code>component-inventory.md</code> §2.1，脚本第 [6] 项会断言本页存在骨架屏样张、且 §2.1 三类齐全。</li>
+  </ol>
+</div>
+
+</body>
+</html>
