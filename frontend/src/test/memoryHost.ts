@@ -51,16 +51,16 @@ export function mountView(view: Component, source?: Week2DataSource) {
   }))
   app.component('ElAlert', defineComponent({
     inheritAttrs: false,
-    props: { title: String, description: String },
+    props: { title: { type: String, default: undefined }, description: { type: String, default: undefined } },
     setup(props, { attrs }) { return () => h('div', { ...attrs, role: 'alert' }, [props.title, props.description]) },
   }))
   app.component('ElDialog', defineComponent({
-    props: { modelValue: Boolean, title: String },
+    props: { modelValue: Boolean, title: { type: String, default: undefined } },
     setup(props, { slots }) { return () => props.modelValue ? h('dialog', [props.title, slots.default?.(), slots.footer?.()]) : null },
   }))
   app.component('ElSelect', defineComponent({
     inheritAttrs: false,
-    props: { modelValue: [String, Number] },
+    props: { modelValue: { type: [String, Number], default: undefined } },
     emits: ['update:modelValue', 'change'],
     setup(props, { attrs, slots, emit }) {
       return () => h('select', { ...attrs, value: props.modelValue, onChange: (value: unknown) => {
@@ -69,26 +69,26 @@ export function mountView(view: Component, source?: Week2DataSource) {
     },
   }))
   app.component('ElOption', defineComponent({
-    props: { label: String, value: [String, Number] },
+    props: { label: { type: String, default: undefined }, value: { type: [String, Number], default: undefined } },
     setup(props) { return () => h('option', { value: props.value }, props.label) },
   }))
   app.component('ElInputNumber', defineComponent({
     inheritAttrs: false,
-    props: { modelValue: Number },
+    props: { modelValue: { type: Number, default: undefined } },
     emits: ['update:modelValue'],
     setup(props, { attrs, emit }) {
       return () => h('input', { ...attrs, value: props.modelValue, onInput: (value: unknown) => emit('update:modelValue', value) })
     },
   }))
   app.component('ElTable', defineComponent({
-    props: { data: Array as PropType<Array<Record<string, unknown>>> },
+    props: { data: { type: Array as PropType<Array<Record<string, unknown>>>, default: undefined } },
     setup(props, { attrs, slots }) {
       provide(TABLE_ROWS, () => props.data ?? [])
       return () => h('table', attrs, props.data?.length ? slots.default?.() : slots.empty?.())
     },
   }))
   app.component('ElTableColumn', defineComponent({
-    props: { prop: String, label: String },
+    props: { prop: { type: String, default: undefined }, label: { type: String, default: undefined } },
     setup(props, { slots }) {
       const rows = inject(TABLE_ROWS, () => [])
       return () => h('column', [props.label, ...rows().map((row, index) => h('cell',
