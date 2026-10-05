@@ -26,6 +26,7 @@ import argparse
 import json
 import os
 import random
+import re
 import shutil
 import zipfile
 
@@ -101,20 +102,46 @@ ALPHABETS = [
 ADS = ALPHABETS[:-1] + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "O"]
 
 
+def _parse_coord_pair(text: str) -> list[int] | None:
+    """解析一组坐标 ``"154&383"`` 或 ``"302,471"``，返回 [x, y]。
+
+    **分隔符有两种**：CCPD2020 用 ``&``，CCPD2019 的部分分发用 ``,``
+    （实测文件名形如 ``0021-1_0-302,471_372,497-...``)。两种都要认，
+    否则整批静默解析不出任何样本——第 2 周踩过，报错信息只说"确认是不是 CCPD
+    命名格式"，很容易误以为下载错了文件。
+    """
+    parts = [v for v in re.split(r"[&,]+", text.strip()) if v]
+    if len(parts) != 2:
+        return None
+    try:
+        return [int(v) for v in parts]
+    except ValueError:
+        return None
+
+
 def parse_ccpd_name(name: str) -> dict | None:
-    """从 CCPD 文件名解析出 bbox 与车牌号；解析不了返回 None。"""
+    """从 CCPD 文件名解析出 bbox 与车牌号；解析不了返回 None。
+
+    文件名形如 ``[area]-[tilt]-[bbox]-[顶点]-[字符索引]-[亮度]-[模糊度][_来源_编号].jpg``，
+    末尾可能带 ``_ccpd_green_029398`` 之类的来源后缀（按 ``-`` 切分会多出字段，
+    但我们只用下标 2/4，不受影响）。
+    """
     stem = os.path.splitext(os.path.basename(name))[0]
     parts = stem.split("-")
     if len(parts) < 5:
         return None
 
-    # 字段 3：bbox，形如 154&383_386&473
+    # 字段 3：bbox，形如 154&383_386&473 或 302,471_372,497
     try:
         left, right = parts[2].split("_")
-        x1, y1 = (int(v) for v in left.split("&"))
-        x2, y2 = (int(v) for v in right.split("&"))
     except ValueError:
         return None
+    p1 = _parse_coord_pair(left)
+    p2 = _parse_coord_pair(right)
+    if p1 is None or p2 is None:
+        return None
+    x1, y1 = p1
+    x2, y2 = p2
     if x2 <= x1 or y2 <= y1:
         return None
 
@@ -151,6 +178,13 @@ def extract(zip_path: str, work_dir: str) -> str:
     里，第二批转换会把第一批的图片也扫进来（重复计数 + 覆盖产出）。
     """
     target = os.path.join(work_dir, os.path.splitext(os.path.basename(zip_path))[0])
+    # 解压 1.5GB 的包要十几分钟，已经解过就别再解一遍 —— 上一轮跑到一半被中断时
+    # 这个复用能省掉整段等待（代价是可能混入残缺文件，故只在目录非空时才复用）。
+    if os.path.isdir(target) and any(
+        f.lower().endswith((".jpg", ".jpeg", ".png")) for _r, _d, fs in os.walk(target) for f in fs
+    ):
+        print(f"[复用已解压目录] {target}")
+        return target
     shutil.rmtree(target, ignore_errors=True)
     os.makedirs(target, exist_ok=True)
     with zipfile.ZipFile(zip_path) as zf:
@@ -175,10 +209,14 @@ def build(
     import cv2
 
     work = os.path.join(OUT_DIR, "_extracted")
-    extract(zip_path, work)
+    src_dir = extract(zip_path, work)
+    # ⚠️ 只扫**本批**解压出来的目录，不能扫 _extracted 父目录：
+    # 父目录下还躺着上一批（绿牌）的解压结果，扫父目录会把它们一起当成本批样本，
+    # 于是"蓝牌批"里混进绿牌，meta 的 vtype 统计与按类划分 val 全部失真。
+    # 第 2 周真踩过：blue_* 前缀的样本里出现了 新能源 标签。
 
     samples = []
-    for root, _dirs, files in os.walk(work):
+    for root, _dirs, files in os.walk(src_dir):
         for filename in files:
             if not filename.lower().endswith((".jpg", ".jpeg", ".png")):
                 continue
@@ -208,13 +246,10 @@ def build(
         with open(meta_path, encoding="utf-8") as fh:
             meta = json.load(fh)
 
-    # 按「同一 vtype 内部」划分 val，保证绿/蓝两类的验证集都有样本
-    rng = random.Random(seed)
-    rng.shuffle(samples)
-    samples = samples[:max_images]
-
     val_count = max(1, int(len(samples) * val_ratio))
     for i, (src, info) in enumerate(samples):
+        if i % 50 == 0:
+            print(f"  ... {i}/{len(samples)}", flush=True)
         split = "val" if i < val_count else "train"
         img = cv2.imread(src)
         if img is None:
