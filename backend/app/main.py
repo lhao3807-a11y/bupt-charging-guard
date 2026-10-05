@@ -9,6 +9,10 @@
     POST   /api/vehicles            新增车辆（车牌已存在 → 409）
     PUT    /api/vehicles/{plate}    更新车辆（车牌主键不可改）
     DELETE /api/vehicles/{plate}    删除车辆（204，不级联删违规记录）
+    GET    /api/piles               充电桩列表（状态筛选 + 计数总览，契约 §6.7）
+    GET    /api/stats               违规统计聚合（按规则 / 按日期，契约 §6.8）
+    GET    /api/config              读取系统参数（§7 白名单，契约 §6.9）
+    PUT    /api/config              修改系统参数（仅两个阈值，契约 §6.9）
     GET    /api/health              冒烟/健康检查
 
 启动时自动建表 + 灌种子（开发期 SQLite；正式交付物是 backend/sql/schema.sql）。
@@ -22,10 +26,13 @@ from fastapi import FastAPI
 
 from app.db import SessionLocal, engine
 from app.models import init_db, seed_db
+from app.routers.config import router as config_router
 from app.routers.judge import router as judge_router
 from app.routers.notify import router as notify_router
+from app.routers.piles import router as piles_router
 from app.routers.recognize import router as recognize_router
 from app.routers.records import router as records_router
+from app.routers.stats import router as stats_router
 from app.routers.vehicles import router as vehicles_router
 from app.schemas import HealthResp
 
@@ -54,6 +61,9 @@ app.include_router(judge_router)
 app.include_router(notify_router)
 app.include_router(records_router)
 app.include_router(vehicles_router)
+app.include_router(piles_router)
+app.include_router(stats_router)
+app.include_router(config_router)
 
 
 @app.get("/api/health", response_model=HealthResp, tags=["health"])

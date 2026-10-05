@@ -13,7 +13,7 @@ import re
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class VType(str, Enum):
@@ -223,3 +223,126 @@ class VehiclePage(BaseModel):
     total: int = 0
     page: int = 1
     size: int = 20
+
+
+# ---------------------------------------------------------------------------
+# 充电桩 -> /api/piles（CONTRACT §6.7，v1.6 新增，供第 3 页）
+# ---------------------------------------------------------------------------
+class PileItem(BaseModel):
+    """充电桩（读模型），对应 `charging_pile` 全字段（契约 §3.2）。
+
+    列名按契约 §3.5 的 P3 行：`pile_id`→桩 ID / `status`→状态 / `bound_plate`→绑定车牌 /
+    `start_time`→开始充电时间 / `end_time`→充满时间。
+    """
+
+    pile_id: str = Field(..., description="桩 ID（主键）")
+    status: PileStatus = Field(..., description="运行状态：空闲 / 充电中 / 已充满")
+    bound_plate: str | None = Field(None, description="当前绑定的车牌，未占用为 None")
+    start_time: datetime | None = Field(None, description="开始充电（到达）时间")
+    end_time: datetime | None = Field(None, description="充满时间，未充满为 None")
+
+
+class PilePage(BaseModel):
+    """充电桩分页响应。
+
+    `summary` 是**筛选后**的三状态计数 + `total`，供第 3 页「状态总览卡」直接取值，
+    前端不必再算一遍（契约 §6.7 口径 2）。
+    """
+
+    items: list[PileItem] = Field(default_factory=list)
+    total: int = 0
+    page: int = 1
+    size: int = 20
+    summary: dict[str, int] = Field(
+        default_factory=dict,
+        description="筛选后各状态计数，含 '空闲' / '充电中' / '已充满' / 'total'",
+    )
+
+
+# ---------------------------------------------------------------------------
+# 违规统计 -> /api/stats（CONTRACT §6.8，v1.6 新增，供第 4 页）
+# ---------------------------------------------------------------------------
+#: rule_hit → 中文标签（第 4 页图表图例直接取用）
+RULE_LABELS: dict[int, str] = {
+    0: "正常",
+    1: "燃油占位",
+    2: "异常占位",
+    3: "充满未移车",
+}
+
+
+class RuleCount(BaseModel):
+    """按命中规则聚合的计数。序列顺序由后端固定（0/1/2/3），前端不重排。"""
+
+    rule_hit: int = Field(..., ge=0, le=3, description="命中规则 0~3")
+    label: str = Field(..., description="规则中文名，如 燃油占位")
+    count: int = Field(0, description="窗口内该规则的记录数")
+
+
+class DateCount(BaseModel):
+    """按日期聚合的计数（趋势序列），缺失日期补 0。"""
+
+    date: str = Field(..., description="日期，YYYY-MM-DD")
+    count: int = Field(0, description="当日记录数")
+
+
+class StatsResp(BaseModel):
+    """违规统计聚合响应（契约 §6.8）。"""
+
+    total: int = Field(0, description="窗口内记录总数 = sum(by_rule.count)")
+    by_rule: list[RuleCount] = Field(default_factory=list, description="固定 4 项，rule_hit 升序")
+    by_date: list[DateCount] = Field(default_factory=list, description="连续日期序列，升序")
+    window_start: datetime = Field(..., description="统计窗口下界（含）")
+    window_end: datetime = Field(..., description="统计窗口上界（含）")
+    days: int = Field(..., description="窗口天数，回显请求值")
+
+
+# ---------------------------------------------------------------------------
+# 系统参数 -> /api/config（CONTRACT §6.9，v1.6 新增，供第 5 页）
+# ---------------------------------------------------------------------------
+class ConfigItem(BaseModel):
+    """系统参数项，对应 `system_config` 全字段（契约 §3.4）。
+
+    `value` 是**字符串**（`system_config.value` 为 VARCHAR(50)），与数据库保持一致，
+    由调用方按需转 int —— 避免「库里是 '30'、接口返回 30」的类型漂移。
+    """
+
+    key: str = Field(..., description="参数键")
+    value: str = Field(..., description="参数值（字符串）")
+    note: str | None = Field(None, description="说明")
+
+
+class ConfigPage(BaseModel):
+    """系统参数列表响应（GET 与 PUT 共用：PUT 返回更新后的全量）。"""
+
+    items: list[ConfigItem] = Field(default_factory=list)
+    total: int = 0
+
+
+#: 阈值取值范围（分钟）：下界 1（0 会让规则②③对任何车立刻命中），上界 1440（24 小时）
+CONFIG_MIN_VALUE = 1
+CONFIG_MAX_VALUE = 1440
+
+
+class ConfigUpdate(BaseModel):
+    """`PUT /api/config` 请求体 —— **白名单仅两个阈值键**（契约 §7 红线）。
+
+    - `extra="forbid"`：请求体出现未知 key → Pydantic 直接 422，
+      防止把野键写进 `system_config`（它是规则引擎的唯一配置源）。
+    - 两个键都可选，但**至少给一个**（`_v_at_least_one`），全空 → 422。
+    """
+
+    model_config = {"extra": "forbid"}
+
+    full_timeout_min: int | None = Field(
+        None, ge=CONFIG_MIN_VALUE, le=CONFIG_MAX_VALUE, description="充满超时阈值（分钟）"
+    )
+    abnormal_park_min: int | None = Field(
+        None, ge=CONFIG_MIN_VALUE, le=CONFIG_MAX_VALUE, description="异常占位久停阈值（分钟）"
+    )
+
+    @model_validator(mode="after")
+    def _v_at_least_one(self) -> ConfigUpdate:
+        if self.full_timeout_min is None and self.abnormal_park_min is None:
+            raise ValueError("请求体为空：至少需要给出 full_timeout_min / abnormal_park_min 之一")
+        return self
