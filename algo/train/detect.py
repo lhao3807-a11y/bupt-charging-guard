@@ -47,7 +47,9 @@ def do_train(epochs: int, model: str, data: str = DATA_YAML, name: str = "train"
     from ultralytics import YOLO
 
     if not os.path.isfile(data):
-        print(f"缺少 {data}，请先准备数据集（合成集 gen_synth_dataset.py / 真实集 ccpd_to_yolo.py）")
+        print(
+            f"缺少 {data}，请先准备数据集（合成集 gen_synth_dataset.py / 真实集 ccpd_to_yolo.py）"
+        )
         return 1
 
     print(f"== 训练：{model} → {data}，epochs={epochs}，device=0，name={name} ==")
@@ -138,9 +140,7 @@ def main() -> int:
     p_train.add_argument(
         "--data", default=DATA_YAML, help="数据集 yaml（真实集用 algo/dataset_real/data.yaml）"
     )
-    p_train.add_argument(
-        "--name", default="train", help="运行名，产物落在 algo/runs/detect/<name>"
-    )
+    p_train.add_argument("--name", default="train", help="运行名，产物落在 algo/runs/detect/<name>")
 
     p_pred = sub.add_parser("predict", help="推理验证")
     p_pred.add_argument("--image", help="待推理图片；缺省则取 val 集第一张")

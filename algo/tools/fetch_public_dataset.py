@@ -73,7 +73,9 @@ def download(name: str, url: str, proxies: dict[str, str] | None) -> str:
                     pct = done / total * 100
                     print(f"\r  {done / 1048576:.1f}/{total / 1048576:.1f} MB ({pct:.1f}%)", end="")
         print()
-    print(f"完成：{dest}（{os.path.getsize(dest) / 1048576:.1f} MB，用时 {time.time() - started:.0f}s）")
+    print(
+        f"完成：{dest}（{os.path.getsize(dest) / 1048576:.1f} MB，用时 {time.time() - started:.0f}s）"
+    )
     return dest
 
 

@@ -36,13 +36,67 @@ OUT_DIR = os.path.join(ALGO, "dataset_real")
 
 # CCPD 字符集（与官方定义一致）
 PROVINCES = [
-    "皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽",
-    "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘",
-    "青", "宁", "新", "警", "学", "O",
+    "皖",
+    "沪",
+    "津",
+    "渝",
+    "冀",
+    "晋",
+    "蒙",
+    "辽",
+    "吉",
+    "黑",
+    "苏",
+    "浙",
+    "京",
+    "闽",
+    "赣",
+    "鲁",
+    "豫",
+    "鄂",
+    "湘",
+    "粤",
+    "桂",
+    "琼",
+    "川",
+    "贵",
+    "云",
+    "藏",
+    "陕",
+    "甘",
+    "青",
+    "宁",
+    "新",
+    "警",
+    "学",
+    "O",
 ]
 ALPHABETS = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R",
-    "S", "T", "U", "V", "W", "X", "Y", "Z", "O",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "O",
 ]
 ADS = ALPHABETS[:-1] + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "O"]
 
@@ -209,8 +263,9 @@ def main() -> int:
 
     summary = build(args.zip, args.max, args.val_ratio, args.seed, args.prefix, args.clean)
     print(
-        "转换完成：共 {total} 张（train {train} / val {val}），"
-        "绿牌 {green} / 蓝牌 {blue}".format(**summary)
+        "转换完成：共 {total} 张（train {train} / val {val}），绿牌 {green} / 蓝牌 {blue}".format(
+            **summary
+        )
     )
     print(f"输出目录：{summary['out']}")
     return 0
