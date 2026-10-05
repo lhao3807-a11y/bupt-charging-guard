@@ -16,6 +16,10 @@ import os
 
 import pytest
 
+# CV 环境守卫（任务 5.2）：算法环境没装时跳过本模块，而不是收集报错 exit 2
+pytest.importorskip("numpy", reason="算法环境未就绪（见 algo/requirements-algo.txt）")
+
+# 必须放在 importorskip 之后：plate 在模块级 import numpy
 from algo.recognize import plate
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
