@@ -1,4 +1,4 @@
-"""Keep the three week-two task trackers complete and locally navigable."""
+"""Keep week-two tracking and acceptance documents complete and navigable."""
 
 import re
 from pathlib import Path
@@ -25,6 +25,27 @@ def test_tracker_covers_each_assigned_week_two_task_once(person: str, expected: 
 @pytest.mark.parametrize("person", TRACKERS)
 def test_tracker_local_links_resolve(person: str):
     path = DOCS / f"TASK_TRACKING_{person}.md"
+    text = path.read_text(encoding="utf-8")
+
+    for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", text):
+        if "://" in target:
+            continue
+        assert (path.parent / target.split("#", 1)[0]).is_file(), target
+
+
+def test_acceptance_document_lists_all_fourteen_plan_checks_once():
+    path = DOCS / "WEEK2_ACCEPTANCE.md"
+    assert path.is_file()
+    text = path.read_text(encoding="utf-8")
+    check_rows = re.findall(r"^\| (\d{1,2}) \|", text, re.MULTILINE)
+
+    assert len(check_rows) == 14
+    assert set(check_rows) == {str(number) for number in range(1, 15)}
+
+
+def test_acceptance_document_local_links_resolve():
+    path = DOCS / "WEEK2_ACCEPTANCE.md"
+    assert path.is_file()
     text = path.read_text(encoding="utf-8")
 
     for target in re.findall(r"\[[^]]+\]\(([^)]+)\)", text):
