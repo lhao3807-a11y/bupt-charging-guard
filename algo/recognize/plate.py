@@ -58,10 +58,27 @@ def judge_vtype_by_color(roi_bgr: np.ndarray) -> str:
     return VTYPE_NEW_ENERGY if green > blue else VTYPE_FUEL
 
 
-def _ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
+def crop_plate_roi(img: np.ndarray, bbox_xyxy) -> np.ndarray:
+    """按 ``bbox_xyxy`` 裁剪车牌 ROI，并在四周外扩 8%。
+
+    **为什么外扩**：检测框通常贴着字符边缘，直接喂给 OCR 会切掉首个汉字或末位，
+    HyperLPR3 对这种截断很敏感；外扩后识别率明显回升（任务 5.5 实测对比见
+    ``docs/acceptance/algo/``）。抽成公共函数是为了让 ``recognize_frame`` 与
+    评估脚本用**同一份**裁剪口径，避免"评估时和线上不是一回事"。
+    """
+    x1, y1, x2, y2 = (int(v) for v in bbox_xyxy)
+    pad = max(4, int(0.08 * max(x2 - x1, y2 - y1)))
+    h, w = img.shape[:2]
+    return img[max(0, y1 - pad) : min(h, y2 + pad), max(0, x1 - pad) : min(w, x2 + pad)]
+
+
+def ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
     """用 HyperLPR3 识别 ROI 里的车牌号，返回 (号码, 置信度)。
 
     识别不出或结果不像车牌号（``is_valid_plate_text`` 不过）都返回 ("", 0.0)。
+
+    ``catcher`` 由调用方传入而不是内部新建：`LicensePlateCatcher()` 构造开销大，
+    逐帧重建会让批量评估慢一个量级（任务 5.5 的 `eval_real.py` 一次要跑几百张）。
     """
     results = catcher(roi_bgr) or []
     if not results:
@@ -100,14 +117,11 @@ def recognize_frame(
     plate_box = max(plates, key=lambda b: b["conf"])
     x1, y1, x2, y2 = (int(v) for v in plate_box["bbox_xyxy"])
 
-    # ROI 外扩一点，补偿检测框偏紧导致的 OCR 失败
-    pad = max(4, int(0.08 * max(x2 - x1, y2 - y1)))
-    h, w = img.shape[:2]
-    roi = img[max(0, y1 - pad) : min(h, y2 + pad), max(0, x1 - pad) : min(w, x2 + pad)]
+    roi = crop_plate_roi(img, plate_box["bbox_xyxy"])
 
     from hyperlpr3 import LicensePlateCatcher
 
-    text, ocr_score = _ocr_plate(roi, LicensePlateCatcher())
+    text, ocr_score = ocr_plate(roi, LicensePlateCatcher())
     vtype = judge_vtype_by_color(roi)
 
     return {

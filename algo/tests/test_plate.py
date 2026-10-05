@@ -44,6 +44,38 @@ def test_is_valid_plate_text(text: str, ok: bool):
     assert plate.is_valid_plate_text(text) is ok
 
 
+def test_crop_plate_roi_pads_and_clips():
+    """`crop_plate_roi`：四周外扩约 8%，且不会越出图像边界。"""
+    import numpy as np
+
+    img = np.zeros((100, 200, 3), dtype=np.uint8)
+    # 框 40x20 居中：外扩 max(4, 8%*40=3.2) = 4 像素
+    roi = plate.crop_plate_roi(img, [80, 40, 120, 60])
+    assert roi.shape[:2] == (28, 48), roi.shape  # 20+8 x 40+8
+
+    # 贴边时只裁到边界内，不报错、不产生空图
+    roi_edge = plate.crop_plate_roi(img, [0, 0, 30, 10])
+    assert roi_edge.shape[0] == 14 and roi_edge.shape[1] == 34
+
+
+def test_ocr_plate_rejects_non_plate_text():
+    """`ocr_plate`：catcher 吐出非车牌字符串（HyperLPR 对合成牌的乱码）时返回空。"""
+    import numpy as np
+
+    class _FakeCatcher:
+        def __call__(self, _roi):
+            return [([0, 0, 1, 1], "0.95080864", 0.9, 0)]
+
+    roi = np.zeros((30, 90, 3), dtype=np.uint8)
+    assert plate.ocr_plate(roi, _FakeCatcher()) == ("", 0.0)
+
+    class _GoodCatcher:
+        def __call__(self, _roi):
+            return [([0, 0, 1, 1], "京AD12345", 0.93, 1)]
+
+    assert plate.ocr_plate(roi, _GoodCatcher()) == ("京AD12345", 0.93)
+
+
 # ---------------------------------------------------------------------------
 # vtype 底色判定（从合成数据集的真实车牌位置裁剪）
 # ---------------------------------------------------------------------------
