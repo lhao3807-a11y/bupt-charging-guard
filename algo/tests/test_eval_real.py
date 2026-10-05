@@ -16,7 +16,7 @@ import pytest
 
 pytest.importorskip("numpy", reason="算法环境未就绪（见 algo/requirements-algo.txt）")
 
-from algo.tools import eval_real  # noqa: E402
+from algo.tools import eval_real
 
 
 @pytest.mark.parametrize(
@@ -78,9 +78,24 @@ def test_load_samples_split_filter(tmp_path):
     (data / "meta.json").write_text(
         json.dumps(
             {
-                "v1.jpg": {"split": "val", "plate": "京AD12345", "vtype": "新能源", "bbox_plate": [0, 0, 10, 10]},
-                "v2.jpg": {"split": "val", "plate": "京A12345", "vtype": "燃油", "bbox_plate": [0, 0, 10, 10]},
-                "t1.jpg": {"split": "train", "plate": "京A12345", "vtype": "燃油", "bbox_plate": [0, 0, 10, 10]},
+                "v1.jpg": {
+                    "split": "val",
+                    "plate": "京AD12345",
+                    "vtype": "新能源",
+                    "bbox_plate": [0, 0, 10, 10],
+                },
+                "v2.jpg": {
+                    "split": "val",
+                    "plate": "京A12345",
+                    "vtype": "燃油",
+                    "bbox_plate": [0, 0, 10, 10],
+                },
+                "t1.jpg": {
+                    "split": "train",
+                    "plate": "京A12345",
+                    "vtype": "燃油",
+                    "bbox_plate": [0, 0, 10, 10],
+                },
             },
             ensure_ascii=False,
         ),

@@ -1,0 +1,26 @@
+{
+  "n": 80,
+  "mode": "gt-box",
+  "ocr_input": "full",
+  "weights": null,
+  "conf": 0.4,
+  "detect_any": 1.0,
+  "detect_iou_hit": 1.0,
+  "mean_iou": 1.0,
+  "roi_count": 80,
+  "ocr_exact": 0.9625,
+  "ocr_char_acc": 0.9828125,
+  "vtype_acc": 1.0,
+  "e2e_ocr": 0.9625,
+  "e2e_all": 0.9625,
+  "by_vtype_新能源": {
+    "n": 80,
+    "ocr_exact": 0.9625,
+    "vtype_acc": 1.0
+  },
+  "by_vtype_燃油": {
+    "n": 0,
+    "ocr_exact": 0.0,
+    "vtype_acc": 0.0
+  }
+}

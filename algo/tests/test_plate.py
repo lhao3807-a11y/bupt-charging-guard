@@ -62,18 +62,43 @@ def test_ocr_plate_rejects_non_plate_text():
     """`ocr_plate`：catcher 吐出非车牌字符串（HyperLPR 对合成牌的乱码）时返回空。"""
     import numpy as np
 
+    roi = np.zeros((30, 90, 3), dtype=np.uint8)
+
     class _FakeCatcher:
         def __call__(self, _roi):
-            return [([0, 0, 1, 1], "0.95080864", 0.9, 0)]
+            return [["0.95080864", 0.9, 0, [0, 0, 1, 1]]]
 
-    roi = np.zeros((30, 90, 3), dtype=np.uint8)
     assert plate.ocr_plate(roi, _FakeCatcher()) == ("", 0.0)
 
-    class _GoodCatcher:
-        def __call__(self, _roi):
-            return [([0, 0, 1, 1], "京AD12345", 0.93, 1)]
 
-    assert plate.ocr_plate(roi, _GoodCatcher()) == ("京AD12345", 0.93)
+def test_ocr_plate_parses_hyperlpr3_order():
+    """**防回归**：hyperlpr3 返回 ``[号码, 置信度, 牌色, 框]``，顺序不能搞反。
+
+    第 2 周真实集评估（任务 5.5）才发现早期版本按 ``(框, 号码, 置信度, 牌色)``
+    解析 —— 于是拿置信度当号码、拿牌色当置信度，正则永远不过，
+    OCR 静默地恒定返回空串，而合成集上的验收完全看不出来（合成牌本来就识别不出）。
+    这条测试用「文本位与分数位互换会立刻掉到 0」的方式把顺序钉死。
+    """
+    import numpy as np
+
+    roi = np.zeros((30, 90, 3), dtype=np.uint8)
+
+    class _Catcher:
+        def __call__(self, _roi):
+            return [
+                ["京A12345", 0.72, 0, [0, 0, 90, 30]],  # 低分
+                ["京AD12345", 0.93, 1, [0, 0, 90, 30]],  # 高分，应被选中
+            ]
+
+    assert plate.ocr_plate(roi, _Catcher()) == ("京AD12345", 0.93)
+
+    class _SwappedCatcher:
+        """按错误顺序喂数据：分数排在文本位 → 必须判定为无效，不能误当成车牌。"""
+
+        def __call__(self, _roi):
+            return [[0.93, "京AD12345", 1, [0, 0, 90, 30]]]
+
+    assert plate.ocr_plate(roi, _SwappedCatcher()) == ("", 0.0)
 
 
 # ---------------------------------------------------------------------------

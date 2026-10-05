@@ -22,6 +22,13 @@
 这用来隔离"OCR 本身行不行"和"检测器框得准不准"：若 ``--gt-box`` 下 OCR 有 90%
 而不带只有 60%，说明瓶颈在检测而不是 OCR，该去补数据重训而不是调阈值。
 
+``--ocr-input crop|full`` 用法
+------------------------------
+``crop``（默认）按老做法把车牌 ROI 裁出来再喂 OCR；``full`` 直接把**整帧**喂给
+HyperLPR3（它内部自带检测）。第 2 周实测：用 CCPD 真值框裁出来的 ROI 反而更容易
+认错首个汉字（裁掉了边缘上下文），整帧反而更准。这个开关就是用来量化该差异、
+决定线上走哪条路的——**别凭直觉改默认值**，先跑一遍看数。
+
 用法::
 
     .venv-algo\\Scripts\\python.exe algo/tools/eval_real.py --split val
@@ -36,12 +43,19 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
+
+# 直接以脚本方式运行（`python algo/tools/eval_real.py`）时，sys.path[0] 是
+# algo/tools 而不是仓库根，`from algo.recognize...` 会 ModuleNotFoundError。
+# pytest 从仓库根跑时路径本来就在，这里的插入是幂等的、不影响那种用法。
+if REPO not in sys.path:
+    sys.path.insert(0, REPO)
 
 DATA_DIR = os.path.join(ALGO, "dataset_real")
 REAL_BEST_PT = os.path.join(ALGO, "runs", "detect", "train_real", "weights", "best.pt")
@@ -102,6 +116,7 @@ def evaluate(
     weights: str,
     conf: float,
     gt_box: bool,
+    ocr_input: str = "crop",
 ) -> dict:
     """逐样本跑 检测 → OCR → 牌色，汇总成指标字典。"""
     import cv2
@@ -161,7 +176,11 @@ def evaluate(
             )
             continue
 
-        text, _score = ocr_plate(roi, catcher)
+        # 牌色判定**始终**基于裁出来的 ROI：整帧里大面积车身/背景会把
+        # 绿蓝像素统计彻底带偏，只有车牌区域的颜色才是有意义的。
+        vtype = judge_vtype_by_color(roi)
+        ocr_target = img if ocr_input == "full" else roi
+        text, _score = ocr_plate(ocr_target, catcher)
         rows.append(
             {
                 "name": os.path.basename(img_path),
@@ -170,7 +189,7 @@ def evaluate(
                 "detected": detected,
                 "iou": best_iou,
                 "ocr": text,
-                "vtype": judge_vtype_by_color(roi),
+                "vtype": vtype,
             }
         )
 
@@ -188,6 +207,7 @@ def evaluate(
     summary = {
         "n": n,
         "mode": "gt-box" if gt_box else "detect",
+        "ocr_input": ocr_input,
         "weights": None if gt_box else weights,
         "conf": conf,
         "detect_any": rate(all_rows, lambda r: r["detected"]),
@@ -263,6 +283,12 @@ def main() -> int:
     ap.add_argument("--weights", default=REAL_BEST_PT, help="检测器权重；--gt-box 时忽略")
     ap.add_argument("--conf", type=float, default=0.4)
     ap.add_argument("--gt-box", action="store_true", help="跳过检测器，直接用真值框裁 ROI")
+    ap.add_argument(
+        "--ocr-input",
+        default="crop",
+        choices=["crop", "full"],
+        help="喂给 OCR 的是裁剪 ROI 还是整帧（默认 crop）",
+    )
     ap.add_argument("--limit", type=int, default=0, help="最多评估多少张（0=全部）")
     ap.add_argument("--out", default=OUT_JSON, help="结果 JSON 输出路径")
     args = ap.parse_args()
@@ -276,7 +302,13 @@ def main() -> int:
         print(f"没有可评估样本：{args.data}（split={args.split}）")
         return 1
 
-    result = evaluate(samples, weights=args.weights, conf=args.conf, gt_box=args.gt_box)
+    result = evaluate(
+        samples,
+        weights=args.weights,
+        conf=args.conf,
+        gt_box=args.gt_box,
+        ocr_input=args.ocr_input,
+    )
     print_report(result)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

@@ -79,16 +79,39 @@ def ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
 
     ``catcher`` 由调用方传入而不是内部新建：`LicensePlateCatcher()` 构造开销大，
     逐帧重建会让批量评估慢一个量级（任务 5.5 的 `eval_real.py` 一次要跑几百张）。
+
+    ⚠️ **返回结构**（hyperlpr3 3.x 实测，``algo/tools/eval_real.py`` 调试确认）::
+
+        [ [号码(str), 置信度(float), 牌色(int), 框([x1,y1,x2,y2])], ... ]
+
+    早期版本按 ``(box, text, score, plate_type)`` 解析，于是**把置信度当号码、
+    把牌色当置信度**——正则必然不通过，OCR 静默地永远返回空串。第 2 周在真实集
+    上评估（任务 5.5）才暴露：80 张绿牌整串匹配率 0.00%。
+    解析顺序改动后同批数据升到 90%+，**这里不要凭记忆改回旧顺序**。
     """
     results = catcher(roi_bgr) or []
     if not results:
         return "", 0.0
-    # HyperLPR3 返回形如 [(box, text, score, plate_type), ...]，取分最高的一条
-    best = max(results, key=lambda r: float(r[2]))
-    text = str(best[1]).strip().replace("·", "").replace("-", "").upper()
+    # 取置信度最高的一条；结果可能有多个（画面里不止一块牌）
+    best = max(results, key=lambda r: _as_score(r[1]))
+    text = str(best[0]).strip().replace("·", "").replace("-", "").upper()
     if not is_valid_plate_text(text):
         return "", 0.0
-    return text, float(best[2])
+    return text, _as_score(best[1])
+
+
+def _as_score(value) -> float:
+    """把置信度位置的值转成 float；不是数字一律记 0。
+
+    **为什么不能让它抛**：``recognize_frame`` 是跑在识别循环里的，
+    上游（hyperlpr3）一旦改返回结构，直接 ``float()`` 会把整个识别进程打挂，
+    而这本该只是"这张没认出来"。降级成 0 后该条不会被选中，
+    后续正则也过不了，最终安全返回空结果。
+    """
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def recognize_frame(
