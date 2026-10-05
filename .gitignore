@@ -46,3 +46,7 @@ output/
 # 临时工作目录（截图 / 中间产物）
 .tmp-shots/
 .tmp-*/
+
+# 命令输出残留（调试时重定向到 .workbuddy 下的临时文件，不该入库）
+.workbuddy/_*
+!.workbuddy/memory/

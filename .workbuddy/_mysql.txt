@@ -1,3 +1,0 @@
-﻿MYSQL_SVC=;
-MYSQL_EXE=;
-DOCKER=

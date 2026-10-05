@@ -1,9 +1,0 @@
-﻿COPIED: E:\user\bupt-charging-guard\algo\runs\detect\charging_006_pred.jpg
-COPIED: E:\user\bupt-charging-guard\algo\runs\detect\train\results.png
---- files in dest ---
-00-check-env.log
-01-gen-dataset.log
-02-train.log
-03-predict.log
-charging_006_pred.jpg
-results.png
