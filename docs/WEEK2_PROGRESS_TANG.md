@@ -15,7 +15,7 @@
 | 5.3 | 真实数据集 | ✅ | 公开集路线：CCPD → `dataset_real` **800 张**（绿 419 / 蓝 381） |
 | 5.4 | YOLOv8 微调（真实集） | ✅ | **mAP50 = 0.994 / mAP50-95 = 0.821**（val 160 张，5 分 10 秒） |
 | 5.5 | 车牌识别调优 | ✅ | 端到端 **OCR 91.25% / 牌色 95.00% / 全对 88.75%**；修掉 OCR 静默失效 bug |
-| 5.6 | MySQL 8 真机验证 | 🔴 阻塞 | 本机无 MySQL 服务/客户端、无 Docker（见下） |
+| 5.6 | MySQL 8 真机验证 | 🟡 挂起 | 脚本 `scripts/verify_mysql.py` 已交付（+6 测试），环境不具备待真机补跑 |
 | 5.9 | 测试与 lint 全绿 | ✅ | 后端 **202 passed**（目标 ≥160）+ algo **43 passed**，ruff + format 全绿 |
 
 ## 二、已完成
@@ -123,16 +123,48 @@ hyperlpr3 3.x 返回 `[号码, 置信度, 牌色, 框]`，而代码按 `(框, �
 局限（须在答辩时如实说明）：CCPD 是停车场车头照，**没有充电桩与充电枪**，
 因此「是否插枪 / 桩状态」这类场景特征仍需校园实拍补充。
 
-### 5.6：MySQL 8 真机验证 —— 环境不具备
+### 5.6：MySQL 8 真机验证 —— 脚本已交付，真机验证挂起（环境不具备）
 
-本机既无 MySQL 服务/客户端，也无 Docker。待你决定后执行（装 Server 约 600 MB–1 GB，
-ZIP 版可整包放 E 盘避开 C 盘；或提供远程实例，我写脚本跑建表 + `InnoDB` / `ENUM` 补验）。
+按你的决定：**先交付脚本，等有 MySQL 再补跑**。
+
+已交付 `scripts/verify_mysql.py`（+ 6 条纯逻辑测试）。它对准 `backend/sql/schema.sql`，
+建库建表后逐项断言，退出码 0/1，可 `--json` 存凭据。
+
+重点验的是**SQLite 上根本验不出来**的几件事：
+
+| 检查项 | 为什么必须上 MySQL 8 |
+|---|---|
+| 四表 `ENGINE=InnoDB` + `utf8mb4` | SQLite 没有引擎/字符集概念 |
+| `charging_pile.status` 是**原生 ENUM** | SQLite 退化成 VARCHAR + CHECK |
+| ENUM **非法值被拒** | 两边行为不同（MySQL 非严格模式会存空串，脚本两种都认） |
+| **FK `ON DELETE SET NULL` 真的把 `bound_plate` 置空** | ⚠️ **SQLite 默认不启用外键**（`PRAGMA foreign_keys` OFF），这条在 SQLite 上可能压根没生效过而测试照样绿 —— 这是上真机的首要理由 |
+| `occupation_record.plate` **未加** FK | 契约要求记录能留存已删车辆的历史 |
+| `DATETIME` 存取往返一致（无时区） | SQLite 存字符串，MySQL 8 是原生 DATETIME |
+| `system_config.\`key\`` 反引号转义可用 | `` `key` `` 是 MySQL 保留字，SQLite 不吃这套 |
+
+复跑命令（拿到 MySQL 8 后）：
+
+```bat
+.venv\Scripts\python.exe -m pip install pymysql
+set MYSQL_HOST=127.0.0.1
+set MYSQL_PORT=3306
+set MYSQL_USER=root
+set MYSQL_PASSWORD=xxxx
+set MYSQL_DB=bupt_charging_guard
+.venv\Scripts\python.exe scripts\verify_mysql.py --json docs\acceptance\db\01-verify-mysql.json
+```
+
+⚠️ 脚本会 **DROP 并重建**目标库里的四张表（schema.sql 自带 DROP），**别指向有数据的库**。
+
+SQLite 侧的等价性由 `backend/tests/test_models.py` 等覆盖（当前后端 208 passed）。
+本机现状：无 MySQL 服务/客户端、无 Docker；**wsl.exe 被安全策略列入黑名单、无法调用**，
+故暂不能在本机起 MySQL。
 
 ## 四、质量门禁（本地实测）
 
 | 项 | 结果 |
 |---|---|
-| 后端 pytest | **202 passed**（含 piles 13 / stats 13 / config 24 / simulator 12 / simulate-api 8） |
+| 后端 pytest | **208 passed**（含 piles 13 / stats 13 / config 24 / simulator 12 / simulate-api 8 / verify-mysql 6） |
 | algo 测试（算法环境） | **43 passed**（plate / detect / ccpd 解析 / eval 纯函数） |
 | algo 测试（后端环境，无 numpy） | 跳过，退出码 0 |
 | `ruff check backend scripts algo` | All checks passed |
