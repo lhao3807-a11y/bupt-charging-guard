@@ -88,7 +88,7 @@ def main() -> int:
     args = parser.parse_args()
 
     try:
-        import requests  # noqa: F401
+        import requests
     except ImportError:
         print("缺少 requests：.venv-algo\\Scripts\\python.exe -m pip install requests")
         return 1
