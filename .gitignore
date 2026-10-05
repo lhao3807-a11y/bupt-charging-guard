@@ -34,6 +34,8 @@ Thumbs.db
 
 # CV 数据集与模型权重（体积大，不入库）
 algo/dataset/
+algo/dataset_raw/   # 公开数据集原始压缩包（CCPD 等），仅本地使用
+algo/weights/       # 预训练权重（需自行下载，见 docs/acceptance/algo/README.md）
 algo/runs/
 *.pt
 *.onnx
