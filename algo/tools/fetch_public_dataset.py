@@ -97,7 +97,8 @@ def main() -> int:
     print(f"代理：{proxies}")
     try:
         download(args.source, SOURCES[args.source], proxies)
-    except Exception as exc:  # 网络类失败统一提示，不甩栈
+    except (requests.RequestException, OSError) as exc:
+        # 网络/磁盘类失败统一给可操作的提示，不甩一整屏栈
         print(f"下载失败：{type(exc).__name__}: {exc}")
         print("若代理不通，可手动下载后放到 algo/dataset_raw/<name>.zip")
         return 1
