@@ -1,0 +1,5 @@
+﻿ID=okita-souji/ccpd2019train
+DOWNLOADS=1062
+.gitattributes
+README.md
+train.zip
