@@ -17,14 +17,17 @@ GET /api/piles?page=&size=&status=&pile_id=   → PilePage
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from datetime import datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import models as m
 from app.db import get_db
 from app.query import enum_exact, like_ci
-from app.schemas import PileItem, PilePage
+from app.schemas import PileChange, PileItem, PilePage, SimulateReq, SimulateResp
+from app.simulator import advance
 
 router = APIRouter(tags=["piles"])
 
@@ -85,4 +88,52 @@ def list_piles(
         page=page,
         size=size,
         summary=summary,
+    )
+
+
+@router.post(
+    "/api/piles/simulate",
+    response_model=SimulateResp,
+    summary="推进充电状态模拟器一步（演示用，契约 §6.10）",
+)
+def simulate_piles(
+    payload: SimulateReq | None = None,
+    db: Session = Depends(get_db),
+) -> SimulateResp:
+    """把桩状态按时间推进**一步**，让第 3 页能看到「状态在变」。
+
+    - `at` 用于演示快进（把「现在」设为若干小时后，一次走完流转）；不传取服务端时钟。
+    - 一次调用每个桩最多跳一档 —— 连续推进请多调几次（契约 §6.10 口径 1）。
+    - 响应带 `statuses` 全量快照，前端不必再发一次 `GET /api/piles`。
+    """
+    body = payload or SimulateReq()
+    moment = body.at
+    if isinstance(moment, str):  # 理论上 Pydantic 已解析，兜住手改调用
+        try:
+            moment = datetime.fromisoformat(moment)
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=f"时间格式非法：{moment!r}（支持 ISO 8601，如 2026-09-08T10:30:00）",
+            ) from exc
+
+    result = advance(db, now=moment)
+
+    statuses = {
+        row.pile_id: row.status
+        for row in db.query(m.ChargingPile).order_by(m.ChargingPile.pile_id.asc()).all()
+    }
+    return SimulateResp(
+        advanced_at=result.advanced_at,
+        changed_count=result.changed_count,
+        changes=[
+            PileChange(
+                pile_id=change.pile_id,
+                from_status=change.from_status,
+                to_status=change.to_status,
+                reason=change.reason,
+            )
+            for change in result.changes
+        ],
+        statuses=statuses,
     )

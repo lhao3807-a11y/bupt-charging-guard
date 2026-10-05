@@ -319,6 +319,37 @@ class ConfigPage(BaseModel):
     total: int = 0
 
 
+# ---------------------------------------------------------------------------
+# 充电状态模拟器 -> /api/piles/simulate（CONTRACT §6.10，v1.7 新增）
+# ---------------------------------------------------------------------------
+class PileChange(BaseModel):
+    """单个桩的一次状态变化。"""
+
+    pile_id: str = Field(..., description="桩 ID")
+    from_status: str = Field(..., description="变化前的状态")
+    to_status: str = Field(..., description="变化后的状态")
+    reason: str = Field(..., description="变化原因（人话，便于演示时讲解）")
+
+
+class SimulateReq(BaseModel):
+    """`POST /api/piles/simulate` 请求体：`at` 用于**演示快进**，不传则取服务端时钟。"""
+
+    at: datetime | None = Field(None, description="把『现在』设为该时刻（ISO 8601）")
+
+
+class SimulateResp(BaseModel):
+    """模拟器推进结果。
+
+    `statuses` 是推进后的**全量状态快照**，前端可直接刷新总览卡，
+    不必再发一次 `GET /api/piles`（契约 §6.10 口径 3）。
+    """
+
+    advanced_at: datetime = Field(..., description="推进到的时刻")
+    changed_count: int = Field(0, description="本次发生变化的桩数")
+    changes: list[PileChange] = Field(default_factory=list, description="变化明细")
+    statuses: dict[str, str] = Field(default_factory=dict, description="推进后各桩状态")
+
+
 #: 阈值取值范围（分钟）：下界 1（0 会让规则②③对任何车立刻命中），上界 1440（24 小时）
 CONFIG_MIN_VALUE = 1
 CONFIG_MAX_VALUE = 1440
