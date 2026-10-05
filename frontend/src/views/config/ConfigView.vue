@@ -11,7 +11,7 @@ import PlaceholderView from '@/views/placeholder/PlaceholderView.vue'
 const dependencies = [
   'system_config 表（key / value / note）',
   '阈值：full_timeout_min（充满超时，默认 30）/ abnormal_park_min（异常占位久停，默认 30）',
-  '契约未定义参数读写接口，需先改 CONTRACT.md 再升版本',
+  '契约 §6.9 已定义 GET/PUT /api/config（v1.6），待后端交付后按响应结构接入',
 ]
 </script>
 

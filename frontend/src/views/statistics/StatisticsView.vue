@@ -11,7 +11,7 @@ import PlaceholderView from '@/views/placeholder/PlaceholderView.vue'
 const dependencies = [
   'ECharts + vue-echarts，按需引入 Bar/Line/Pie，配色从 tokens.css 变量读取（禁写死 hex）',
   '序列顺序固定：danger 红 → caution 橙 → warning 黄 → success 绿',
-  '契约未定义统计聚合接口，前端聚合不便时需先改 CONTRACT.md 再升版本',
+  '契约 §6.8 已定义 GET /api/stats（v1.6），待后端交付后按响应结构接入',
 ]
 </script>
 

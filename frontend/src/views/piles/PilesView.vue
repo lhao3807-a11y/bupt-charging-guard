@@ -11,7 +11,7 @@ import PlaceholderView from '@/views/placeholder/PlaceholderView.vue'
 const dependencies = [
   'charging_pile 表（pile_id / status / bound_plate / start_time / end_time）',
   '桩状态色映射：空闲 info 灰 / 充电中 主色蓝 / 已充满 caution 橙',
-  '契约未定义充电桩查询接口，需先改 CONTRACT.md 再升版本',
+  '契约 §6.7 已定义 GET /api/piles（v1.6），待后端交付后按响应结构接入',
 ]
 </script>
 
