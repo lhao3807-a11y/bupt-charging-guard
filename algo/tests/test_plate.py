@@ -101,6 +101,35 @@ def test_ocr_plate_parses_hyperlpr3_order():
     assert plate.ocr_plate(roi, _SwappedCatcher()) == ("", 0.0)
 
 
+def test_ocr_plate_in_frame_picks_result_matching_box():
+    """`ocr_plate_in_frame`：多块牌时按 IoU 挑**贴合检测框**的那条，而不是最高分那条。
+
+    这条是"多车不认错车"的守卫：画面里同时有邻车车牌时，取最高分会串号，
+    而串号意味着短信提醒发错人 —— 属于会直接造成用户投诉的错。
+    """
+    import numpy as np
+
+    img = np.zeros((720, 1280, 3), dtype=np.uint8)
+
+    class _TwoPlates:
+        def __call__(self, _img):
+            return [
+                ["京B99999", 0.99, 0, [900, 100, 1100, 200]],  # 高分，但是隔壁车的
+                ["京AD12345", 0.80, 1, [100, 100, 300, 200]],  # 低分，正是要的那块
+            ]
+
+    # prefer_box 贴合第二块 → 必须选它，尽管分数更低
+    assert plate.ocr_plate_in_frame(img, _TwoPlates(), [110, 110, 290, 190]) == ("京AD12345", 0.80)
+    # 不给 prefer_box 时退化为取最高分
+    assert plate.ocr_plate_in_frame(img, _TwoPlates()) == ("京B99999", 0.99)
+
+    class _Empty:
+        def __call__(self, _img):
+            return []
+
+    assert plate.ocr_plate_in_frame(img, _Empty(), [0, 0, 10, 10]) == ("", 0.0)
+
+
 # ---------------------------------------------------------------------------
 # vtype 底色判定（从合成数据集的真实车牌位置裁剪）
 # ---------------------------------------------------------------------------

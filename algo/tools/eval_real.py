@@ -22,12 +22,25 @@
 这用来隔离"OCR 本身行不行"和"检测器框得准不准"：若 ``--gt-box`` 下 OCR 有 90%
 而不带只有 60%，说明瓶颈在检测而不是 OCR，该去补数据重训而不是调阈值。
 
-``--ocr-input crop|full`` 用法
-------------------------------
-``crop``（默认）按老做法把车牌 ROI 裁出来再喂 OCR；``full`` 直接把**整帧**喂给
-HyperLPR3（它内部自带检测）。第 2 周实测：用 CCPD 真值框裁出来的 ROI 反而更容易
-认错首个汉字（裁掉了边缘上下文），整帧反而更准。这个开关就是用来量化该差异、
-决定线上走哪条路的——**别凭直觉改默认值**，先跑一遍看数。
+``--ocr-input crop|full|full-match`` 用法
+-----------------------------------------
+- ``crop``：老做法，把车牌 ROI 裁出来再喂 OCR
+- ``full``：把**整帧**喂给 HyperLPR3（它内部自带检测），取置信度最高的一条
+- ``full-match``（**默认，与线上 ``recognize_frame`` 口径一致**）：整帧识别，
+  再按 IoU 挑最贴合检测框的那条 —— 多车场景下不会认成隔壁车的牌
+
+第 2 周实测（160 张真实集 val，绿 86 / 蓝 74）：
+
+============  ========  ========  ========
+OCR 输入      整串匹配   字符级     蓝牌
+============  ========  ========  ========
+crop          82.50%    89.42%    68.92%
+full          91.25%    96.82%    85.14%
+full-match    91.25%    98.12%    85.14%
+============  ========  ========  ========
+
+裁剪会丢掉车牌边缘上下文，蓝牌（字符更小、反光更强）掉得尤其厉害。
+**别凭直觉改默认值**，先跑一遍看数。
 
 用法::
 
@@ -61,21 +74,10 @@ DATA_DIR = os.path.join(ALGO, "dataset_real")
 REAL_BEST_PT = os.path.join(ALGO, "runs", "detect", "train_real", "weights", "best.pt")
 OUT_JSON = os.path.join(REPO, "docs", "acceptance", "algo", "05-eval-real.json")
 
+from algo.recognize.box import iou
+
 #: IoU 达到该值才算"框中了车牌"（COCO 常用阈值）
 IOU_HIT = 0.5
-
-
-def iou(box_a: list[float], box_b: list[float]) -> float:
-    """两个 xyxy 框的交并比。"""
-    ax1, ay1, ax2, ay2 = box_a
-    bx1, by1, bx2, by2 = box_b
-    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
-    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
-    inter = max(0.0, ix2 - ix1) * max(0.0, iy2 - iy1)
-    area_a = max(0.0, ax2 - ax1) * max(0.0, ay2 - ay1)
-    area_b = max(0.0, bx2 - bx1) * max(0.0, by2 - by1)
-    union = area_a + area_b - inter
-    return inter / union if union > 0 else 0.0
 
 
 def char_accuracy(pred: str, gt: str) -> float:
@@ -116,13 +118,18 @@ def evaluate(
     weights: str,
     conf: float,
     gt_box: bool,
-    ocr_input: str = "crop",
+    ocr_input: str = "full-match",
 ) -> dict:
     """逐样本跑 检测 → OCR → 牌色，汇总成指标字典。"""
     import cv2
     from hyperlpr3 import LicensePlateCatcher
 
-    from algo.recognize.plate import crop_plate_roi, judge_vtype_by_color, ocr_plate
+    from algo.recognize.plate import (
+        crop_plate_roi,
+        judge_vtype_by_color,
+        ocr_plate,
+        ocr_plate_in_frame,
+    )
     from algo.train.detect import detect_boxes
 
     yolo = None if gt_box else weights
@@ -179,8 +186,12 @@ def evaluate(
         # 牌色判定**始终**基于裁出来的 ROI：整帧里大面积车身/背景会把
         # 绿蓝像素统计彻底带偏，只有车牌区域的颜色才是有意义的。
         vtype = judge_vtype_by_color(roi)
-        ocr_target = img if ocr_input == "full" else roi
-        text, _score = ocr_plate(ocr_target, catcher)
+        if ocr_input == "crop":
+            text, _score = ocr_plate(roi, catcher)
+        elif ocr_input == "full":
+            text, _score = ocr_plate_in_frame(img, catcher)
+        else:  # full-match：与 recognize_frame 线上口径一致
+            text, _score = ocr_plate_in_frame(img, catcher, roi_box)
         rows.append(
             {
                 "name": os.path.basename(img_path),
@@ -285,9 +296,9 @@ def main() -> int:
     ap.add_argument("--gt-box", action="store_true", help="跳过检测器，直接用真值框裁 ROI")
     ap.add_argument(
         "--ocr-input",
-        default="crop",
-        choices=["crop", "full"],
-        help="喂给 OCR 的是裁剪 ROI 还是整帧（默认 crop）",
+        default="full-match",
+        choices=["crop", "full", "full-match"],
+        help="喂给 OCR 的：裁剪 ROI / 整帧取最高分 / 整帧按检测框挑（默认，同线上）",
     )
     ap.add_argument("--limit", type=int, default=0, help="最多评估多少张（0=全部）")
     ap.add_argument("--out", default=OUT_JSON, help="结果 JSON 输出路径")

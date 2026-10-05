@@ -21,6 +21,8 @@ from datetime import datetime
 
 import numpy as np
 
+from algo.recognize.box import iou
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
@@ -100,6 +102,44 @@ def ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
     return text, _as_score(best[1])
 
 
+def ocr_plate_in_frame(img_bgr: np.ndarray, catcher, prefer_box=None) -> tuple[str, float]:
+    """**整帧**跑 OCR，返回 (号码, 置信度)；``prefer_box`` 用来在多块牌中挑对的那一块。
+
+    **为什么是整帧而不是裁剪 ROI**（任务 5.5 实测，160 张真实集，见
+    ``docs/acceptance/algo/05-eval-real.json``）：
+
+    ==========  =======  =======  =======
+    OCR 输入     整串匹配   字符级    蓝牌
+    ==========  =======  =======  =======
+    裁剪 ROI     82.50%   89.42%  68.92%
+    整帧         91.25%   96.82%  85.14%
+    ==========  =======  =======  =======
+
+    HyperLPR3 自带检测器，把整帧交给它比喂一块裁好的小图更准 —— 裁剪会丢掉
+    车牌边缘的上下文，蓝牌（字符更小、反光更强）掉得尤其厉害（+16pp）。
+
+    **但整帧有个坑**：画面里有两块牌时，"取置信度最高的一条"可能是隔壁车的。
+    故传入 YOLO 检出框 ``prefer_box``，按 IoU 挑**最贴合检测框**的那条
+    （IoU 相同时再看置信度）。实测与"取最高分"准确率持平（91.25%），
+    但多车场景不会认错车，所以线上走这条。
+    """
+    results = catcher(img_bgr) or []
+    if not results:
+        return "", 0.0
+
+    if prefer_box is None:
+        best = max(results, key=lambda r: _as_score(r[1]))
+    else:
+        best = max(
+            results,
+            key=lambda r: (iou([float(v) for v in r[3]], prefer_box), _as_score(r[1])),
+        )
+    text = str(best[0]).strip().replace("·", "").replace("-", "").upper()
+    if not is_valid_plate_text(text):
+        return "", 0.0
+    return text, _as_score(best[1])
+
+
 def _as_score(value) -> float:
     """把置信度位置的值转成 float；不是数字一律记 0。
 
@@ -144,8 +184,11 @@ def recognize_frame(
 
     from hyperlpr3 import LicensePlateCatcher
 
-    text, ocr_score = ocr_plate(roi, LicensePlateCatcher())
+    # 牌色判定用**裁剪 ROI**：整帧里大面积车身/背景会把绿蓝像素统计带偏，
+    # 只有车牌区域的颜色才是有意义的（实测牌色 95%，与 OCR 走整帧并不冲突）。
     vtype = judge_vtype_by_color(roi)
+    # OCR 走**整帧**并锚定到检测框，理由见 ocr_plate_in_frame 的文档串。
+    text, ocr_score = ocr_plate_in_frame(img, LicensePlateCatcher(), plate_box["bbox_xyxy"])
 
     return {
         "plate": text,

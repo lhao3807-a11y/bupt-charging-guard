@@ -1,7 +1,7 @@
 {
   "n": 160,
   "mode": "detect",
-  "ocr_input": "full-match",
+  "ocr_input": "full",
   "weights": "algo/runs/detect/train_real/weights/best.pt",
   "conf": 0.4,
   "detect_any": 1.0,
