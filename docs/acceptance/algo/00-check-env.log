@@ -1,0 +1,11 @@
+=== CV 环境自检（任务 2.1）===
+[PASS] python 版本 — 3.11.9（要求 3.11.x）
+[PASS] torch 导入 — 2.6.0+cu124
+[PASS] CUDA 可用 — NVIDIA GeForce RTX 4060 Laptop GPU
+[PASS] ultralytics 导入 — v8.4.155
+[PASS] YOLOv8 推理 — yolov8n.pt → E:\user\bupt-charging-guard\algo\samples\frames\001.jpg 检出 0 个框 []
+[PASS] hyperlpr3 导入 — 0.1.3
+[PASS] HyperLPR3 推理 — 返回 0 条结果（合成帧可能为 0，属正常）
+----------------------------------------
+合计 7 项，失败 0 项
+环境 OK ✅
