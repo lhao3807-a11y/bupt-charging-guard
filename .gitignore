@@ -34,8 +34,15 @@ Thumbs.db
 
 # CV 数据集与模型权重（体积大，不入库）
 algo/dataset/
-algo/dataset_raw/   # 公开数据集原始压缩包（CCPD 等），仅本地使用
-algo/weights/       # 预训练权重（需自行下载，见 docs/acceptance/algo/README.md）
+# ⚠️ .gitignore **不支持行尾注释**：写成 `algo/weights/   # 说明` 会让整行变成模式，
+# 从而匹配不到任何文件。第 2 周踩过 —— 两行都带行尾注释，结果目录没被忽略，
+# git status 里一直挂 ?? ，差点把 865MB 的压缩包提交上去。注释必须单独占一行。
+# 公开数据集原始压缩包（CCPD 等），仅本地使用
+algo/dataset_raw/
+# CCPD 转换产出的真实数据集（800 张，本地生成）
+algo/dataset_real/
+# 预训练权重（需自行下载，见 docs/acceptance/algo/README.md）
+algo/weights/
 algo/runs/
 *.pt
 *.onnx
