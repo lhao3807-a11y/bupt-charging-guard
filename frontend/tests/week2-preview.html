@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>第二周前端组件验证 · 测试数据</title>
+    <style>
+      .test-banner {
+        padding: var(--space-2) var(--space-6);
+        background: var(--state-warning-bg);
+        color: var(--state-warning-text);
+        font-size: var(--font-size-sm);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-banner" role="alert">
+      仅用于前端组件验证：数据为测试夹具，参数保存仅在内存中执行。
+    </div>
+    <div id="app"></div>
+    <script type="module" src="/src/test/week2Preview.ts"></script>
+  </body>
+</html>

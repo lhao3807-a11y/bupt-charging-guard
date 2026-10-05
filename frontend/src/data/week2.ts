@@ -3,7 +3,11 @@ import type { ChargingPile, PileStatus, SystemConfig } from '@/types/contract'
 
 export const CONFIG_KEYS = ['full_timeout_min', 'abnormal_park_min'] as const
 export type ConfigKey = (typeof CONFIG_KEYS)[number]
-export interface ConfigChange { key: ConfigKey; before: string; after: number }
+export interface ConfigChange {
+  key: ConfigKey
+  before: string
+  after: number
+}
 export type ViolationCounts = Record<1 | 2 | 3, number>
 
 /** Frontend domain data; deliberately does not specify the pending C2 wire response. */

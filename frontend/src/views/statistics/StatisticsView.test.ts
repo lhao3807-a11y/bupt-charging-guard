@@ -4,13 +4,21 @@ import { mountView, flush } from '@/test/memoryHost'
 import StatisticsView from './StatisticsView.vue'
 import type { StatisticsData } from '@/data/week2'
 
-vi.mock('vue-echarts', () => ({ default: defineComponent({
-  name: 'ChartBoundary',
-  props: { option: { type: Object, required: true }, autoresize: Boolean },
-  setup(props) { return () => h('chart', { autoresize: props.autoresize }, JSON.stringify(props.option.series)) },
-}) }))
+vi.mock('vue-echarts', () => ({
+  default: defineComponent({
+    name: 'ChartBoundary',
+    props: { option: { type: Object, required: true }, autoresize: Boolean },
+    setup(props) {
+      return () => h('chart', { autoresize: props.autoresize }, JSON.stringify(props.option.series))
+    },
+  }),
+}))
 const unmounts: Array<() => void> = []
-const data: StatisticsData = { counts: { 1: 2, 2: 3, 3: 4 }, trend: [{ date: '2026-10-04', counts: { 1: 2, 2: 3, 3: 4 } }], piles: [{ pileId: 'PILE-001', count: 9 }] }
+const data: StatisticsData = {
+  counts: { 1: 2, 2: 3, 3: 4 },
+  trend: [{ date: '2026-10-04', counts: { 1: 2, 2: 3, 3: 4 } }],
+  piles: [{ pileId: 'PILE-001', count: 9 }],
+}
 function mount(source?: Parameters<typeof mountView>[1]) {
   const view = mountView(StatisticsView, source)
   unmounts.push(() => view.app.unmount())
@@ -18,9 +26,15 @@ function mount(source?: Parameters<typeof mountView>[1]) {
 }
 beforeEach(() => {
   vi.stubGlobal('document', { documentElement: {} })
-  vi.stubGlobal('getComputedStyle', () => ({ getPropertyValue: (name: string) => name.includes('font') ? 'sans-serif' : 'rgb(22, 104, 227)' }))
+  vi.stubGlobal('getComputedStyle', () => ({
+    getPropertyValue: (name: string) =>
+      name.includes('font') ? 'sans-serif' : 'rgb(22, 104, 227)',
+  }))
 })
-afterEach(() => { unmounts.splice(0).forEach((unmount) => unmount()); vi.unstubAllGlobals() })
+afterEach(() => {
+  unmounts.splice(0).forEach((unmount) => unmount())
+  vi.unstubAllGlobals()
+})
 describe('statistics view', () => {
   it('keeps unavailable data distinct from an empty report', async () => {
     const view = mount()
@@ -38,7 +52,10 @@ describe('statistics view', () => {
     expect(view.text()).toContain('燃油占位 2 条，异常占位 3 条，充满未移车 4 条')
   })
   it('requests the selected period and avoids chart axes when the result is empty', async () => {
-    const read = vi.fn().mockResolvedValueOnce(data).mockResolvedValueOnce({ counts: { 1: 0, 2: 0, 3: 0 }, trend: [], piles: [] })
+    const read = vi
+      .fn()
+      .mockResolvedValueOnce(data)
+      .mockResolvedValueOnce({ counts: { 1: 0, 2: 0, 3: 0 }, trend: [], piles: [] })
     const view = mount({ loadStatistics: read })
     await flush()
     ;(view.all('select')[0]!.props.onChange as (value: number) => void)(30)
@@ -53,5 +70,17 @@ describe('statistics view', () => {
     expect(view.text()).toContain('统计数据加载失败')
     expect(view.all('strong').map((el) => view.text(el))).toEqual(['—', '—', '—', '—'])
     expect(view.button('刷新').props.disabled).toBe(false)
+  })
+  it('preserves the receiver of an object-based statistics adapter', async () => {
+    const adapter = {
+      fixture: data,
+      async loadStatistics() {
+        return this.fixture
+      },
+    }
+    const view = mount(adapter)
+    await flush()
+    expect(view.all('chart')).toHaveLength(3)
+    expect(view.text()).not.toContain('统计数据加载失败')
   })
 })

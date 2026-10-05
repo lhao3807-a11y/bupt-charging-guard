@@ -11,8 +11,20 @@ function mount(source?: Parameters<typeof mountView>[1]) {
 }
 afterEach(() => unmounts.splice(0).forEach((unmount) => unmount()))
 const piles: ChargingPile[] = [
-  { pile_id: 'PILE-001', status: '空闲', bound_plate: '京AD12345', start_time: null, end_time: null },
-  { pile_id: 'PILE-002', status: '充电中', bound_plate: '京AD24680', start_time: '2026-10-04T10:00:00', end_time: null },
+  {
+    pile_id: 'PILE-001',
+    status: '空闲',
+    bound_plate: '京AD12345',
+    start_time: null,
+    end_time: null,
+  },
+  {
+    pile_id: 'PILE-002',
+    status: '充电中',
+    bound_plate: '京AD24680',
+    start_time: '2026-10-04T10:00:00',
+    end_time: null,
+  },
   { pile_id: 'PILE-003', status: '已充满', bound_plate: null, start_time: null, end_time: null },
 ]
 describe('charging piles view', () => {
@@ -35,7 +47,8 @@ describe('charging piles view', () => {
     expect(view.all('article')).toHaveLength(0)
     expect(view.all('table')).toHaveLength(1)
     expect(view.text()).toContain('桩 ID')
-    expect(view.text()).toContain('结束时间')
+    expect(view.text()).toContain('充满时间')
+    expect(view.text()).toContain('开始充电时间')
     expect(view.text()).toContain('京AD12345')
   })
   it('passes the selected state to its read boundary and uses a real empty state', async () => {
@@ -50,7 +63,12 @@ describe('charging piles view', () => {
   })
   it('shows a loading skeleton and then a retryable failure, without stale cards', async () => {
     let reject!: (cause: Error) => void
-    const view = mount({ loadPiles: () => new Promise((_resolve, fail) => { reject = fail }) })
+    const view = mount({
+      loadPiles: () =>
+        new Promise((_resolve, fail) => {
+          reject = fail
+        }),
+    })
     await flush()
     expect(view.all('section').some((el) => el.props['aria-label'] === '充电桩加载中')).toBe(true)
     reject(new Error('offline'))
@@ -58,5 +76,17 @@ describe('charging piles view', () => {
     expect(view.text()).toContain('充电桩加载失败')
     expect(view.button('刷新').props.disabled).toBe(false)
     expect(view.all('article')).toHaveLength(0)
+  })
+  it('preserves the receiver of an object-based API adapter', async () => {
+    const adapter = {
+      fixture: piles,
+      async loadPiles() {
+        return this.fixture
+      },
+    }
+    const view = mount(adapter)
+    await flush()
+    expect(view.all('article')).toHaveLength(3)
+    expect(view.text()).not.toContain('充电桩加载失败')
   })
 })

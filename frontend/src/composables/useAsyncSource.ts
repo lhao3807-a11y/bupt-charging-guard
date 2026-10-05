@@ -7,7 +7,11 @@ export function useAsyncSource<T, Q>(read: ((query: Q) => Promise<T>) | undefine
   const error = ref('')
   let requestId = 0
   let disposed = false
-  if (getCurrentScope()) onScopeDispose(() => { disposed = true; requestId++ })
+  if (getCurrentScope())
+    onScopeDispose(() => {
+      disposed = true
+      requestId++
+    })
 
   async function load(query: Q): Promise<boolean> {
     if (!read || disposed) return false

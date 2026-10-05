@@ -4,7 +4,9 @@ import { useAsyncSource } from './useAsyncSource'
 
 function deferred<T>() {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((done) => { resolve = done })
+  const promise = new Promise<T>((done) => {
+    resolve = done
+  })
   return { resolve, promise }
 }
 
@@ -41,7 +43,11 @@ describe('optional week two data source', () => {
   })
 
   it('clears stale data on failure and allows an explicit retry', async () => {
-    const read = vi.fn().mockResolvedValueOnce([1]).mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([2])
+    const read = vi
+      .fn()
+      .mockResolvedValueOnce([1])
+      .mockRejectedValueOnce(new Error('offline'))
+      .mockResolvedValueOnce([2])
     const source = useAsyncSource<number[], void>(read)
     await source.load(undefined)
     await source.load(undefined)
