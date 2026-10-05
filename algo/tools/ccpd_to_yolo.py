@@ -91,14 +91,33 @@ def _to_yolo_line(bbox: list[int], width: int, height: int) -> str:
 
 
 def extract(zip_path: str, work_dir: str) -> str:
-    """解压到工作目录，返回图片所在根目录。"""
-    os.makedirs(work_dir, exist_ok=True)
+    """解压到**以压缩包命名**的独立子目录，返回该目录。
+
+    独立子目录是必须的：绿牌与蓝牌是两份包，若都摊平在同一个 `_extracted`
+    里，第二批转换会把第一批的图片也扫进来（重复计数 + 覆盖产出）。
+    """
+    target = os.path.join(work_dir, os.path.splitext(os.path.basename(zip_path))[0])
+    shutil.rmtree(target, ignore_errors=True)
+    os.makedirs(target, exist_ok=True)
     with zipfile.ZipFile(zip_path) as zf:
-        zf.extractall(work_dir)
-    return work_dir
+        zf.extractall(target)
+    return target
 
 
-def build(zip_path: str, max_images: int, val_ratio: float, seed: int) -> dict:
+def build(
+    zip_path: str,
+    max_images: int,
+    val_ratio: float,
+    seed: int,
+    prefix: str = "real",
+    clean: bool = False,
+) -> dict:
+    """转换一批 CCPD 图片进 `dataset_real/`。
+
+    **可多次调用**：绿牌（CCPD2020）与蓝牌（CCPD2019 子集）是两份压缩包，
+    分批跑进来时用不同的 `--prefix` 区分文件名，并**合并** `meta.json`
+    （默认不清空，只有显式 `--clean` 才重建整个目录）。
+    """
     import cv2
 
     work = os.path.join(OUT_DIR, "_extracted")
@@ -120,22 +139,34 @@ def build(zip_path: str, max_images: int, val_ratio: float, seed: int) -> dict:
     rng.shuffle(samples)
     samples = samples[:max_images]
 
-    # 先清掉旧产出，避免多次运行残留
+    # 先清掉旧产出，避免多次运行残留（仅 --clean 时；否则走合并逻辑）
+    if clean:
+        for split in ("train", "val"):
+            shutil.rmtree(os.path.join(OUT_DIR, "images", split), ignore_errors=True)
+            shutil.rmtree(os.path.join(OUT_DIR, "labels", split), ignore_errors=True)
     for split in ("train", "val"):
-        shutil.rmtree(os.path.join(OUT_DIR, "images", split), ignore_errors=True)
-        shutil.rmtree(os.path.join(OUT_DIR, "labels", split), ignore_errors=True)
         os.makedirs(os.path.join(OUT_DIR, "images", split), exist_ok=True)
         os.makedirs(os.path.join(OUT_DIR, "labels", split), exist_ok=True)
 
-    val_count = max(1, int(len(samples) * val_ratio))
+    meta_path = os.path.join(OUT_DIR, "meta.json")
     meta: dict[str, dict] = {}
+    if os.path.isfile(meta_path) and not clean:
+        with open(meta_path, encoding="utf-8") as fh:
+            meta = json.load(fh)
+
+    # 按「同一 vtype 内部」划分 val，保证绿/蓝两类的验证集都有样本
+    rng = random.Random(seed)
+    rng.shuffle(samples)
+    samples = samples[:max_images]
+
+    val_count = max(1, int(len(samples) * val_ratio))
     for i, (src, info) in enumerate(samples):
         split = "val" if i < val_count else "train"
         img = cv2.imread(src)
         if img is None:
             continue
         height, width = img.shape[:2]
-        name = f"real_{i:04d}"
+        name = f"{prefix}_{i:04d}"
         cv2.imwrite(os.path.join(OUT_DIR, "images", split, f"{name}.jpg"), img)
         with open(
             os.path.join(OUT_DIR, "labels", split, f"{name}.txt"), "w", encoding="utf-8"
@@ -172,9 +203,11 @@ def main() -> int:
     parser.add_argument("--max", type=int, default=400, help="最多取多少张")
     parser.add_argument("--val-ratio", type=float, default=0.2, help="验证集比例")
     parser.add_argument("--seed", type=int, default=42, help="随机种子")
+    parser.add_argument("--prefix", default="real", help="文件名前缀（分批导入时区分来源）")
+    parser.add_argument("--clean", action="store_true", help="清空已有产出后重建（默认合并）")
     args = parser.parse_args()
 
-    summary = build(args.zip, args.max, args.val_ratio, args.seed)
+    summary = build(args.zip, args.max, args.val_ratio, args.seed, args.prefix, args.clean)
     print(
         "转换完成：共 {total} 张（train {train} / val {val}），"
         "绿牌 {green} / 蓝牌 {blue}".format(**summary)
