@@ -15,11 +15,23 @@
 颜色一律从 `docs/design/tokens.css` **读**出来（不是抄进来），
 所以设备框不会随令牌改版而变成过期配色 —— 同 `check_tokens.py` 的思路。
 
-前置：后端 `uvicorn app.main:app --port 8000`、前端 `npm run dev` 已起。
+前置：后端 `uvicorn app.main:app --port 8000`、前端 `npm run dev` 已起；
+第 2 页要有数据可看，先跑 `demo_seed.py` 走一遍「识别 → 判定 → 提醒」闭环。
 本机浏览器用 Edge（Chromium 内核，同 Chrome 的无头截图参数）。
 
+第 3/4/5 页取的是什么画面
+------------------------------------------------------------------------
+契约 **C1–C3**（`/api/piles`、`/api/stats`、`/api/config`）尚未交付，正常启动下这三页
+只会显示「数据待接入」+ 空态 —— 拍出来作为答辩素材没有信息量。所以这三页走仓库自带的
+**开发夹具**入口 `frontend/tests/week2-preview.html`（`src/test/week2Preview.ts`，
+**不进生产入口**）：真实浏览器、真实组件、夹具数据。夹具数据自带辨识特征
+（桩 ID `TEST-00x`、横轴 `测试日 N`），第 3 页另有「充电状态为模拟数据」提示条，
+**图注也标明「开发夹具数据」**，不与真实服务器数据混淆。
+接口交付后把这三行的路由换回 `/piles`、`/statistics`、`/config` 重跑即可。
+
 ⚠️ 脱敏：手机号在页面里已由前端 `maskPhone` 处理（`138****6621`）；
-   车牌是否脱敏口径未定（`walkthrough.md` §9.6 的 R9），脚本会在末尾提醒。
+   车牌按 **「不打码」** 口径执行（`walkthrough.md` §11 的 R9 决策：车牌是业务主键，
+   打码后无法核对记录）。若后续吕浩改为打码，改这里并重跑，不要手改 PNG。
 """
 
 from __future__ import annotations
@@ -44,12 +56,34 @@ FRONTEND = "http://localhost:5173"
 # 不留大片空白（1000 高时底部约 1/4 是空的，进 PPT 很难看）。
 VIEWPORT = (1600, 880)
 
-# 只拍「已真实实现」的页面。第 3/4/5/6 页在 main 上仍是占位路由
-# （每个 16–25 行，内容为「开发中」），拍出来进不了答辩材料，
-# 故不拍 —— 等页面落地后把它们加进这张表即可（这也是脚本存在的意义）。
+# 6 页 + 登录页。第 3/4/5 页走开发夹具入口（见模块开头说明）。
 PAGES: list[tuple[str, str, str, str]] = [
     ("p1-vehicle", "/vehicle", "① 车辆信息管理", "车辆信息管理 · 桩点北邮防占系统"),
     ("p2-records", "/records", "② 违规记录查询", "违规记录查询 · 桩点北邮防占系统"),
+    (
+        "p3-piles",
+        "/tests/week2-preview.html#/piles",
+        "③ 充电状态展示（开发夹具数据）",
+        "充电状态展示 · 桩点北邮防占系统（开发夹具数据）",
+    ),
+    (
+        "p4-statistics",
+        "/tests/week2-preview.html#/statistics",
+        "④ 报警统计（开发夹具数据）",
+        "报警统计 · 桩点北邮防占系统（开发夹具数据）",
+    ),
+    (
+        "p5-config",
+        "/tests/week2-preview.html#/config",
+        "⑤ 系统参数配置（开发夹具数据）",
+        "系统参数配置 · 桩点北邮防占系统（开发夹具数据）",
+    ),
+    (
+        "p6-preview",
+        "/preview",
+        "⑥ 实时识别预览（预留页 · 第 3 周实现）",
+        "实时识别预览 · 桩点北邮防占系统（预留页）",
+    ),
     ("login", "/login", "登录页（任务 6.6）", "登录 · 桩点北邮防占系统"),
 ]
 
@@ -124,7 +158,8 @@ def shoot(browser: str, name: str, route: str, profile: Path) -> Path:
         "--window-size=%d,%d" % VIEWPORT,
         # SPA 的关键：不加虚拟时间预算，截图会早于懒加载路由组件就绪，
         # 结果是「骨架渲染了、内容区空白」——第 2 周真踩过这个坑。
-        "--virtual-time-budget=8000",
+        # 10000 而不是 8000：第 4 页要多等 ECharts 初始化 + 主题令牌读取。
+        "--virtual-time-budget=10000",
         "--screenshot=%s" % target,
         FRONTEND + route,
     ]
@@ -274,7 +309,9 @@ def main() -> int:
             print("  框 %-14s %dx%d → %s" % (name, *out.size, dst.relative_to(ROOT)))
 
     print("\n完成。输出目录：%s" % OUT_DIR.relative_to(ROOT))
-    print("提醒：手机号已由页面 maskPhone 脱敏；**车牌是否脱敏**口径未定，见 walkthrough.md §9.6 的 R9。")
+    print("提醒：手机号已由页面 maskPhone 脱敏；车牌按「不打码」口径执行（walkthrough §11 的 R9）。")
+    print("提醒：第 3/4/5 页取自开发夹具（docs/design/tools/demo_seed.py + tests/week2-preview.html），")
+    print("      图注已标注；契约 C1–C3 交付后改回真实路由重拍。")
     return 0
 
 

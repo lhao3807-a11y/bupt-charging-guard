@@ -243,10 +243,16 @@ onMounted(handleLoad)
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="140" fixed="right">
+        <el-table-column label="操作" width="170" fixed="right">
           <template #default="{ row }">
-            <el-button text type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button text type="danger" @click="askRemove(row)">删除</el-button>
+            <el-button text type="primary" @click="openEdit(row)">
+              <AppIcon name="icon-edit" :size="14" />
+              <span>编辑</span>
+            </el-button>
+            <el-button text type="danger" @click="askRemove(row)">
+              <AppIcon name="icon-delete" :size="14" />
+              <span>删除</span>
+            </el-button>
           </template>
         </el-table-column>
 

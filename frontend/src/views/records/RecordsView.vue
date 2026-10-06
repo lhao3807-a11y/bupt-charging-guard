@@ -191,7 +191,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
           </template>
         </el-table-column>
 
-        <el-table-column label="命中规则" width="140">
+        <el-table-column label="命中规则" width="160">
           <template #default="{ row }">
             <RuleHitPill :rule-hit="row.rule_hit" />
           </template>
@@ -209,7 +209,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="140" fixed="right">
           <template #default="{ row }">
             <el-button
               text
@@ -218,7 +218,8 @@ async function handleNotify(row: { id: number | null; plate: string }) {
               :disabled="notifyingId !== null || row.notify_status === NOTIFY_STATUS.已提醒"
               @click="handleNotify(row)"
             >
-              发送提醒
+              <AppIcon name="icon-send" :size="14" />
+              <span>发送提醒</span>
             </el-button>
           </template>
         </el-table-column>
