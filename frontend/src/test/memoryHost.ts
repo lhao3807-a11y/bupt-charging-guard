@@ -50,8 +50,12 @@ const renderer = createRenderer<HostNode, HostNode>({
 })
 const TABLE_ROWS: InjectionKey<() => Array<Record<string, unknown>>> = Symbol('table-rows')
 
-export function mountView(view: Component, source?: Week2DataSource) {
-  const app = renderer.createApp(view)
+export function mountView(
+  view: Component,
+  source?: Week2DataSource,
+  props?: Record<string, unknown>,
+) {
+  const app = renderer.createApp(view, props)
   if (source) app.provide(WEEK2_DATA_SOURCE, source)
   const wrapperNames = [
     'ElCard',

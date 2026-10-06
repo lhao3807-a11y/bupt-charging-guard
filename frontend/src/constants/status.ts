@@ -45,6 +45,20 @@ export const RULE_HIT_LABEL: Record<number, string> = {
   [RULE_HIT.NORMAL]: '正常充电',
 }
 
+/**
+ * 违规类型 → 图标名（component-inventory.md §6.2，任务 6.4 收口）。
+ *
+ * 图标文件在 `docs/design/assets/icons/icon-rule-*.svg`，由 `AppIcon` 渲染；
+ * 语义由胶囊里的文字承担（mask 渲染读不到 SVG 自带的 `aria-label`），
+ * 颜色继承 `--state-*-text`，不在此处写死色值。
+ */
+export const RULE_HIT_ICON: Record<number, string> = {
+  [RULE_HIT.FUEL_OCCUPY]: 'icon-rule-fuel-occupy',
+  [RULE_HIT.ABNORMAL_PARK]: 'icon-rule-abnormal-park',
+  [RULE_HIT.FULL_NOT_MOVED]: 'icon-rule-full-not-moved',
+  [RULE_HIT.NORMAL]: 'icon-rule-normal',
+}
+
 /** 提醒状态 → 令牌前缀（design-tokens.md §3.3②）。 */
 export const NOTIFY_STATUS_PREFIX: Record<NotifyStatus, TokenPrefix> = {
   [NOTIFY_STATUS.未提醒]: 'warning', // 黄（待处理）
