@@ -15,7 +15,7 @@
 | 5.3 | 真实数据集 | ✅ | 公开集路线：CCPD → `dataset_real` **800 张**（绿 419 / 蓝 381） |
 | 5.4 | YOLOv8 微调（真实集） | ✅ | **mAP50 = 0.994 / mAP50-95 = 0.821**（val 160 张，5 分 10 秒） |
 | 5.5 | 车牌识别调优 | ✅ | 端到端 **OCR 91.25% / 牌色 95.00% / 全对 88.75%**；修掉 OCR 静默失效 bug |
-| 5.6 | MySQL 8 真机验证 | 🟡 挂起 | 脚本 `scripts/verify_mysql.py` 已交付（+6 测试），环境不具备待真机补跑 |
+| 5.6 | MySQL 8 真机验证 | ✅ | **2026-10-06 真机跑通 19/19**（本机 ZIP 免安装版 MySQL 8.0.45，独立测试库）；凭据 `docs/acceptance/db/01-verify-mysql.{json,log}` |
 | 5.9 | 测试与 lint 全绿 | ✅ | 后端 **202 passed**（目标 ≥160）+ algo **43 passed**，ruff + format 全绿 |
 
 ## 二、已完成
@@ -123,9 +123,27 @@ hyperlpr3 3.x 返回 `[号码, 置信度, 牌色, 框]`，而代码按 `(框, �
 局限（须在答辩时如实说明）：CCPD 是停车场车头照，**没有充电桩与充电枪**，
 因此「是否插枪 / 桩状态」这类场景特征仍需校园实拍补充。
 
-### 5.6：MySQL 8 真机验证 —— 脚本已交付，真机验证挂起（环境不具备）
+### 5.6：MySQL 8 真机验证 —— ✅ 已真机跑通（2026-10-06，19/19 通过）
 
-按你的决定：**先交付脚本，等有 MySQL 再补跑**。
+**真机结果（MySQL 8.0.45，独立测试库 `bupt_charging_guard_test`）**：19 项全 PASS，
+凭据存 `docs/acceptance/db/01-verify-mysql.json`（机器读）与 `01-verify-mysql.log`（人读）。
+
+其中最关键的几条（都是 SQLite 上验不出来、或验不准的）：
+
+| 检查项 | 真机结果 |
+|---|---|
+| 四表 `ENGINE=InnoDB` + `utf8mb4` | PASS（4/4 表，排序规则 `utf8mb4_0900_ai_ci`） |
+| `charging_pile.status` 原生 ENUM | PASS —— `enum('空闲','充电中','已充满')` |
+| ENUM 非法值被拒 | PASS —— 抛 `DataError`（本次 `sql_mode` 含 `STRICT_TRANS_TABLES`，严格模式） |
+| **FK `ON DELETE SET NULL` 真的置空** | PASS —— 删车后 `bound_plate=None` ✅ **SQLite 上这条可能从未生效** |
+| `occupation_record.plate` 未加外键 | PASS |
+| `DATETIME` 存取往返一致 | PASS —— 读出 `datetime(2026, 9, 8, 10, 0)`，无时区偏移 |
+| `system_config.\`key\`` 反引号转义 | PASS |
+| 种子数据行数 | PASS —— vehicle 6 / charging_pile 4 / system_config 2 |
+
+> 环境是怎么来的：本机无 Docker、且 **wsl.exe 被安全策略拉黑 + Windows 为家用版无 Hyper-V**，
+> 两条 Docker 路线都不通。改用 **MySQL 8 官方 ZIP 免安装版**（下载 234 MB、解压约 1 GB，
+> 全部放 E 盘），`mysqld --initialize-insecure` 后直接起在 127.0.0.1:3306，跑完即关，不装系统服务。
 
 已交付 `scripts/verify_mysql.py`（+ 6 条纯逻辑测试）。它对准 `backend/sql/schema.sql`，
 建库建表后逐项断言，退出码 0/1，可 `--json` 存凭据。
