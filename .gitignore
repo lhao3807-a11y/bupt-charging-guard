@@ -57,3 +57,6 @@ output/
 # 命令输出残留（调试时重定向到 .workbuddy 下的临时文件，不该入库）
 .workbuddy/_*
 !.workbuddy/memory/
+
+# 网络实拍采集的原始池（571MB，只入库筛后 dataset_web 与 meta/许可清单）
+algo/dataset_web_raw/
