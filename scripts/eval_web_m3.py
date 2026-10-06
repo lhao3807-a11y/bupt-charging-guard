@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """M3：real 模式在**网络实拍集**（dataset_web）上的端到端评估。
 
 - 每张 val 图跑 ``recognize_frame``（新权重），对照 ``meta.json`` 里人工核验的
@@ -30,16 +29,21 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--weights",
-        default=os.path.join(REPO, "algo", "runs", "detect", "train_real_web", "weights", "best.pt"),
+        default=os.path.join(
+            REPO, "algo", "runs", "detect", "train_real_web", "weights", "best.pt"
+        ),
     )
     args = ap.parse_args()
     if not os.path.isfile(args.weights):
         print(f"权重不存在：{args.weights}（先跑 M2 训练）")
         return 1
 
-    meta = json.load(open(os.path.join(REPO, "algo", "dataset_web", "meta.json"), encoding="utf-8"))
+    with open(os.path.join(REPO, "algo", "dataset_web", "meta.json"), encoding="utf-8") as fh:
+        meta = json.load(fh)
     val = {k: v for k, v in meta.items() if v["split"] == "val"}
-    print(f"val 集 {len(val)} 张，权重 {os.path.basename(os.path.dirname(os.path.dirname(args.weights)))}")
+    print(
+        f"val 集 {len(val)} 张，权重 {os.path.basename(os.path.dirname(os.path.dirname(args.weights)))}"
+    )
 
     from algo.recognize import plate as P
 
@@ -50,23 +54,43 @@ def main() -> int:
         try:
             r = P.recognize_frame(img, weights=args.weights)
         except Exception as exc:  # noqa: BLE001 单张失败不拖垮整批
-            rows.append({"file": name, "error": str(exc)[:120], "gt_plate": gt["plate"],
-                         "gt_vtype": gt["vtype"], "pred": None})
+            rows.append(
+                {
+                    "file": name,
+                    "error": str(exc)[:120],
+                    "gt_plate": gt["plate"],
+                    "gt_vtype": gt["vtype"],
+                    "pred": None,
+                }
+            )
             continue
         if r is None:
-            rows.append({"file": name, "gt_plate": gt["plate"], "gt_vtype": gt["vtype"],
-                         "pred": None, "reason": "未检出车牌"})
+            rows.append(
+                {
+                    "file": name,
+                    "gt_plate": gt["plate"],
+                    "gt_vtype": gt["vtype"],
+                    "pred": None,
+                    "reason": "未检出车牌",
+                }
+            )
             continue
         # 结构必须与契约 RecognitionResult 完全一致（§4）
         assert set(r) == {"plate", "vtype", "confidence", "bbox", "frame_time"}, f"字段不符 {name}"
-        rows.append({
-            "file": name, "gt_plate": gt["plate"], "gt_vtype": gt["vtype"],
-            "pred_plate": r["plate"], "pred_vtype": r["vtype"],
-            "conf": round(r["confidence"], 4), "bbox": r["bbox"],
-        })
+        rows.append(
+            {
+                "file": name,
+                "gt_plate": gt["plate"],
+                "gt_vtype": gt["vtype"],
+                "pred_plate": r["plate"],
+                "pred_vtype": r["vtype"],
+                "conf": round(r["confidence"], 4),
+                "bbox": r["bbox"],
+            }
+        )
 
     n = len(rows)
-    det_ok = sum(1 for r in rows if r.get("pred") is not False and r.get("pred_plate") is not None)
+    sum(1 for r in rows if r.get("pred") is not False and r.get("pred_plate") is not None)
     has_pred = [r for r in rows if r.get("pred_plate")]
     exact = sum(1 for r in has_pred if r["pred_plate"] == r["gt_plate"])
     vtype_ok = sum(1 for r in has_pred if r["pred_vtype"] == r["gt_vtype"])
@@ -99,10 +123,12 @@ def main() -> int:
         )
         for r in rows:
             if not r.get("pred_plate"):
-                fh.write(f"[MISS] {r['file']}  gt={r['gt_plate']}  ({r.get('reason','')})\n")
+                fh.write(f"[MISS] {r['file']}  gt={r['gt_plate']}  ({r.get('reason', '')})\n")
             elif r["pred_plate"] != r["gt_plate"] or r["pred_vtype"] != r["gt_vtype"]:
-                fh.write(f"[WRONG] {r['file']}  gt={r['gt_plate']}/{r['gt_vtype']}"
-                         f"  pred={r['pred_plate']}/{r['pred_vtype']}\n")
+                fh.write(
+                    f"[WRONG] {r['file']}  gt={r['gt_plate']}/{r['gt_vtype']}"
+                    f"  pred={r['pred_plate']}/{r['pred_vtype']}\n"
+                )
     print(
         f"完成：检出 {len(has_pred)}/{n}，OCR 整串 {summary['ocr_exact_pct']}%，"
         f"字符级 {summary['ocr_char_pct']}%，牌色 {summary['vtype_pct']}%"

@@ -167,15 +167,20 @@ def _synth_available() -> bool:
 
 
 def test_default_weights_is_real_set_not_synth():
-    """**防回归**：real 模式默认必须加载真实集权重。
+    """**防回归**：real 模式默认必须加载真实照片权重。
 
     第 2 周验收审查发现 `DEFAULT_WEIGHTS` 还指向 `runs/detect/train/`（合成集），
     于是线上 real 模式一直用「只在合成图上有效的模型」跑真实图。
     合成集 mAP50 0.995 只能证明链路跑通，不能当真实准确率对外演示。
+    2026-10-06 起默认升级为 CCPD + dataset_web 合并微调的 `train_real_web`；
+    允许 train_real（纯 CCPD）作为回退 —— 两者都是真实照片权重，合成集绝不接受。
     """
-    assert plate.DEFAULT_WEIGHTS.endswith(
+    real_ok = plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train_real_web", "weights", "best.pt")
+    ) or plate.DEFAULT_WEIGHTS.endswith(
         os.path.join("runs", "detect", "train_real", "weights", "best.pt")
-    ), plate.DEFAULT_WEIGHTS
+    )
+    assert real_ok, plate.DEFAULT_WEIGHTS
     assert not plate.DEFAULT_WEIGHTS.endswith(
         os.path.join("runs", "detect", "train", "weights", "best.pt")
     )

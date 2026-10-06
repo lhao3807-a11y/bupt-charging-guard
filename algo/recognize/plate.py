@@ -29,10 +29,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
 
-#: **真实集**训练产出的权重（任务 5.4，CCPD → `dataset_real`，mAP50 0.994）
+#: **真实照片**训练产出的权重（任务 5.4 起步于 CCPD → `dataset_real`；2026-10-06 起
+#: 升级为 CCPD + `dataset_web` 网络实拍 174 张的合并微调 `train_real_web`，
+#: 合并 val mAP50 0.9918 / 仅网络实拍 val 0.9889，见 `docs/acceptance/algo/08-*.log`）。
 #: real 模式默认必须用它 —— 合成集权重只在合成图上有效，拿它跑真实图等于拿
 #: 一个不能代表真实准确率的模型对外演示（第 2 周验收审查阻断项之一）。
-DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train_real", "weights", "best.pt")
+DEFAULT_WEIGHTS = os.path.join(
+    ALGO, "runs", "detect", "train_real_web", "weights", "best.pt"
+)
 
 #: 合成集权重（任务 2.3）：**仅供合成帧上的链路自测**显式传入，绝不作默认值。
 #: 合成集 mAP50 0.995 只证明链路跑通，不代表真实准确率。

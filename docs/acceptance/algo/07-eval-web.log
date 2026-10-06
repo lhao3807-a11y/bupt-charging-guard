@@ -1,0 +1,13 @@
+M3 网络实拍集评估（36 张 val）
+权重: E:\user\bupt-charging-guard\algo\runs\detect\train_real_web\weights\best.pt
+检出 33/36；OCR 整串 28/33 = 84.85%；字符级 91.9%；牌色 31/33 = 93.94%
+
+[WRONG] web_0163.jpg  gt=沪AG61020/燃油  pred=沪AG61020/新能源
+[MISS] web_0190.jpg  gt=沪ABA5559  ()
+[WRONG] web_0243.jpg  gt=苏EA13162/燃油  pred=苏EA15162/燃油
+[WRONG] web_0313.jpg  gt=粤SD68231/新能源  pred=粤SDY3228/新能源
+[WRONG] web_0546.jpg  gt=沪B66VA42/新能源  pred=沪B66V42/燃油
+[WRONG] web_0595.jpg  gt=粤BR5512/燃油  pred=鲁BR5512/燃油
+[MISS] web_0718.jpg  gt=沪AB62900  ()
+[MISS] web_0815.jpg  gt=粤BMK100  ()
+[WRONG] web_0879.jpg  gt=粤S14WM5/燃油  pred=粤B8G26F/燃油

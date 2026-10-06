@@ -13,8 +13,8 @@
 | 5.8 | 充电状态模拟器 | ✅ | `app/simulator.py` + CLI + §6.10 端点（契约 v1.7） |
 | 5.1 | CV 产物补凭据 | ✅ | `docs/acceptance/algo/**`（解第 1 周 R1） |
 | 5.3 | 真实数据集 | ✅ | 公开集路线：CCPD → `dataset_real` **800 张**（绿 419 / 蓝 381）；**2026-10-06 补网络实拍集 `dataset_web` 174 张**（Commons/Openverse 自由许可真实照片，绿 88 / 蓝 88，逐张人工核验，见 `algo/dataset_web/README.md`） |
-| 5.4 | YOLOv8 微调（真实集） | ✅ | **mAP50 = 0.994 / mAP50-95 = 0.821**（val 160 张，5 分 10 秒） |
-| 5.5 | 车牌识别调优 | ✅ | 端到端 **OCR 91.25% / 牌色 95.00% / 全对 88.75%**；修掉 OCR 静默失效 bug |
+| 5.4 | YOLOv8 微调（真实集） | ✅ | **mAP50 = 0.994 / mAP50-95 = 0.821**（val 160 张，5 分 10 秒）；**2026-10-06 合并网络实拍后 mAP50 = 0.9918**（合并 val 196）/ **仅 web val 0.9889**，凭据 `docs/acceptance/algo/08-val-real-web.log` |
+| 5.5 | 车牌识别调优 | ✅ | 端到端 **OCR 91.25% / 牌色 95.00% / 全对 88.75%**；修掉 OCR 静默失效 bug；**2026-10-06 网络实拍 val 36 张：检出 91.7% / OCR 84.85% / 牌色 93.94%**（凭据 `07-eval-web.json`）；**real 模式默认权重升级为 CCPD+web 合并权重** |
 | 5.6 | MySQL 8 真机验证 | ✅ | **2026-10-06 真机跑通 19/19**（本机 ZIP 免安装版 MySQL 8.0.45，独立测试库）；凭据 `docs/acceptance/db/01-verify-mysql.{json,log}` |
 | 5.9 | 测试与 lint 全绿 | ✅ | 后端 **202 passed**（目标 ≥160）+ algo **43 passed**，ruff + format 全绿 |
 

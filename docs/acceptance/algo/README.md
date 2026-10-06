@@ -124,7 +124,8 @@ HyperLPR3 自带检测器，喂整帧比喂一块裁好的小图更准（裁剪�
 | 合成数据集 | `algo/dataset/`（images / labels / data.yaml / meta.json） |
 | 真实数据集 | `algo/dataset_real/`（800 张，CCPD 转换产出） |
 | 合成集权重 | `algo/runs/detect/train/weights/best.pt`（6.2 MB） |
-| **真实集权重** | `algo/runs/detect/train_real/weights/best.pt`（6.2 MB） |
+| 真实集权重（纯 CCPD） | `algo/runs/detect/train_real/weights/best.pt`（6.2 MB） |
+| **真实照片合并权重（线上默认）** | `algo/runs/detect/train_real_web/weights/best.pt`（6.2 MB，CCPD+web 174） |
 | 预训练权重 | `algo/weights/yolov8n.pt`（6.5 MB，需自行下载，见上文踩坑） |
 | 原始压缩包 | `algo/dataset_raw/`（CCPD2020 865 MB + CCPD2019 子集 1.5 GB） |
 
@@ -140,3 +141,42 @@ HyperLPR3 自带检测器，喂整帧比喂一块裁好的小图更准（裁剪�
 
 > 踩坑：CCPD2019 子集用**逗号**分隔坐标（`302,471_372,497`），CCPD2020 用 `&`，两种都要认；
 > 另解压 1.5 GB 的包要十几分钟（脚本已做"已解压则复用"）。
+
+## 七、网络实拍集 `dataset_web` 的补充训练与评估（2026-10-06）
+
+验收审查指出「CCPD 不是计划要求的四类实拍数据」后，按风险表备选②从网上补充**真实照片**
+（Commons + Openverse，自由许可）。构成、筛查与许可见 **`algo/dataset_web/README.md`**
+（884 张下载 → 人工逐张目检 → 入库 **174 张**，train 138 / val 36，绿 88 / 蓝 88）。
+
+### 7.1 合并微调（`08-val-real-web.log`、`results_real_web.png`）
+
+train = CCPD 640 + web 138；val = CCPD 160 + web 36（共 196 张，40 epoch，5 分 50 秒）：
+
+| val 口径 | mAP50 | mAP50-95 |
+|---|---|---|
+| 合并 val（196 张） | **0.9918** | **0.827** |
+| **仅网络实拍 val（36 张，街景多角度）** | **0.9889** | 0.889 |
+
+### 7.2 端到端（`07-eval-web.{json,log}`，web val 36 张，`scripts/eval_web_m3.py`）
+
+| 环节 | 结果 |
+|---|---|
+| 检出 | **33 / 36（91.7%）** |
+| OCR 整串 / 字符级 | **84.85% / 91.90%** |
+| 牌色判定 | **93.94%** |
+
+比 CCPD 上的 91.25%/95% 略低，符合预期：街拍含侧拍、远距、运动模糊，是更难的分布；
+模型自此不再只见过"停车场车头照"一种真实场景。
+
+### 7.3 real 模式默认权重升级
+
+`algo/recognize/plate.py` 的 `DEFAULT_WEIGHTS` 切到
+`runs/detect/train_real_web/weights/best.pt`（真实照片合并权重）；
+合成集权重仍仅限合成帧自测显式传入（`SYNTH_WEIGHTS`），
+防回归测试 `test_default_weights_is_real_set_not_synth` 已同步更新。
+
+### 7.4 ⚠️ 局限（不变，且要更加强调）
+
+`dataset_web` 是**街景/停车场**照片，**没有充电桩上下文**（充电中 1 张、燃油占位 1 张）。
+计划 §2.2/§5.3 的「四类场景各 ≥30」**无法由网络照片诚实达成**——充电位场景样本
+仍需校园实拍补齐（备选①）。四类场景的时间性区分由规则引擎承担，不由单帧图像承担。
