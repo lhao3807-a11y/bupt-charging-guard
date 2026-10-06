@@ -68,6 +68,17 @@
 - 仓库标准命令是 `ruff check backend scripts`（我扩展到含 `algo`）。
   **`docs/design/tools/**` 不在 lint 范围内**，跑 `ruff format .` 会误格式化吴和庆的设计工具脚本 → 必须按范围跑。
 
+## dataset_web（2026-10-06 定稿，M1-M3 已闭环）
+- 网络实拍集 `algo/dataset_web/`：**174 张**（train 138 / val 36，绿 88 / 蓝 88），
+  Commons+Openverse 自由许可，逐张人工核验（review.json 在 dataset_web_raw/，不入库）。
+- 权重谱系：合成 `train/`（勿用于真实图）→ `train_real/`（纯 CCPD）→
+  **`train_real_web/`（线上默认，CCPD+web 合并，合并 val mAP50 0.9918 / 仅 web val 0.9889）**。
+- web val 端到端：检出 91.7% / OCR 84.85% / 牌色 93.94%（街拍比 CCPD 难）。
+- **如实局限**：dataset_web 无充电位上下文（充电中 1、燃油占位 1），
+  「四类各 ≥30」仍需校园实拍；验收 1 的四类覆盖缺口要如实汇报。
+- 训练数据 yaml 合并多目录：`path` 指向 `algo/`，train/val 用列表（相对 path）；
+  ultralytics val 会在仓库根生成 `runs/` 垃圾 + `*.cache`（均已 ignore）。
+
 ## 规则引擎判定口径（改前必改 CONTRACT 并升版本）
 1. 桩关联：`RecognitionResult` 无桩字段 → 按 `plate` 反查 `charging_pile.bound_plate`；查不到返回 `None`。
 2. 久停基准：`charging_pile.start_time` 复用为绑定/到达时间。
