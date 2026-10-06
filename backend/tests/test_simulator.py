@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from app import models as m
 from app.simulator import (
@@ -18,6 +18,7 @@ from app.simulator import (
     SIM_IDLE_TO_CHARGING_MIN,
     advance,
     advance_pile,
+    normalize_moment,
 )
 
 NOW = datetime(2026, 9, 8, 10, 0, 0)
@@ -110,6 +111,120 @@ def test_release_uses_end_time_not_start_time(db_session):
     pile.end_time = NOW  # 刚充满
     db_session.commit()
     assert advance_pile(pile, db_session, NOW) is None
+
+
+# ---------------------------------------------------------------------------
+# 超时释放必须留下规则③记录（第 2 周验收审查阻断项 ①）
+# ---------------------------------------------------------------------------
+def test_timeout_release_leaves_rule3_record(db_session):
+    """**防回归**：释放前要把「充满超时未移车」落库。
+
+    早期版本只把桩清空就返回，于是进度文档宣称的「模拟数据会自然触发规则③」
+    实际一条记录都没有 —— 第 2 页/第 4 页看不到任何真数据。
+    """
+    advance_pile(_pile(db_session, "PILE-002"), db_session, NOW)
+
+    rows = db_session.query(m.OccupationRecord).all()
+    assert len(rows) == 1, rows
+    row = rows[0]
+    assert row.rule_hit == m.RULE_FULL_NOT_MOVED
+    assert row.plate == "京AD67890"  # 释放前的绑定车牌，记录要留住（无 FK，删车也不删它）
+    assert row.pile_id == "PILE-002"
+    assert row.vtype == m.VTYPE_NEW_ENERGY
+    assert row.occur_time == NOW
+    assert row.notify_status == m.NOTIFY_PENDING
+
+
+def test_release_reason_mentions_recorded_rule(db_session):
+    """变化原因里写明落了哪条规则，演示时一眼能看出记录是怎么来的。"""
+    change = advance_pile(_pile(db_session, "PILE-002"), db_session, NOW)
+    assert "规则③" in change.reason, change.reason
+
+
+def test_timeout_release_writes_no_record_when_vehicle_unknown(db_session):
+    """车没录入 `vehicle` 表 → 判不出车型 → **宁可不落库，也不编造车型**。
+
+    车型决定命中规则①还是③，兜底成「新能源」等于往库里写假数据，
+    与本项目「不静默兜底」的纪律冲突。
+    """
+    db_session.add(
+        m.ChargingPile(
+            pile_id="PILE-900",
+            status=m.PILE_FULL,
+            bound_plate="京Z99999",  # 不在 SEED_VEHICLES 里
+            start_time=datetime(2026, 9, 8, 8, 0),
+            end_time=datetime(2026, 9, 8, 9, 0),
+        )
+    )
+    db_session.commit()
+
+    change = advance_pile(_pile(db_session, "PILE-900"), db_session, NOW)
+    assert change is not None and change.to_status == m.PILE_IDLE  # 照样释放
+    assert db_session.query(m.OccupationRecord).count() == 0
+    assert "规则" not in change.reason
+
+
+def test_fuel_car_on_full_pile_records_rule1_not_rule3(db_session):
+    """判定交回规则引擎：桩上若是燃油车，引擎判规则①，模拟器不得擅自写 3。"""
+    pile = _pile(db_session, "PILE-004")  # 种子：绑定燃油车 京A88888
+    pile.status = m.PILE_FULL
+    pile.end_time = datetime(2026, 9, 8, 9, 0)
+    db_session.commit()
+
+    advance_pile(pile, db_session, NOW)
+    row = db_session.query(m.OccupationRecord).one()
+    assert row.rule_hit == m.RULE_FUEL_OCCUPY
+    assert row.vtype == m.VTYPE_FUEL
+
+
+def test_repeated_timeout_does_not_duplicate_records(db_session):
+    """同一违规持续中只更新不新增（复用 `save_violation` 的去重口径）。"""
+    db_session.add(
+        m.ChargingPile(
+            pile_id="PILE-901",
+            status=m.PILE_FULL,
+            bound_plate="京AD33333",
+            start_time=datetime(2026, 9, 8, 8, 0),
+            end_time=datetime(2026, 9, 8, 9, 0),
+        )
+    )
+    db_session.commit()
+
+    advance_pile(_pile(db_session, "PILE-901"), db_session, NOW)
+    first_count = db_session.query(m.OccupationRecord).count()
+    # 再绑一辆车、再超时一次：同桩同规则且未提醒 → 复用同一条
+    pile = _pile(db_session, "PILE-901")
+    pile.status = m.PILE_FULL
+    pile.bound_plate = "京AD33333"
+    pile.end_time = datetime(2026, 9, 8, 9, 0)
+    db_session.commit()
+    advance_pile(pile, db_session, datetime(2026, 9, 8, 11, 0))
+
+    assert db_session.query(m.OccupationRecord).count() == first_count == 1
+
+
+# ---------------------------------------------------------------------------
+# 时间基准：带时区的时刻要归一化（第 2 周验收审查阻断项 ③）
+# ---------------------------------------------------------------------------
+def test_normalize_moment_strips_timezone():
+    """aware → 本地朴素时间；naive / None 原样返回。"""
+    aware = datetime(2026, 9, 8, 10, 30, tzinfo=timezone(timedelta(hours=8)))
+    naive = normalize_moment(aware)
+    assert naive.tzinfo is None
+    assert naive == aware.astimezone().replace(tzinfo=None)
+
+    plain = datetime(2026, 9, 8, 10, 30)
+    assert normalize_moment(plain) is plain
+    assert normalize_moment(None) is None
+
+
+def test_advance_accepts_timezone_aware_now(db_session):
+    """**防回归**：传带时区的 `now` 曾经抛 TypeError（aware − naive）→ 接口 500。"""
+    aware = NOW.replace(tzinfo=timezone(timedelta(hours=8)))
+    result = advance(db_session, now=aware)
+    assert result.advanced_at.tzinfo is None
+    assert result.advanced_at == NOW
+    assert result.changed_count == 3  # 确实推进了，不是静默空转
 
 
 # ---------------------------------------------------------------------------

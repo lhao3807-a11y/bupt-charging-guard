@@ -10,7 +10,9 @@ HyperLPR3 识别号码 → **HSV 颜色统计判定绿牌/蓝牌** → 输出与
 HyperLPR3 的 plate_type 枚举随版本变动，而「绿=新能源 / 蓝=燃油」本质是**底色**问题
 （契约 §3.1 已把车型标签绑到车牌底色），HSV 统计可解释、不依赖第三方内部约定。
 
-⚠️ 当前模型/OCR 在**合成帧**上训练与测试；校园实拍替换数据集后需重训再评估（algo/README.md §3）。
+⚠️ **默认权重是真实集（CCPD）训出来的**（任务 5.4）；合成集权重仅用于合成帧自测，
+需显式传 `weights=SYNTH_WEIGHTS`。真实集只标了 `plate` 单类（CCPD 没有车辆框），
+所以 `vehicle` 类仍靠合成集 —— 校园实拍补标车辆框后再合并训练。
 """
 
 from __future__ import annotations
@@ -27,8 +29,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
 
-#: 任务 2.3 训练产出的车牌检测权重
-DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train", "weights", "best.pt")
+#: **真实集**训练产出的权重（任务 5.4，CCPD → `dataset_real`，mAP50 0.994）
+#: real 模式默认必须用它 —— 合成集权重只在合成图上有效，拿它跑真实图等于拿
+#: 一个不能代表真实准确率的模型对外演示（第 2 周验收审查阻断项之一）。
+DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train_real", "weights", "best.pt")
+
+#: 合成集权重（任务 2.3）：**仅供合成帧上的链路自测**显式传入，绝不作默认值。
+#: 合成集 mAP50 0.995 只证明链路跑通，不代表真实准确率。
+SYNTH_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train", "weights", "best.pt")
 
 # HSV 底色判定阈值（OpenCV H∈[0,180]）：绿牌深绿 ≈ 35~90，蓝牌深蓝 ≈ 100~130
 _HSV_GREEN_LO, _HSV_GREEN_HI = (35, 60, 40), (90, 255, 255)
@@ -163,7 +171,7 @@ def recognize_frame(
 ) -> dict | None:
     """完整识别：帧文件 → ``RecognitionResult`` 兼容 dict；未检出租车牌返回 ``None``。
 
-    ``frame_time`` 缺省取当前时间；``weights`` 缺省用任务 2.3 训练出的 best.pt。
+    ``frame_time`` 缺省取当前时间；``weights`` 缺省用 ``DEFAULT_WEIGHTS``（**真实集**权重）。
     """
     import cv2
 

@@ -161,22 +161,38 @@ def test_judge_vtype_by_color(scene: str, vtype: str):
 # ---------------------------------------------------------------------------
 # 端到端 recognize_frame（依赖 best.pt；缺失时 skip）
 # ---------------------------------------------------------------------------
-def _best_available() -> bool:
-    return os.path.isfile(plate.DEFAULT_WEIGHTS)
+def _synth_available() -> bool:
+    """合成集用例要看的是**合成集**权重在不在（默认权重已改为真实集，见下）。"""
+    return os.path.isfile(plate.SYNTH_WEIGHTS)
 
 
-@pytest.mark.skipif(
-    not _best_available(), reason="best.pt 不存在（先跑 algo/train/detect.py train）"
-)
+def test_default_weights_is_real_set_not_synth():
+    """**防回归**：real 模式默认必须加载真实集权重。
+
+    第 2 周验收审查发现 `DEFAULT_WEIGHTS` 还指向 `runs/detect/train/`（合成集），
+    于是线上 real 模式一直用「只在合成图上有效的模型」跑真实图。
+    合成集 mAP50 0.995 只能证明链路跑通，不能当真实准确率对外演示。
+    """
+    assert plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train_real", "weights", "best.pt")
+    ), plate.DEFAULT_WEIGHTS
+    assert not plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train", "weights", "best.pt")
+    )
+    assert plate.SYNTH_WEIGHTS != plate.DEFAULT_WEIGHTS
+
+
+@pytest.mark.skipif(not _synth_available(), reason="合成集 best.pt 不存在")
 def test_recognize_frame_structure_matches_contract():
-    """契约 §4：输出字段与 RecognitionResult 完全一致。"""
+    """契约 §4：输出字段与 RecognitionResult 完全一致（合成帧 + 合成集权重）。"""
     meta_path = os.path.join(REPO, "algo", "dataset", "meta.json")
     with open(meta_path, encoding="utf-8") as fh:
         metas = json.load(fh)
     name, m = next(iter(sorted(metas.items())))
     img_path = os.path.join(REPO, "algo", "dataset", "images", m["split"], f"{name}.jpg")
 
-    result = plate.recognize_frame(img_path)
+    # 合成帧必须用合成集权重：真实集权重没见过合成牌，会直接检不出
+    result = plate.recognize_frame(img_path, weights=plate.SYNTH_WEIGHTS)
     assert result is not None, "合成帧上应能检出租车牌"
     assert set(result) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
     assert result["vtype"] in ("新能源", "燃油")
@@ -191,7 +207,7 @@ def test_recognize_frame_structure_matches_contract():
     assert isinstance(result["plate"], str)
 
 
-@pytest.mark.skipif(not _best_available(), reason="best.pt 不存在")
+@pytest.mark.skipif(not _synth_available(), reason="合成集 best.pt 不存在")
 def test_recognize_frame_none_when_no_plate(tmp_path):
     """画面里没有车牌 → 返回 None（不是报错）。"""
     import cv2
@@ -200,4 +216,43 @@ def test_recognize_frame_none_when_no_plate(tmp_path):
     blank = np.full((720, 1280, 3), 90, dtype=np.uint8)
     p = tmp_path / "blank.jpg"
     cv2.imwrite(str(p), blank)
-    assert plate.recognize_frame(str(p)) is None
+    assert plate.recognize_frame(str(p), weights=plate.SYNTH_WEIGHTS) is None
+
+
+# ---------------------------------------------------------------------------
+# real 模式：默认权重在真实图上的端到端输出（契约 §4 / 验收第 3 项 M3）
+# ---------------------------------------------------------------------------
+def _real_available() -> bool:
+    return os.path.isfile(plate.DEFAULT_WEIGHTS)
+
+
+@pytest.mark.skipif(not _real_available(), reason="真实集 best.pt 不存在（先跑任务 5.4 训练）")
+def test_recognize_frame_on_real_image_outputs_contract_shape():
+    """真实集权重 + 真实图 → 输出结构与 `RecognitionResult` 一致，且号码/牌色可用。
+
+    **为什么固定取 `real_0000.jpg`（绿牌）而不是排序第一张**：真实集端到端整串
+    准确率是 91.25%、牌色 95.00%（`docs/acceptance/algo/05-eval-real.json`，
+    且该评估用的是**检测框**而非标注框，口径与线上一致）。排序第一张 `blue_0000.jpg`
+    恰好落在那 5% 的错误里（省份汉字 皖→粤、牌色蓝判成绿）—— 蓝牌是当前已知短板。
+    拿一张注定会错的图钉死断言，只会得到一个随机红的测试，掩盖不了真实准确率。
+    整集统计由 `algo/tools/eval_real.py` 负责，本条只守「默认权重跑真实图不崩、
+    结构合规、绿牌这一档确实能用」这条底线。
+    """
+    meta_path = os.path.join(REPO, "algo", "dataset_real", "meta.json")
+    with open(meta_path, encoding="utf-8") as fh:
+        metas = json.load(fh)
+    name, m = next(iter(metas.items()))  # 插入序第一张 = real_0000.jpg（绿牌）
+    assert m["vtype"] == "新能源", f"前提变了：这张图不再是绿牌（{name} → {m['vtype']}）"
+    # 注意：真实集 meta 的 key 已带 .jpg（合成集的 key 不带），别再拼一次后缀
+    img_path = os.path.join(REPO, "algo", "dataset_real", "images", m["split"], name)
+
+    result = plate.recognize_frame(img_path)
+    assert result is not None, "真实集权重应当能在真实集图上检出租车牌"
+    assert set(result) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
+    assert result["vtype"] == m["vtype"], "车型判定应与数据集标注一致"
+    assert result["plate"] == m["plate"], "绿牌这一档 OCR 号码应当可用"
+    assert 0.0 <= result["confidence"] <= 1.0
+    _x, _y, w, h = result["bbox"]
+    assert w > 0 and h > 0
+    ex, _ey, _ew, _eh = m["bbox_plate"]
+    assert abs(_x - ex) < 30, "检测框应落在标注框附近"

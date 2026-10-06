@@ -76,6 +76,34 @@ def test_simulate_invalid_at_is_422(client):
     assert _post(client, {"at": "不是时间"}).status_code == 422
 
 
+def test_simulate_accepts_timezone_aware_at(client):
+    """**防回归**：带时区偏移的 `at` 曾经 500。
+
+    ISO 8601 允许 `+08:00`，它是合法输入；但库里 DATETIME 全是朴素本地时，
+    拿 aware 去减 naive 会抛 TypeError 冒泡成 500。现在归一到本地朴素时间后再比较，
+    并按归一化后的时刻正常推进（不是静默空转）。
+    """
+    resp = _post(client, {"at": "2026-09-08T10:30:00+08:00"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+
+    moment = datetime.fromisoformat(body["advanced_at"])
+    assert moment.tzinfo is None, "响应里的时刻必须是朴素时间，避免前端二次踩坑"
+    expected = datetime.fromisoformat("2026-09-08T10:30:00+08:00").astimezone().replace(tzinfo=None)
+    assert moment == expected
+    assert body["changed_count"] == 4  # 确实按该时刻推进了
+
+
+def test_simulate_utc_offset_is_converted_not_dropped(client):
+    """偏移量要**换算**而不是丢掉：UTC 18:30 = 本地次日 02:30（东八区）。"""
+    resp = _post(client, {"at": "2026-09-08T02:30:00+00:00"})
+    assert resp.status_code == 200, resp.text
+    moment = datetime.fromisoformat(resp.json()["advanced_at"])
+    expected = datetime.fromisoformat("2026-09-08T02:30:00+00:00").astimezone().replace(tzinfo=None)
+    assert moment == expected
+    assert moment.hour == expected.hour
+
+
 def test_simulate_uses_config_threshold(client, db_session):
     """口径 2：释放阈值来自 system_config（契约 §7），不是写死的 30。"""
     row = db_session.get(m.SystemConfig, "full_timeout_min")
@@ -85,6 +113,18 @@ def test_simulate_uses_config_threshold(client, db_session):
     body = _post(client, {"at": AT.isoformat()}).json()
     assert body["statuses"]["PILE-002"] == m.PILE_FULL
     assert not any(c["pile_id"] == "PILE-002" for c in body["changes"])
+
+
+def test_simulate_release_leaves_violation_record(client, db_session):
+    """阻断①的接口级回归：演示推进一次后，违规记录页就有真数据可看。"""
+    _post(client, {"at": AT.isoformat()})
+
+    rows = (
+        db_session.query(m.OccupationRecord).filter(m.OccupationRecord.pile_id == "PILE-002").all()
+    )
+    assert len(rows) == 1
+    assert rows[0].rule_hit == m.RULE_FULL_NOT_MOVED
+    assert rows[0].plate == "京AD67890"
 
 
 def test_simulate_change_reason_is_human_readable(client):

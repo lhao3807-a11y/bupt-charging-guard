@@ -17,9 +17,7 @@ GET /api/piles?page=&size=&status=&pile_id=   → PilePage
 
 from __future__ import annotations
 
-from datetime import datetime
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -105,19 +103,13 @@ def simulate_piles(
     - `at` 用于演示快进（把「现在」设为若干小时后，一次走完流转）；不传取服务端时钟。
     - 一次调用每个桩最多跳一档 —— 连续推进请多调几次（契约 §6.10 口径 1）。
     - 响应带 `statuses` 全量快照，前端不必再发一次 `GET /api/piles`。
+    - `at` 的解析交给 Pydantic（非法格式 → 422）；**带时区偏移量的值由
+      `simulator.normalize_moment()` 归一到本地朴素时间**再参与比较，不会 500。
     """
     body = payload or SimulateReq()
-    moment = body.at
-    if isinstance(moment, str):  # 理论上 Pydantic 已解析，兜住手改调用
-        try:
-            moment = datetime.fromisoformat(moment)
-        except ValueError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"时间格式非法：{moment!r}（支持 ISO 8601，如 2026-09-08T10:30:00）",
-            ) from exc
-
-    result = advance(db, now=moment)
+    # 原先把 `at` 当字符串兜底解析的分支是死代码：Pydantic 必然已转成 datetime
+    # （或提前抛 422），留着会让人误以为这里还吃字符串。
+    result = advance(db, now=body.at)
 
     statuses = {
         row.pile_id: row.status

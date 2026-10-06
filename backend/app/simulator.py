@@ -16,9 +16,18 @@
 - 前两段时长（等多久开始充、充多久充满）是**模拟器节奏参数**，不是业务判定阈值，
   故用模块常量而**不写进 `system_config`** —— 那张表是规则引擎的唯一配置源，
   写进去就是给契约 §7 白名单开了口子。
+- 判定**不自己实现**：超时释放前把「这一刻的车 + 桩状态」交给 `rule_engine.judge()`
+  判定并 `save_violation()` 落库，保证与 `/api/judge` 走的是同一套规则、同一套去重口径。
+  ⚠️ 早期版本只改桩状态、不落库，于是文档宣称的「自然触发规则③」实际是一条记录都没有
+  —— 第 2 周验收审查发现，本模块因此补上落库并钉了回归测试。
 
 **确定性**：状态推进只看 `now` 与桩自身的时间字段，不掷随机数 ——
 同样的输入必然得到同样的输出，测试才能钉住行为，演示也能复现。
+
+**时间基准**：库里 `DATETIME` 一律是**朴素本地时**（见 `models.py`）。
+调用方若传入带时区的时刻（ISO 8601 允许 `+08:00`），先经 `normalize_moment()`
+归一化再参与相减 —— 否则「aware − naive」会抛 `TypeError` 变成 500
+（第 2 周验收审查阻断项之一）。
 """
 
 from __future__ import annotations
@@ -29,7 +38,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app import models as m
-from app.rule_engine import get_config_int
+from app.rule_engine import get_config_int, judge, save_violation
+from app.schemas import RecognitionResult
 
 #: 空闲桩「车已停下 → 开始充电」的等待时长（分钟）
 SIM_IDLE_TO_CHARGING_MIN = 3
@@ -73,6 +83,70 @@ def _release(pile: m.ChargingPile) -> None:
     pile.bound_plate = None
     pile.start_time = None
     pile.end_time = None
+
+
+def normalize_moment(value: datetime | None) -> datetime | None:
+    """把带时区的时刻归一化为**本地朴素时间**；朴素时刻原样返回。
+
+    **为什么是「转本地再去掉 tzinfo」而不是拒绝**：ISO 8601 允许带偏移量
+    （``2026-09-08T10:30:00+08:00``），它是合法输入，拒掉会让前端日期控件动辄 422；
+    而库里 `DATETIME` 全是朴素本地时（`models.py`），拿 aware 值去减 naive 值会
+    直接 `TypeError` → 500。归一到同一基准后两种写法都能用，且结果可预期。
+    """
+    if value is None or value.tzinfo is None:
+        return value
+    return value.astimezone().replace(tzinfo=None)
+
+
+def _lookup_vtype(db: Session, plate: str | None) -> str | None:
+    """按车牌查车型；车没录入 `vehicle` 表 → `None`。
+
+    **为什么不能兜底成「新能源」**：车型决定命中哪条规则（① vs ③），
+    猜一个就等于往库里写假数据。没录入就是没法判定，宁可这次不落库。
+    """
+    if not plate:
+        return None
+    row = db.get(m.Vehicle, plate)
+    return None if row is None else row.vtype
+
+
+#: rule_hit → 规则序号，仅用于把落库结果写进人类可读的 `reason`
+_RULE_LABELS = ("", "①", "②", "③")
+
+
+def _record_timeout_violation(
+    pile: m.ChargingPile,
+    db: Session,
+    now: datetime,
+) -> int | None:
+    """释放**之前**把「充满超时未移车」判定并落库，返回命中的 rule_hit（未命中 → `None`）。
+
+    判定交回 `rule_engine.judge()` 而不是本模块自己写 `rule_hit=3`：
+    桩上停的也可能是燃油车（模拟器不挑车），那种情况引擎会判规则①，
+    本模块照抄一个 3 就会和 `/api/judge` 的口径打架。
+    """
+    if pile.bound_plate is None:
+        return None
+    vtype = _lookup_vtype(db, pile.bound_plate)
+    if vtype is None:
+        return None
+
+    # bbox / confidence 在「模拟器造的时间点」上没有意义，但要凑齐契约 §4 的结构
+    hit = judge(
+        RecognitionResult(
+            plate=pile.bound_plate,
+            vtype=vtype,
+            confidence=1.0,
+            bbox=[0, 0, 0, 0],
+            frame_time=now,
+        ),
+        db,
+        now=now,
+    )
+    if hit is None:
+        return None
+    save_violation(db, hit)
+    return hit.rule_hit
 
 
 def advance_pile(
@@ -120,13 +194,13 @@ def advance_pile(
         if _elapsed_minutes(pile.end_time, now) <= timeout:
             return None
         before = pile.status
+        # 先判定落库、再释放：释放后 bound_plate 清空，引擎就反查不到桩了
+        hit_rule = _record_timeout_violation(pile, db, now)
         _release(pile)
-        return PileChange(
-            pile.pile_id,
-            before,
-            m.PILE_IDLE,
-            f"充满后超过 {timeout} 分钟未移车，判定超时并释放车位",
-        )
+        reason = f"充满后超过 {timeout} 分钟未移车，判定超时并释放车位"
+        if hit_rule is not None:
+            reason += f"；已记入违规记录（规则{_RULE_LABELS[hit_rule]}）"
+        return PileChange(pile.pile_id, before, m.PILE_IDLE, reason)
 
     return None
 
@@ -135,8 +209,9 @@ def advance(db: Session, now: datetime | None = None) -> SimResult:
     """推进全部充电桩一步，并**提交**事务。
 
     :param now: 推进到的时刻，默认系统时钟；传固定值便于测试与复现。
+        带时区的值会先经 `normalize_moment()` 归一到本地朴素时间。
     """
-    moment = now or datetime.now()
+    moment = normalize_moment(now) or datetime.now()
     result = SimResult(advanced_at=moment)
 
     for pile in db.query(m.ChargingPile).order_by(m.ChargingPile.pile_id.asc()).all():
