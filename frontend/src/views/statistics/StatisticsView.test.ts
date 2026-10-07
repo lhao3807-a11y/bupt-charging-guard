@@ -50,6 +50,9 @@ describe('statistics view', () => {
     expect(view.all('chart').every((el) => el.props.autoresize === true)).toBe(true)
     expect(new Set(view.all('chart').map((el) => el.props.theme))).toEqual(new Set(['bupt-guard']))
     expect(view.all('strong').map((el) => view.text(el))).toEqual(['9', '2', '3', '4'])
+    expect(view.text()).toContain('占总违规数 22.2%')
+    expect(view.text()).toContain('按命中规则分布')
+    expect(view.text()).toContain('违规趋势（按天）')
     expect(view.text()).toContain('燃油车占位 2 条，异常占位 3 条，充满未移车 4 条')
   })
   it('requests the selected period and avoids chart axes when the result is empty', async () => {

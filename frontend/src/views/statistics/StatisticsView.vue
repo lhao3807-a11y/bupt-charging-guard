@@ -22,15 +22,20 @@ const { available, data, loading, error, load } = useAsyncSource<StatisticsData,
 const days = ref<7 | 30>(7)
 const chartTheme = ref('')
 const reload = () => load(days.value)
+const percent = (count: number | undefined) => {
+  const total = data.value ? violationTotal(data.value) : 0
+  return total && count !== undefined ? `${((count / total) * 100).toFixed(1)}%` : '—'
+}
 const metrics = computed(() => [
   {
     label: '总违规数',
     value: data.value ? violationTotal(data.value) : null,
     color: 'var(--text-primary)',
+    detail: `近 ${days.value} 天 · 规则①至③`,
   },
-  { label: '燃油车占位', value: data.value?.counts[1], color: 'var(--state-danger-text)' },
-  { label: '异常占位', value: data.value?.counts[2], color: 'var(--state-caution-text)' },
-  { label: '充满未移车', value: data.value?.counts[3], color: 'var(--state-warning-text)' },
+  { label: '燃油车占位', value: data.value?.counts[1], color: 'var(--state-danger-text)', detail: `占总违规数 ${percent(data.value?.counts[1])}` },
+  { label: '异常占位', value: data.value?.counts[2], color: 'var(--state-caution-text)', detail: `占总违规数 ${percent(data.value?.counts[2])}` },
+  { label: '充满未移车', value: data.value?.counts[3], color: 'var(--state-warning-text)', detail: `占总违规数 ${percent(data.value?.counts[3])}` },
 ])
 const chartState = computed(() => {
   if (!data.value || loading.value) return { options: null, failed: false }
@@ -41,9 +46,9 @@ const chartState = computed(() => {
   }
 })
 const panels = [
-  { key: 'distribution', title: '违规类型分布', wide: false },
+  { key: 'distribution', title: '按命中规则分布', wide: false },
   { key: 'share', title: '按桩占比', wide: false },
-  { key: 'trend', title: '每日违规趋势', wide: true },
+  { key: 'trend', title: '违规趋势（按天）', wide: true },
 ] as const
 const summary = computed(() =>
   data.value
@@ -101,7 +106,7 @@ onMounted(() => {
         <strong class="mono" :style="{ color: metric.color }">{{
           loading ? '—' : (metric.value ?? '—')
         }}</strong
-        ><span>条</span></el-card
+        ><span>条</span><div class="statistics-metrics__detail">{{ metric.detail }}</div></el-card
       >
     </section>
     <div class="statistics-charts">
@@ -221,6 +226,11 @@ onMounted(() => {
   margin-left: var(--space-2);
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
+}
+.statistics-metrics__detail {
+  margin-top: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
 }
 .statistics-charts {
   display: grid;

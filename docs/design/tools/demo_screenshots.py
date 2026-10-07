@@ -21,13 +21,9 @@
 
 第 3/4/5 页取的是什么画面
 ------------------------------------------------------------------------
-契约 **C1–C3**（`/api/piles`、`/api/stats`、`/api/config`）尚未交付，正常启动下这三页
-只会显示「数据待接入」+ 空态 —— 拍出来作为答辩素材没有信息量。所以这三页走仓库自带的
-**开发夹具**入口 `frontend/tests/week2-preview.html`（`src/test/week2Preview.ts`，
-**不进生产入口**）：真实浏览器、真实组件、夹具数据。夹具数据自带辨识特征
-（桩 ID `TEST-00x`、横轴 `测试日 N`），第 3 页另有「充电状态为模拟数据」提示条，
-**图注也标明「开发夹具数据」**，不与真实服务器数据混淆。
-接口交付后把这三行的路由换回 `/piles`、`/statistics`、`/config` 重跑即可。
+C1–C3 已交付；三页均访问正式前端路由，通过 Vite 代理读取隔离演示库。
+其中桩状态由种子/模拟器提供、违规记录由 `demo_seed.py` 通过 API 生成；
+截图标注「演示数据」，不能当作校园采集或真实在线桩的数据。
 
 ⚠️ 脱敏：手机号在页面里已由前端 `maskPhone` 处理（`138****6621`）；
    车牌按 **「不打码」** 口径执行（`walkthrough.md` §11 的 R9 决策：车牌是业务主键，
@@ -37,10 +33,12 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import shutil
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
@@ -56,33 +54,33 @@ FRONTEND = "http://localhost:5173"
 # 不留大片空白（1000 高时底部约 1/4 是空的，进 PPT 很难看）。
 VIEWPORT = (1600, 880)
 
-# 6 页 + 登录页。第 3/4/5 页走开发夹具入口（见模块开头说明）。
+# 6 页 + 登录页。全部走正式路由（见模块开头说明）。
 PAGES: list[tuple[str, str, str, str]] = [
     ("p1-vehicle", "/vehicle", "① 车辆信息管理", "车辆信息管理 · 桩点北邮防占系统"),
     ("p2-records", "/records", "② 违规记录查询", "违规记录查询 · 桩点北邮防占系统"),
     (
         "p3-piles",
-        "/tests/week2-preview.html#/piles",
-        "③ 充电状态展示（开发夹具数据）",
-        "充电状态展示 · 桩点北邮防占系统（开发夹具数据）",
+        "/piles",
+        "③ 充电状态展示（演示数据）",
+        "充电状态展示 · 桩点北邮防占系统（演示数据）",
     ),
     (
         "p4-statistics",
-        "/tests/week2-preview.html#/statistics",
-        "④ 报警统计（开发夹具数据）",
-        "报警统计 · 桩点北邮防占系统（开发夹具数据）",
+        "/statistics",
+        "④ 报警统计（演示数据）",
+        "报警统计 · 桩点北邮防占系统（演示数据）",
     ),
     (
         "p5-config",
-        "/tests/week2-preview.html#/config",
-        "⑤ 系统参数配置（开发夹具数据）",
-        "系统参数配置 · 桩点北邮防占系统（开发夹具数据）",
+        "/config",
+        "⑤ 系统参数配置（演示数据）",
+        "系统参数配置 · 桩点北邮防占系统（演示数据）",
     ),
     (
         "p6-preview",
         "/preview",
-        "⑥ 实时识别预览（预留页 · 第 3 周实现）",
-        "实时识别预览 · 桩点北邮防占系统（预留页）",
+        "⑥ 实时识别预览（样例静态帧）",
+        "实时识别预览 · 桩点北邮防占系统（样例静态帧）",
     ),
     ("login", "/login", "登录页（任务 6.6）", "登录 · 桩点北邮防占系统"),
 ]
@@ -115,7 +113,7 @@ CAPTION_H = 34
 def read_tokens() -> dict[str, str]:
     """从 tokens.css 解析 `--name: value;`，返回 {name: value}（去掉 var() 引用项）。"""
     if not TOKENS_CSS.exists():
-        sys.exit("找不到 %s" % TOKENS_CSS)
+        sys.exit(f"找不到 {TOKENS_CSS}")
     css = TOKENS_CSS.read_text(encoding="utf-8")
     tokens = {}
     for name, value in re.findall(r"(--[\w-]+)\s*:\s*([^;]+);", css):
@@ -130,7 +128,7 @@ def rgb(hex_or_rgba: str) -> tuple[int, int, int]:
     s = hex_or_rgba.strip()
     m = re.match(r"#([0-9A-Fa-f]{6})", s)
     if not m:
-        sys.exit("无法解析颜色：%s（只支持 #RRGGBB，设备框不需要带透明度）" % s)
+        sys.exit(f"无法解析颜色：{s}（只支持 #RRGGBB，设备框不需要带透明度）")
     h = m.group(1)
     return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
 
@@ -142,31 +140,34 @@ def find_browser() -> str:
     for p in BROWSER_CANDIDATES:
         if Path(p).exists():
             return p
-    sys.exit("未找到 Chrome / Edge，无法拍摄。可手工截图后放进 %s 再跑 --frame-only" % RAW_DIR)
+    sys.exit(f"未找到 Chrome / Edge，无法拍摄。可手工截图后放进 {RAW_DIR} 再跑 --frame-only")
 
 
 def shoot(browser: str, name: str, route: str, profile: Path) -> Path:
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    target = RAW_DIR / ("%s.png" % name)
+    target = RAW_DIR / f"{name}.png"
+    fresh = RAW_DIR / f"{name}.{uuid.uuid4().hex}.fresh.png"
     cmd = [
         browser,
         "--headless=new",
         "--disable-gpu",
         "--hide-scrollbars",
         "--no-first-run",
-        "--user-data-dir=%s" % profile,
-        "--window-size=%d,%d" % VIEWPORT,
+        f"--user-data-dir={profile}",
+        f"--window-size={VIEWPORT[0]},{VIEWPORT[1]}",
         # SPA 的关键：不加虚拟时间预算，截图会早于懒加载路由组件就绪，
         # 结果是「骨架渲染了、内容区空白」——第 2 周真踩过这个坑。
         # 10000 而不是 8000：第 4 页要多等 ECharts 初始化 + 主题令牌读取。
         "--virtual-time-budget=10000",
-        "--screenshot=%s" % target,
+        f"--screenshot={fresh}",
         FRONTEND + route,
     ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-    if not target.exists():
-        sys.exit("拍摄失败：%s\n%s" % (route, (proc.stderr or proc.stdout)[-800:]))
-    print("  拍 %-14s %-28s → %s" % (name, route, target.relative_to(ROOT)))
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, check=False)
+    if proc.returncode != 0 or not fresh.exists():
+        fresh.unlink(missing_ok=True)
+        sys.exit(f"拍摄失败：{route}\n{(proc.stderr or proc.stdout)[-800:]}")
+    os.replace(fresh, target)
+    print(f"  拍 {name:<14} {route:<28} → {target.relative_to(ROOT)}")
     return target
 
 
@@ -282,36 +283,36 @@ def main() -> int:
     for need in ("--bg-page", "--bg-container", "--border-base", "--fill-light",
                  "--border-strong", "--text-primary", "--text-secondary", "--text-tertiary"):
         if need not in tk:
-            sys.exit("tokens.css 缺令牌 %s（设备框取色依赖它）" % need)
+            sys.exit(f"tokens.css 缺令牌 {need}（设备框取色依赖它）")
 
     profile = RAW_DIR.parent / "_profile"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     if not args.frame_only:
         browser = find_browser()
-        print("[1/2] 拍摄真实页面（%s，视口 %dx%d）" % (Path(browser).name, *VIEWPORT))
+        print(f"[1/2] 拍摄真实页面（{Path(browser).name}，视口 {VIEWPORT[0]}x{VIEWPORT[1]}）")
         try:
             for name, route, _caption, _title in PAGES:
                 shoot(browser, name, route, profile)
         finally:
-            shutil.rmtree(profile, ignore_errors=True)
+            if profile.resolve().is_relative_to(OUT_DIR.resolve()):
+                shutil.rmtree(profile, ignore_errors=True)
 
     if not args.shoot_only:
         print("[2/2] 套统一设备框（取色自 tokens.css）")
         for name, _route, caption, title in PAGES:
-            src_path = RAW_DIR / ("%s.png" % name)
+            src_path = RAW_DIR / f"{name}.png"
             if not src_path.exists():
-                print("  [跳过] 缺原始图 %s" % src_path.relative_to(ROOT))
+                print(f"  [跳过] 缺原始图 {src_path.relative_to(ROOT)}")
                 continue
             out = draw_window(Image.open(src_path).convert("RGB"), title, caption, tk)
-            dst = OUT_DIR / ("%s-framed.png" % name)
+            dst = OUT_DIR / f"{name}-framed.png"
             out.save(dst)
-            print("  框 %-14s %dx%d → %s" % (name, *out.size, dst.relative_to(ROOT)))
+            print(f"  框 {name:<14} {out.size[0]}x{out.size[1]} → {dst.relative_to(ROOT)}")
 
-    print("\n完成。输出目录：%s" % OUT_DIR.relative_to(ROOT))
+    print(f"\n完成。输出目录：{OUT_DIR.relative_to(ROOT)}")
     print("提醒：手机号已由页面 maskPhone 脱敏；车牌按「不打码」口径执行（walkthrough §11 的 R9）。")
-    print("提醒：第 3/4/5 页取自开发夹具（docs/design/tools/demo_seed.py + tests/week2-preview.html），")
-    print("      图注已标注；契约 C1–C3 交付后改回真实路由重拍。")
+    print("提醒：第 3/4/5 页来自正式路由与隔离演示数据；第 6 页为样例静态帧。")
     return 0
 
 

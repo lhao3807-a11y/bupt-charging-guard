@@ -19,9 +19,12 @@ describe('configuration value inside a cached table row', () => {
     const view = mountView(defineComponent({ setup: () => () => cachedCell }))
     try {
       expect(view.all('input')[0]!.props.value).toBe(30)
+      expect(view.all('input')[0]!.props.controls).toBe(true)
+      expect(view.all('span').filter((el) => el.props.class === 'config-value__unit')).toHaveLength(1)
       drafts.full_timeout_min = 45
       await flush()
       expect(view.all('input')[0]!.props.value).toBe(45)
+      expect(view.text()).toContain('原值：30')
       drafts.full_timeout_min = undefined
       await flush()
       expect(view.all('input')[0]!.props.value).toBeUndefined()

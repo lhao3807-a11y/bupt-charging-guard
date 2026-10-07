@@ -232,10 +232,14 @@ def main():
             failed.append(name + "(文件缺失)")
             continue
         bak = path + ".selftest.bak"
+        mutated = path + ".selftest.mutated"
         shutil.copy2(path, bak)
         try:
-            with open(path, "wb") as fh:
+            # Replace atomically: Windows may reject truncating a PNG that an
+            # editor or indexer still has mapped after the screenshot pass.
+            with open(mutated, "wb") as fh:
                 fh.write(data if data is not None else make_png(1024, 640))
+            os.replace(mutated, path)
             code, out = run_checker()
             hit = expect in out
             ok = (code == 1 and hit)
@@ -244,6 +248,8 @@ def main():
             if not ok:
                 failed.append(name)
         finally:
+            if os.path.exists(mutated):
+                os.remove(mutated)
             os.replace(bak, path)
 
     code, out = run_checker()

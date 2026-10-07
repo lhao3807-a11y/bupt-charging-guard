@@ -100,7 +100,7 @@ onMounted(reload)
       class="config-notice"
       type="warning"
       :title="`缺少参数：${missing.join('、')}`"
-      description="部分判定阈值缺失，请联系管理员核对配置。"
+      description="请核对 schema.sql 种子数据；阈值缺失会让规则②、③无法正常判定。"
       :closable="false"
       show-icon
     />
@@ -149,7 +149,7 @@ onMounted(reload)
           ><template #default="{ row }">{{ row.note || '—' }}</template></el-table-column
         >
         <template #empty
-          ><EmptyState compact description="暂无参数，判定阈值尚未配置" illustration="no-data"
+          ><EmptyState compact description="暂无参数，请核对 schema.sql 种子数据" illustration="no-data"
         /></template>
       </el-table>
       <div v-if="dirty" class="config-changes" role="status">
@@ -162,6 +162,13 @@ onMounted(reload)
         </ul>
         <div v-else>请先修正参数值，再保存。</div>
       </div>
+    </el-card>
+    <el-card class="config-card" shadow="never">
+      <template #header>参数 → 规则 → 页面</template>
+      <ul class="config-impact">
+        <li><span class="mono">充满超时阈值 → 规则③</span>：影响充满未移车判定及违规记录、报警统计。</li>
+        <li><span class="mono">异常占位久停阈值 → 规则②</span>：影响异常占位判定及违规记录、报警统计。</li>
+      </ul>
     </el-card>
     <ConfirmDialog
       :model-value="confirming"
@@ -201,5 +208,12 @@ onMounted(reload)
 }
 .config-card :deep(.config-row--changed td) {
   background: var(--brand-primary-bg);
+}
+.config-impact {
+  margin: 0;
+  padding-left: var(--space-5);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 2;
 }
 </style>

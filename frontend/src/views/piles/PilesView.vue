@@ -19,6 +19,11 @@ const { available, data, loading, error, load } = useAsyncSource<
 const selectedStatus = ref<PileStatus | ''>('')
 const view = ref<'cards' | 'table'>('cards')
 const statuses = Object.values(PILE_STATUS)
+const statusDescriptions: Record<PileStatus, string> = {
+  空闲: '无车充电，可停放',
+  充电中: '正在充电，规则④判定为正常充电',
+  已充满: '充满后未移车将由规则③判定',
+}
 const counts = computed(() =>
   data.value === null || loading.value
     ? null
@@ -57,7 +62,7 @@ onMounted(reload)
     />
     <el-alert
       v-else
-      title="充电状态为模拟数据，预留 OCPP 适配层"
+      title="充电状态由后端种子与模拟器提供，不代表桩的真实在线状态"
       type="info"
       :closable="false"
       show-icon
@@ -73,6 +78,7 @@ onMounted(reload)
           >{{ counts?.[status] ?? '—' }}</strong
         >
         <span class="pile-summary__unit">个 · 当前结果</span>
+        <div class="pile-summary__description">{{ statusDescriptions[status] }}</div>
       </el-card>
     </section>
     <el-card shadow="never">
@@ -207,6 +213,11 @@ onMounted(reload)
 }
 .pile-summary__unit {
   margin-left: var(--space-2);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+}
+.pile-summary__description {
+  margin-top: var(--space-2);
   color: var(--text-tertiary);
   font-size: var(--font-size-xs);
 }
