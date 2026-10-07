@@ -41,4 +41,4 @@
 
 - [x] Add 30 deterministic smoke-test cases per scenario, each using a distinct image within that scenario.
 - [x] Run the targeted test and the algorithm test suite.
-- [ ] Commit only the plan, new scene pack, and its test; preserve existing untracked user files.
+- [x] Commit only the plan, new scene pack, and its test; preserve existing untracked user files.
