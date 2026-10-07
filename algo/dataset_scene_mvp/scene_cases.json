@@ -1,0 +1,1215 @@
+{
+  "schema_version": 1,
+  "purpose": "MVP smoke-test fixture only; not an annotated training dataset",
+  "asset_count": 109,
+  "unique_image_count": 109,
+  "scenario_case_count": 120,
+  "cases_per_scenario": 30,
+  "label_policy": {
+    "observable_photo_facts": "Only source title and quick visual review notes are recorded; fuel type and charging state are not inferred from appearance.",
+    "temporal_status": "All scenario states are synthetic demo labels; a still photograph cannot establish dwell duration or full-charge-not-moved status.",
+    "campus_scope": "Most sources are not verified campus images; campus_verified remains false until independently checked."
+  },
+  "cases": [
+    {
+      "case_id": "fuel_occupy_001",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_001.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_002",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_002.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_003",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_003.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_004",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_004.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_005",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_005.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_006",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_006.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_007",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_007.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_008",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_008.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_009",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_009.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_010",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_010.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_011",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_011.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_012",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_012.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_013",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_013.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_014",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_014.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_015",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_015.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_016",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_016.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_017",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_017.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_018",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_018.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_019",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_019.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_020",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_020.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_021",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_021.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_022",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_022.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_023",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_023.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_024",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_024.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_025",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_025.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_026",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_026.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_027",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_027.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_028",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_028.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_029",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_029.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "fuel_occupy_030",
+      "scene_category": "fuel_occupy",
+      "scene_label_zh": "燃油占位",
+      "image_path": "algo/dataset_web_supplement/images/ov_030.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_001",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_010.jpg",
+      "visual_evidence_note": "车辆与充电枪接触特写",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_002",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_011.jpg",
+      "visual_evidence_note": "充电站旁有车辆，线缆状态不清",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_003",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_020.jpg",
+      "visual_evidence_note": "多个充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_004",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_021.jpg",
+      "visual_evidence_note": "电动汽车与充电设备同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_005",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_024.jpg",
+      "visual_evidence_note": "多个充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_006",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_025.jpg",
+      "visual_evidence_note": "充电枪与设备特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_007",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_027.jpg",
+      "visual_evidence_note": "充电设备位于建筑入口",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_008",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_029.jpg",
+      "visual_evidence_note": "车辆充电接口与充电枪可见",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_009",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_031.jpg",
+      "visual_evidence_note": "充电车位与设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_010",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_033.jpg",
+      "visual_evidence_note": "充电设备特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_011",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_036.jpg",
+      "visual_evidence_note": "充电枪/线缆特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_012",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_038.jpg",
+      "visual_evidence_note": "车辆与户外场景同框，未见充电设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_013",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_039.jpg",
+      "visual_evidence_note": "充电线缆/设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_014",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_042.jpg",
+      "visual_evidence_note": "建筑旁充电车位，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_015",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_047.jpg",
+      "visual_evidence_note": "车辆充电口特写",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_016",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_048.jpg",
+      "visual_evidence_note": "车辆与充电设备同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_017",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_060.jpg",
+      "visual_evidence_note": "停车区域内的充电设备与车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_018",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_061.jpg",
+      "visual_evidence_note": "充电设备施工/线缆场景",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_019",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_063.jpg",
+      "visual_evidence_note": "充电设备与人员，车辆状态不清",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_020",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_064.jpg",
+      "visual_evidence_note": "充电设备与人员，车辆同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_021",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_067.jpg",
+      "visual_evidence_note": "车辆与充电站同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_022",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_070.jpg",
+      "visual_evidence_note": "城市停车区内充电设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_023",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_073.jpg",
+      "visual_evidence_note": "充电设施附近有车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_024",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_094.jpg",
+      "visual_evidence_note": "电动汽车专用车位标识，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_025",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_104.jpg",
+      "visual_evidence_note": "充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_026",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_112.jpg",
+      "visual_evidence_note": "来源标题称 CCU 校园充电站，画面含车辆与设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_027",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_113.jpg",
+      "visual_evidence_note": "来源标题称 CCU 校园充电站，画面含车辆与设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_028",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_120.jpg",
+      "visual_evidence_note": "车辆连接充电设备的雨天场景",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_029",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_scene_mvp/images/cand_141.jpg",
+      "visual_evidence_note": "来源标题称 TU/e 校园充电桩，画面为充电车位",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_charging_030",
+      "scene_category": "ev_charging",
+      "scene_label_zh": "新能源充电中",
+      "image_path": "algo/dataset_web_supplement/images/ov_018.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_001",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_031.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_002",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_032.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_003",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_033.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_004",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_034.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_005",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_035.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_006",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_036.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_007",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_037.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_008",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_038.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_009",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_039.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_010",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_040.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_011",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_041.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_012",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_042.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_013",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_043.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_014",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_044.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_015",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_045.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_016",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_046.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_017",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_047.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_018",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_048.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_019",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_049.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_020",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_050.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_021",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_051.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_022",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_052.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_023",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_053.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_024",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_054.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_025",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_055.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_026",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_056.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_027",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_057.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_028",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_058.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_029",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_059.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_idle_long_030",
+      "scene_category": "ev_idle_long",
+      "scene_label_zh": "新能源空闲久停",
+      "image_path": "algo/dataset_web_supplement/images/ov_060.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_001",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_010.jpg",
+      "visual_evidence_note": "车辆与充电枪接触特写",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_002",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_011.jpg",
+      "visual_evidence_note": "充电站旁有车辆，线缆状态不清",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_003",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_020.jpg",
+      "visual_evidence_note": "多个充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_004",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_021.jpg",
+      "visual_evidence_note": "电动汽车与充电设备同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_005",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_024.jpg",
+      "visual_evidence_note": "多个充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_006",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_025.jpg",
+      "visual_evidence_note": "充电枪与设备特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_007",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_027.jpg",
+      "visual_evidence_note": "充电设备位于建筑入口",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_008",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_029.jpg",
+      "visual_evidence_note": "车辆充电接口与充电枪可见",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_009",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_031.jpg",
+      "visual_evidence_note": "充电车位与设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_010",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_033.jpg",
+      "visual_evidence_note": "充电设备特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_011",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_036.jpg",
+      "visual_evidence_note": "充电枪/线缆特写，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_012",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_038.jpg",
+      "visual_evidence_note": "车辆与户外场景同框，未见充电设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_013",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_039.jpg",
+      "visual_evidence_note": "充电线缆/设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_014",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_042.jpg",
+      "visual_evidence_note": "建筑旁充电车位，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_015",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_047.jpg",
+      "visual_evidence_note": "车辆充电口特写",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_016",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_048.jpg",
+      "visual_evidence_note": "车辆与充电设备同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_017",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_060.jpg",
+      "visual_evidence_note": "停车区域内的充电设备与车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_018",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_061.jpg",
+      "visual_evidence_note": "充电设备施工/线缆场景",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_019",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_063.jpg",
+      "visual_evidence_note": "充电设备与人员，车辆状态不清",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_020",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_064.jpg",
+      "visual_evidence_note": "充电设备与人员，车辆同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_021",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_067.jpg",
+      "visual_evidence_note": "车辆与充电站同框",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_022",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_070.jpg",
+      "visual_evidence_note": "城市停车区内充电设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_023",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_073.jpg",
+      "visual_evidence_note": "充电设施附近有车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_024",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_094.jpg",
+      "visual_evidence_note": "电动汽车专用车位标识，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_025",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_104.jpg",
+      "visual_evidence_note": "充电设备，无车辆",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_026",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_112.jpg",
+      "visual_evidence_note": "来源标题称 CCU 校园充电站，画面含车辆与设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_027",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_113.jpg",
+      "visual_evidence_note": "来源标题称 CCU 校园充电站，画面含车辆与设备",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_028",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_120.jpg",
+      "visual_evidence_note": "车辆连接充电设备的雨天场景",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_029",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_scene_mvp/images/cand_141.jpg",
+      "visual_evidence_note": "来源标题称 TU/e 校园充电桩，画面为充电车位",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    },
+    {
+      "case_id": "ev_full_not_moved_030",
+      "scene_category": "ev_full_not_moved",
+      "scene_label_zh": "已充满未移车",
+      "image_path": "algo/dataset_web_supplement/images/ov_019.jpg",
+      "visual_evidence_note": "原车辆/道路/停车素材补充集；未逐张标注，不作为四类状态真值",
+      "status_origin": "synthetic_demo",
+      "training_eligible": false,
+      "campus_verified": false
+    }
+  ]
+}
