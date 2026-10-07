@@ -52,7 +52,7 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
     这里刻意**只用 HTTP 验证**（不引入浏览器依赖），保证脚本在任何机器上都能跑。
     真实渲染的视觉验收由 `docs/acceptance/week1/` 的截图承担。
     """
-    print("=== 9) 前端 dev server ===")
+    print("=== 前端 dev server ===")
     with httpx.Client(timeout=10, follow_redirects=True) as fe:
         try:
             r = fe.get(f"{FRONTEND}/")
@@ -87,7 +87,7 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
         if not ok:
             failures.append("第 2 页数据源")
 
-        print("=== 13) 第 3 页充电桩数据源（C1） ===")
+        print("=== 12) 第 3 页充电桩数据源（C1） ===")
         r = fe.get(f"{FRONTEND}/api/piles", params={"page": 1, "size": 20})
         piles = r.json()
         summary = piles.get("summary", {})
@@ -104,7 +104,7 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
         if not ok:
             failures.append("第 3 页数据源")
 
-        print("=== 14) 第 4 页报警统计数据源（C2） ===")
+        print("=== 13) 第 4 页报警统计数据源（C2） ===")
         r = fe.get(f"{FRONTEND}/api/stats", params={"days": 7})
         stats = r.json()
         dates = stats.get("by_date", [])
@@ -122,7 +122,7 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
         if not ok:
             failures.append("第 4 页数据源")
 
-        print("=== 15) 第 5 页参数读取和写回（C3） ===")
+        print("=== 14) 第 5 页参数读取和写回（C3） ===")
         r = fe.get(f"{FRONTEND}/api/config")
         config = r.json()
         config_values = {item["key"]: item["value"] for item in config.get("items", [])}
@@ -147,14 +147,14 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
             failures.append("第 5 页参数读写")
 
         # 前端资源可加载（证明不是白屏的骨架）
-        print("=== 16) 前端入口资源 ===")
+        print("=== 15) 前端入口资源 ===")
         r = fe.get(f"{FRONTEND}/src/main.ts")
         ok = r.status_code == 200 and "createApp" in r.text
         print(f"[{'PASS' if ok else 'FAIL'}] /src/main.ts 可加载  HTTP {r.status_code}")
         if not ok:
             failures.append("前端入口资源")
 
-        print("=== 17) C1–C3 适配器已进入开发服务器 ===")
+        print("=== 16) C1–C3 适配器已进入开发服务器 ===")
         r = fe.get(f"{FRONTEND}/src/api/week2.ts")
         ok = r.status_code == 200 and all(
             token in r.text for token in ("/api/piles", "/api/stats", "/api/config")
@@ -164,6 +164,22 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
         )
         if not ok:
             failures.append("C1–C3 HTTP 适配器资源")
+
+        print("=== 17) 第 6 页最新帧截图端点 ===")
+        r = fe.get(f"{FRONTEND}/api/frame/latest")
+        ok = (
+            r.status_code == 200
+            and r.headers.get("content-type", "").startswith("image/")
+            and r.headers.get("cache-control") == "no-store"
+            and bool(r.headers.get("x-frame-ref"))
+            and len(r.content) > 0
+        )
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理返回最新截图"
+            f"  HTTP {r.status_code} ref={r.headers.get('x-frame-ref')}"
+        )
+        if not ok:
+            failures.append("第 6 页最新帧截图")
 
 
 def main() -> int:
@@ -224,6 +240,18 @@ def main() -> int:
     r = client.post(url("/api/judge"), json=FUEL_PLATE)
     check(
         "judge 燃油 rule_hit=1", r.status_code == 200 and r.json()["rule_hit"] == 1, str(r.json())
+    )
+
+    print("=== 9) 最新帧截图 ===")
+    r = client.get(url("/api/frame/latest"))
+    check(
+        "frame/latest 返回图片且禁用缓存",
+        r.status_code == 200
+        and r.headers.get("content-type", "").startswith("image/")
+        and r.headers.get("cache-control") == "no-store"
+        and bool(r.headers.get("x-frame-ref"))
+        and bool(r.content),
+        f"HTTP {r.status_code} ref={r.headers.get('x-frame-ref')}",
     )
 
     check_frontend(rid, failures)

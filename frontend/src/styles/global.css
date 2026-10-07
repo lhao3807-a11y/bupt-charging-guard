@@ -145,7 +145,7 @@ a {
   font-weight: var(--font-weight-medium);
 }
 
-/* 禁用项（第 6 页「实时识别预览」第 1 周预留） */
+/* 禁用导航项（用于权限或暂不可用状态） */
 .el-menu-item.is-disabled {
   opacity: 1;
   color: var(--text-disabled) !important;

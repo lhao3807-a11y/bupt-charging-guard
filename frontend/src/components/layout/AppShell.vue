@@ -3,8 +3,7 @@
  * AppShell —— 后台骨架（component-inventory.md §2）
  *
  * 侧边栏 220px + 顶栏 56px（高 40px 导航项）+ 内容区。
- * 6 项导航顺序照契约 §1.1；第 6 项（实时识别预览）因 `GET /api/frame/latest`
- * 仍是预留端点（§6.5）保持置灰，与线框的差异见 `docs/design/walkthrough.md` §9。
+ * 6 项导航顺序照契约 §1.1；第 6 项实时识别预览通过 `/api/frame/latest` 轮询静态截图。
  *
  * 第 2 周品牌收口（任务 6.7）：侧边栏标识由「桩」字占位换成 `logo-mark.svg`（28×28）。
  * 导航图标改走 `AppIcon`（官方图标集），不再用 Element Plus 临时图标（任务 6.4）。

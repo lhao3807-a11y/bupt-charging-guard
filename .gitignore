@@ -54,6 +54,9 @@ output/
 .tmp-shots/
 .tmp-*/
 
+# Workspace-local MySQL 8 runtime and credentials (never commit binaries or secrets)
+/.local/mysql8/
+
 # 命令输出残留（调试时重定向到 .workbuddy 下的临时文件，不该入库）
 .workbuddy/_*
 # 本机协作记忆（可能包含代理、磁盘路径等环境信息）

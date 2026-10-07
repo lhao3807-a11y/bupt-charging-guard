@@ -13,6 +13,7 @@
     GET    /api/stats               违规统计聚合（按规则 / 按日期，契约 §6.8）
     GET    /api/config              读取系统参数（§7 白名单，契约 §6.9）
     PUT    /api/config              修改系统参数（仅两个阈值，契约 §6.9）
+    GET    /api/frame/latest        读取最近更新的截图（契约 §6.5）
     GET    /api/health              冒烟/健康检查
 
 启动时自动建表 + 灌种子（开发期 SQLite；正式交付物是 backend/sql/schema.sql）。
@@ -27,6 +28,7 @@ from fastapi import FastAPI
 from app.db import SessionLocal, engine
 from app.models import init_db, seed_db
 from app.routers.config import router as config_router
+from app.routers.frame import router as frame_router
 from app.routers.judge import router as judge_router
 from app.routers.notify import router as notify_router
 from app.routers.piles import router as piles_router
@@ -64,6 +66,7 @@ app.include_router(vehicles_router)
 app.include_router(piles_router)
 app.include_router(stats_router)
 app.include_router(config_router)
+app.include_router(frame_router)
 
 
 @app.get("/api/health", response_model=HealthResp, tags=["health"])

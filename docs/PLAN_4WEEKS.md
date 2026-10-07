@@ -60,8 +60,8 @@
 | Python lint | `ruff check backend scripts` | **All checks passed** |
 | 设计令牌校验 | `python docs/design/tools/check_tokens.py` | **exit 0，5/5 通过** |
 
-> ⚠️ **唯一遗留风险（不阻塞）**：契约 §2「方案 b」——MySQL 8 真机未验证（本机未装），
-> 已明确延至第 2 周接入真实库时补验。SQLite 不校验 `ENGINE=InnoDB`、`ENUM` 等 MySQL 特有语法。
+> ⚠️ **历史遗留风险**：契约 §2「方案 b」最初将 MySQL 8 真机验证延至第 2 周；该风险已于 2026-10-07
+> 通过本机 MySQL 8.0.46 和独立测试库 19/19 验证关闭。SQLite 仍不校验 `ENGINE=InnoDB`、`ENUM` 等特有语法。
 
 ### 0.6 第 1 周开工前已确认的 3 项设计决策（吕浩，2026-09-13）
 
@@ -208,8 +208,8 @@
 | 4.3 | **第 4 页「报警统计」实现** | `views/statistics/StatisticsView.vue` | ECharts 柱/折线/饼；**配色从 `tokens.css` 变量读取，禁写死 hex**；序列顺序固定 danger 红 → caution 橙 → warning 黄 → success 绿；图表容器 `resize` + 空数据态 |
 | 4.4 | **第 5 页「系统参数配置」实现** | `views/config/ConfigView.vue` | 阈值行内编辑（`full_timeout_min` / `abnormal_park_min`）；**读写 `system_config`，严禁前端兜底默认值**（契约 §7）；保存成功/失败提示 + 二次确认 |
 | 4.5 | 识别桩 `real` 模式联调 | — | `RECOGNITION_MODE=real` 时前端能正常取帧；**默认仍 stub**，保证 demo 不被模型拖累 |
-| 4.6 | 第 6 页导航解禁 + 预览页实现（视 `GET /api/frame/latest` 进度） | `views/preview/PreviewView.vue` | 若接口就绪：`el-image` 轮询最近一帧 + `el-skeleton` 占位；未就绪则保持置灰 |
-| 4.7 | e2e 扩展到 6 页 | `scripts/e2e_check.py` | 新增 §13–16：3/4/5 页数据源可达、图表容器渲染；**目标 ≥16 项全 PASS** |
+| 4.6 | 第 6 页导航解禁 + 预览页实现（已于 2026-10-07 补齐接口） | `views/preview/PreviewView.vue`、`GET /api/frame/latest` | 每 3 秒轮询最新静态截图并提供骨架/空态；不接实时视频流 |
+| 4.7 | e2e 扩展到 6 页 | `scripts/e2e_check.py` | 覆盖 3/4/5 页数据源、配置写回与第 6 页帧图片代理；**20 项全 PASS** |
 | 4.8 | 本周集成与合入 | `main` 干净 | 三人分支全部合入；`pytest` + `ruff` + `check_tokens.py` + 前端四件套全绿 |
 
 ### 3.2 汤瑾睿（后端 / DB / 算法）
@@ -305,7 +305,7 @@
 | 线 | 任务 | 里程碑 |
 |---|---|---|
 | 汤 | 短信**沙箱 → 真实 API**（接第三方，保留 `system_config` 开关，答辩可回落沙箱）；充电状态模拟器完整版（状态机 + OCPP 适配层预留）；异常重试与失败落库 | **M4 充电状态模拟、M6 短信提醒** |
-| 吕 | 三端联调（后端+前端+算法）；第 6 页「实时识别预览」接预留端点 `GET /api/frame/latest`；全链路 e2e 自动化；错误处理与提示完善 | 闭环稳定可演示 |
+| 吕 | 三端联调（后端+前端+算法）；第 6 页已具备静态截图端点，继续接真实采集源并打通全链路；错误处理与提示完善 | 闭环稳定可演示 |
 | 吴 | 演示素材（答辩配图、`demo-` 前缀）；界面文案与信息层级优化 | 素材齐备 |
 | 全员 | **M5 规则引擎终版评审**（阈值可配、边界完备） | **M5 完成** |
 

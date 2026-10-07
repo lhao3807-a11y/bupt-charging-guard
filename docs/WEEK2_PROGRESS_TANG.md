@@ -15,7 +15,7 @@
 | 5.3 | 真实数据集 | ✅ | 公开集路线：CCPD → `dataset_real` **800 张**（绿 419 / 蓝 381）；**2026-10-06 补网络实拍集 `dataset_web` 174 张**（Commons/Openverse 自由许可真实照片，绿 88 / 蓝 88，逐张人工核验，见 `algo/dataset_web/README.md`） |
 | 5.4 | YOLOv8 微调（真实集） | ✅ | **mAP50 = 0.994 / mAP50-95 = 0.821**（val 160 张，5 分 10 秒）；**2026-10-06 合并网络实拍后 mAP50 = 0.9918**（合并 val 196）/ **仅 web val 0.9889**，凭据 `docs/acceptance/algo/08-val-real-web.log` |
 | 5.5 | 车牌识别调优 | ✅ | 端到端 **OCR 91.25% / 牌色 95.00% / 全对 88.75%**；修掉 OCR 静默失效 bug；**2026-10-06 网络实拍 val 36 张：检出 91.7% / OCR 84.85% / 牌色 93.94%**（凭据 `07-eval-web.json`）；**real 模式默认权重升级为 CCPD+web 合并权重** |
-| 5.6 | MySQL 8 真机验证 | ✅ | **2026-10-06 真机跑通 19/19**（本机 ZIP 免安装版 MySQL 8.0.45，独立测试库）；凭据 `docs/acceptance/db/01-verify-mysql.{json,log}` |
+| 5.6 | MySQL 8 真机验证 | ✅ | **本机 MySQL 8.0.46 已安装并运行，19/19**（专用隔离测试库）；新凭据 `docs/acceptance/db/02-verify-mysql-8.0.46.json` |
 | 5.9 | 测试与 lint 全绿 | ✅ | 后端 **202 passed**（目标 ≥160）+ algo **43 passed**，ruff + format 全绿 |
 
 ## 二、已完成
@@ -136,10 +136,11 @@ hyperlpr3 3.x 返回 `[号码, 置信度, 牌色, 框]`，而代码按 `(框, �
 局限（须在答辩时如实说明）：CCPD 是停车场车头照，**没有充电桩与充电枪**，
 因此「是否插枪 / 桩状态」这类场景特征仍需校园实拍补充。
 
-### 5.6：MySQL 8 真机验证 —— ✅ 已真机跑通（2026-10-06，19/19 通过）
+### 5.6：MySQL 8 真机验证 —— ✅ 已真机跑通（2026-10-07，19/19 通过）
 
-**真机结果（MySQL 8.0.45，独立测试库 `bupt_charging_guard_test`）**：19 项全 PASS，
-凭据存 `docs/acceptance/db/01-verify-mysql.json`（机器读）与 `01-verify-mysql.log`（人读）。
+**当前真机结果（MySQL 8.0.46，独立测试库 `bupt_charging_guard_test`）**：19 项全 PASS，
+凭据存 `docs/acceptance/db/02-verify-mysql-8.0.46.json`。MySQL 进程绑定 `127.0.0.1:3306`，
+本机 ZIP、数据目录和随机密码保存在 Git 忽略的 `.local/mysql8/`，不纳入提交。
 
 其中最关键的几条（都是 SQLite 上验不出来、或验不准的）：
 
