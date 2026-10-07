@@ -73,7 +73,7 @@ const EXPECTED: Array<[number, string]> = [
 ]
 
 describe('rule hit pill icons', () => {
-  it.each(EXPECTED)('rule_hit = %i shows the matching %s', (ruleHit, icon) => {
+  it.each(EXPECTED)('rule_hit = %i shows the matching %s', (ruleHit: number, icon: string) => {
     expect(renderedIcon(mount(ruleHit))).toContain(markerOf(icon))
   })
 

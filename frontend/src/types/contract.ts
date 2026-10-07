@@ -32,7 +32,7 @@ export type NotifyStatus = (typeof NOTIFY_STATUS)[keyof typeof NOTIFY_STATUS]
 
 /**
  * 违规规则编号（契约 §3.3）。
- * 1 燃油占位 / 2 异常占位 / 3 充满未移车 / 0 正常
+ * 1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电
  */
 export const RULE_HIT = {
   /** 燃油车占位（蓝牌占充电位）—— 最严重 */

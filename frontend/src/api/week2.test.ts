@@ -32,8 +32,8 @@ describe('week-two HTTP data source', () => {
       data: {
         total: 6,
         by_rule: [
-          { rule_hit: 0, label: '正常', count: 1 },
-          { rule_hit: 1, label: '燃油占位', count: 2 },
+          { rule_hit: 0, label: '正常充电', count: 1 },
+          { rule_hit: 1, label: '燃油车占位', count: 2 },
           { rule_hit: 2, label: '异常占位', count: 3 },
           { rule_hit: 3, label: '充满未移车', count: 1 },
         ],
@@ -42,8 +42,8 @@ describe('week-two HTTP data source', () => {
             date: '2026-10-07',
             count: 6,
             by_rule: [
-              { rule_hit: 0, label: '正常', count: 1 },
-              { rule_hit: 1, label: '燃油占位', count: 2 },
+              { rule_hit: 0, label: '正常充电', count: 1 },
+              { rule_hit: 1, label: '燃油车占位', count: 2 },
               { rule_hit: 2, label: '异常占位', count: 3 },
               { rule_hit: 3, label: '充满未移车', count: 1 },
             ],

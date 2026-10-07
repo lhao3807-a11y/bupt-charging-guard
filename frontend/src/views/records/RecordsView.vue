@@ -37,7 +37,7 @@ const notifyOptions = [NOTIFY_STATUS.未提醒, NOTIFY_STATUS.已提醒, NOTIFY_
 
 /** 违规类型下拉（文案与 design-tokens.md §3.3① 一致） */
 const ruleOptions = [
-  { value: 1, label: '燃油占位' },
+  { value: 1, label: '燃油车占位' },
   { value: 2, label: '异常占位' },
   { value: 3, label: '充满未移车' },
   { value: 0, label: '正常充电' },
@@ -66,13 +66,13 @@ async function handlePageChange(page: number, size: number) {
 
 async function handleNotify(row: { id: number | null; plate: string }) {
   if (row.id === null) {
-    ElMessage.warning('该记录尚无 id，无法发送提醒')
+    ElMessage.warning('该记录数据不完整，无法发送提醒')
     return
   }
   notifyingId.value = row.id
   try {
     await store.sendNotify(row.id)
-    ElMessage.success(`已向 ${row.plate} 发送提醒（沙箱）`)
+    ElMessage.success(`已向 ${row.plate} 发送提醒（演示环境，未真实下发）`)
   } catch {
     // 错误提示已由 http 拦截器统一弹出
   } finally {
@@ -163,6 +163,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
       <el-table
         v-loading="store.loading"
         :data="store.filteredItems"
+        aria-label="违规记录列表"
         stripe
         style="width: 100%"
         empty-text=" "

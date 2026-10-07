@@ -35,6 +35,7 @@ describe('charging piles view', () => {
     expect(view.all('article')).toHaveLength(0)
     expect(view.button('刷新').props.disabled).toBe(true)
     expect(view.all('strong').map((el) => view.text(el))).toEqual(['—', '—', '—'])
+    expect(view.all('select')[0]?.props.placeholder).toBe('全部')
   })
   it('renders three states and preserves a bound plate on an idle pile', async () => {
     const view = mount({ loadPiles: vi.fn().mockResolvedValue(piles) })

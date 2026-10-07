@@ -82,6 +82,7 @@ onMounted(reload)
             <span>状态</span
             ><el-select
               v-model="selectedStatus"
+              placeholder="全部"
               aria-label="充电桩状态筛选"
               :disabled="!available || loading"
               @change="reload"

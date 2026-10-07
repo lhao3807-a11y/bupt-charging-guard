@@ -178,10 +178,10 @@ export function mountView(
         prop: { type: String, default: undefined },
         label: { type: String, default: undefined },
       },
-      setup(props, { slots }) {
+      setup(props, { attrs, slots }) {
         const rows = inject(TABLE_ROWS, () => [])
         return () =>
-          h('column', [
+          h('column', attrs, [
             props.label,
             ...rows().map((row, index) =>
               h(

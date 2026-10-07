@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * RuleHitPill —— 违规类型徽标，严按 design-tokens.md §3.3① 映射
- *   1 燃油占位 → danger 红（最高）
+ *   1 燃油车占位 → danger 红（最高）
  *   2 异常占位 → caution 橙（中）
  *   3 充满未移车 → warning 黄（低）
  *   0 正常充电 → success 绿

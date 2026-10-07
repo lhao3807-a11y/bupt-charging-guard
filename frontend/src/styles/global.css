@@ -96,6 +96,10 @@ a {
 /* 输入框/下拉/日期 高度 32px、圆角 --radius-sm */
 .el-input__wrapper,
 .el-select__wrapper {
+  --el-input-border-color: var(--border-control);
+  --el-border-color: var(--border-control);
+  --el-input-hover-border-color: var(--border-control-hover);
+  --el-border-color-hover: var(--border-control-hover);
   border-radius: var(--radius-sm);
 }
 

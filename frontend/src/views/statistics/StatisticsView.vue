@@ -9,6 +9,7 @@ import AppIcon from '@/components/common/AppIcon.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import { buildStatisticsCharts, violationTotal } from '@/charts/week2'
+import { ensureChartTheme } from '@/charts/theme'
 import { useAsyncSource } from '@/composables/useAsyncSource'
 import { WEEK2_DATA_SOURCE } from '@/data/week2'
 import type { StatisticsData } from '@/data/week2'
@@ -19,6 +20,7 @@ const { available, data, loading, error, load } = useAsyncSource<StatisticsData,
   source?.loadStatistics?.bind(source),
 )
 const days = ref<7 | 30>(7)
+const chartTheme = ref('')
 const reload = () => load(days.value)
 const metrics = computed(() => [
   {
@@ -26,7 +28,7 @@ const metrics = computed(() => [
     value: data.value ? violationTotal(data.value) : null,
     color: 'var(--text-primary)',
   },
-  { label: '燃油占位', value: data.value?.counts[1], color: 'var(--state-danger-text)' },
+  { label: '燃油车占位', value: data.value?.counts[1], color: 'var(--state-danger-text)' },
   { label: '异常占位', value: data.value?.counts[2], color: 'var(--state-caution-text)' },
   { label: '充满未移车', value: data.value?.counts[3], color: 'var(--state-warning-text)' },
 ])
@@ -45,10 +47,13 @@ const panels = [
 ] as const
 const summary = computed(() =>
   data.value
-    ? `燃油占位 ${data.value.counts[1]} 条，异常占位 ${data.value.counts[2]} 条，充满未移车 ${data.value.counts[3]} 条`
+    ? `燃油车占位 ${data.value.counts[1]} 条，异常占位 ${data.value.counts[2]} 条，充满未移车 ${data.value.counts[3]} 条`
     : '',
 )
-onMounted(reload)
+onMounted(() => {
+  chartTheme.value = ensureChartTheme()
+  reload()
+})
 </script>
 
 <template>
@@ -134,6 +139,7 @@ onMounted(reload)
             <VChart
               class="statistics-chart"
               :option="chartState.options[panel.key]"
+              :theme="chartTheme"
               :autoresize="true"
             />
             <figcaption>
@@ -171,7 +177,7 @@ onMounted(reload)
               <thead>
                 <tr>
                   <th>日期</th>
-                  <th>燃油占位</th>
+                  <th>燃油车占位</th>
                   <th>异常占位</th>
                   <th>充满未移车</th>
                 </tr>

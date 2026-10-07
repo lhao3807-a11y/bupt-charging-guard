@@ -67,7 +67,8 @@ def test_by_rule_labels(db_session):
     stats = build_stats(db_session, days=7, now=NOW)
     labels = {item.rule_hit: item.label for item in stats.by_rule}
     assert labels == RULE_LABELS
-    assert labels[1] == "燃油占位"
+    assert labels[0] == "正常充电"
+    assert labels[1] == "燃油车占位"
 
 
 def test_totals_are_consistent(db_session):

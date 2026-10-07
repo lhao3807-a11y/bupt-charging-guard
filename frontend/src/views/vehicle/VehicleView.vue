@@ -211,6 +211,7 @@ onMounted(handleLoad)
       <el-table
         v-loading="store.loading"
         :data="store.items"
+        aria-label="车辆列表"
         stripe
         style="width: 100%"
         empty-text=" "
@@ -237,7 +238,7 @@ onMounted(handleLoad)
           </template>
         </el-table-column>
 
-        <el-table-column label="录入时间" width="190">
+        <el-table-column label="录入时间" width="210">
           <template #default="{ row }">
             <span class="mono">{{ formatDateTime(row.created_at) }}</span>
           </template>

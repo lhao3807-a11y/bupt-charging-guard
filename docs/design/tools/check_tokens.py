@@ -139,6 +139,7 @@ REQUIRED = [
     "--plate-fuel-text", "--plate-fuel-bg", "--plate-fuel-border",
     "--text-primary", "--text-secondary", "--text-tertiary", "--text-disabled",
     "--text-inverse", "--border-base", "--border-strong", "--border-light",
+    "--border-control", "--border-control-hover",
     "--fill-light", "--bg-page", "--bg-container",
     "--font-family-base", "--font-family-mono",
     "--font-size-xs", "--font-size-sm", "--font-size-base", "--font-size-md",
@@ -162,6 +163,8 @@ STATES = ["danger", "caution", "warning", "success", "info"]
 
 # 纯色块上的文字对照：(前景, 背景, 说明, 是否要求 4.5)
 PAIR_CHECKS = [
+    ("--border-control", "--bg-container", "输入控件边界（白底）", 3.0),
+    ("--border-control-hover", "--bg-container", "输入控件悬停边界（白底）", 3.0),
     ("--text-inverse", "--brand-primary", "主按钮（白字/主色底）", 4.5),
     ("--brand-primary", "--bg-container", "主色文字/链接（白底）", 4.5),
     ("--brand-primary", "--brand-primary-bg", "主色标签（浅底）", 4.5),

@@ -1,6 +1,6 @@
 # CONTRACT.md — 接口与数据契约（唯一事实源）
 
-> **版本**：**v2.0**（2026-10-07 · 实现 §6.5 最近帧截图端点并开放第 6 页导航）
+> **版本**：**v2.1**（2026-10-07 · 统一规则显示名称）
 > **负责人**：吕浩（起草与维护）
 > **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— v1.0 已逐条确认并签字，后续版本为增量变更
 > **适用范围**：第 1 周最小闭环。任何结构变动 → 先改本文件 → @全员 + 升版本号，**禁止私自改自己那侧**。
@@ -104,7 +104,7 @@
 | plate | VARCHAR(15) | 车牌 |
 | vtype | ENUM('新能源','燃油') | 车型 |
 | **pile_id** | VARCHAR(20) NULL | **桩 ID（v0.1 新增）**——违规记录需能关联到具体桩，否则后台统计缺维度 |
-| rule_hit | TINYINT | 命中规则：1 燃油占位 / 2 异常占位 / 3 充满未移车 / 0 正常 |
+| rule_hit | TINYINT | 命中规则：1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电 |
 | occur_time | DATETIME | 命中时间 |
 | notify_status | ENUM('未提醒','已提醒','失败') | 提醒状态 |
 | notify_time | DATETIME | 提醒时间 |
@@ -438,8 +438,8 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 {
   "total": 42,
   "by_rule": [
-    { "rule_hit": 0, "label": "正常", "count": 5 },
-    { "rule_hit": 1, "label": "燃油占位", "count": 12 },
+    { "rule_hit": 0, "label": "正常充电", "count": 5 },
+    { "rule_hit": 1, "label": "燃油车占位", "count": 12 },
     { "rule_hit": 2, "label": "异常占位", "count": 9 },
     { "rule_hit": 3, "label": "充满未移车", "count": 16 }
   ],
@@ -448,8 +448,8 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
       "date": "2026-10-01",
       "count": 3,
       "by_rule": [
-        { "rule_hit": 0, "label": "正常", "count": 0 },
-        { "rule_hit": 1, "label": "燃油占位", "count": 1 },
+        { "rule_hit": 0, "label": "正常充电", "count": 0 },
+        { "rule_hit": 1, "label": "燃油车占位", "count": 1 },
         { "rule_hit": 2, "label": "异常占位", "count": 1 },
         { "rule_hit": 3, "label": "充满未移车", "count": 1 }
       ]
@@ -555,7 +555,7 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
   因此第 2 页/第 4 页能看到真实的规则③记录 —— 这是本端点唯一的写副作用，
   除 `charging_pile` 与 `occupation_record` 外不改任何表。
   - 命中的 `rule_hit` **由规则引擎决定，不写死为 3**：桩上若是燃油车，引擎判规则①
-    「燃油占位」，本端点照抄 3 就会与 `/api/judge` 口径打架。
+    「燃油车占位」，本端点照抄 3 就会与 `/api/judge` 口径打架。
   - 车未录入 `vehicle` 表 → 判不出车型 → **不落库、不编造**（车型决定命中哪条规则）。
   - 落库沿用 `save_violation` 的去重口径：同桩同规则且「未提醒」的已有记录会被更新而非新增。
   - `changes[].reason` 会在落库时附一句「已记入违规记录（规则③）」，便于演示时追溯。
@@ -615,10 +615,10 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 **输入一张测试帧 → 识别桩返回车牌+类型 → 规则引擎判定违规 → 短信沙箱写库+日志 → 后台页面能看到这条违规记录。**
 
 - [ ] `POST /api/recognize` 传入 `frame_ref`，返回合规 `RecognitionResult`
-- [ ] `POST /api/judge` 四条规则正确：燃油占位 / 异常占位 / 充满未移车 各命中，正常充电返回 `null`
+- [ ] `POST /api/judge` 四条规则正确：燃油车占位 / 异常占位 / 充满未移车 各命中，正常充电返回 `null`
 - [ ] `POST /api/notify` 沙箱写库成功（`notify_status` 更新）+ 有日志落盘
 - [ ] `GET /api/records` 能查到刚产生的那条记录，分页 `total` 正确
-- [ ] `GET /api/records` **筛选参数（§6.4）生效**：`rule_hit=1` 只返回燃油占位，`total` 随筛选变化
+- [ ] `GET /api/records` **筛选参数（§6.4）生效**：`rule_hit=1` 只返回燃油车占位，`total` 随筛选变化
 - [ ] 后台"违规记录查询"页面能看到该条记录
 - [ ] 后台"车辆信息管理"页面可用（`/api/vehicles` CRUD 见 §6.6）：能增、能改、能删，车牌编辑态只读
 - [ ] `GET /api/health` = 200，冒烟测试 `tests/test_health.py` 通过
@@ -632,6 +632,7 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v2.1** | 2026-10-07 | 统一规则显示名称：`rule_hit=1` 为「燃油车占位」、`rule_hit=0` 为「正常充电」；后端统计标签、前端文案及数据库注释同步，规则编号和字段结构不变。 | Codex（受用户委托核查第二周） |
 | **v2.0** | 2026-10-07 | **实现 §6.5 帧截图端点并开放第 6 页**：`GET /api/frame/latest` 从可配置目录返回最新 JPEG/PNG/WebP 快照，空目录 404、禁缓存；前端每 3 秒轮询并展示空态/刷新时间。确认该接口仅传静态图片，不接实时视频流。 | 吕浩 |
 | **v1.9** | 2026-10-07 | **扩展 §6.8 `GET /api/stats`**：`by_date` 逐日补齐 4 项规则计数；新增排除正常规则 0 的 `by_pile` 违规统计（未关联桩单独计数），对应第 4 页趋势与按桩图表。 | 吕浩 |
 | **v1.8** | 2026-10-06 | **修订 §6.10 `POST /api/piles/simulate`（第 2 周验收审查的三个阻断项）**：① **超时释放现在会落库违规记录** —— 清空 `bound_plate` 之前先交 `rule_engine.judge()` 判定并 `save_violation()` 落库，第 2/4 页因此有真数据。`rule_hit` **由引擎决定不写死 3**（燃油车会判①），车未录入 `vehicle` 表则**不落库不编造**车型；② **`at` 带时区偏移量不再 500** —— 先归一化为本地朴素时间再比较，`advanced_at` 回显归一化值；③ 明确本端点**唯一的写副作用**是 `charging_pile` + `occupation_record`。**为什么必须改契约**：v1.7 只说了「会自然命中规则③」却没说落不落库，实现也就真的一条没写，文档与代码互相矛盾；且这是唯一的写端点，副作用不写进契约，前端与验收都无从核对。**源码侧同步**：`app/simulator.py` 补落库与 `normalize_moment()`，各配回归测试 | 汤瑾睿 |

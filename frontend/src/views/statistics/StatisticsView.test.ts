@@ -7,9 +7,9 @@ import type { StatisticsData } from '@/data/week2'
 vi.mock('vue-echarts', () => ({
   default: defineComponent({
     name: 'ChartBoundary',
-    props: { option: { type: Object, required: true }, autoresize: Boolean },
+    props: { option: { type: Object, required: true }, autoresize: Boolean, theme: { type: String, default: undefined } },
     setup(props) {
-      return () => h('chart', { autoresize: props.autoresize }, JSON.stringify(props.option.series))
+      return () => h('chart', { autoresize: props.autoresize, theme: props.theme }, JSON.stringify(props.option.series))
     },
   }),
 }))
@@ -48,8 +48,9 @@ describe('statistics view', () => {
     await flush()
     expect(view.all('chart')).toHaveLength(3)
     expect(view.all('chart').every((el) => el.props.autoresize === true)).toBe(true)
+    expect(new Set(view.all('chart').map((el) => el.props.theme))).toEqual(new Set(['bupt-guard']))
     expect(view.all('strong').map((el) => view.text(el))).toEqual(['9', '2', '3', '4'])
-    expect(view.text()).toContain('燃油占位 2 条，异常占位 3 条，充满未移车 4 条')
+    expect(view.text()).toContain('燃油车占位 2 条，异常占位 3 条，充满未移车 4 条')
   })
   it('requests the selected period and avoids chart axes when the result is empty', async () => {
     const read = vi

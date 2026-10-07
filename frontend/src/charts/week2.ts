@@ -23,18 +23,28 @@ export function buildStatisticsCharts(
     if (!value) throw new Error(`设计令牌缺失：${name}`)
     return value
   }
-  const palette = ['danger', 'caution', 'warning', 'success'].map((state) =>
-    token(`--state-${state}-solid`),
-  )
+  const shareColors = [
+    '--brand-primary',
+    '--brand-primary-light-3',
+    '--brand-primary-light-5',
+    '--brand-primary-light-7',
+  ].map(token)
+  const ruleColors = [
+    '--state-danger-solid',
+    '--state-caution-solid',
+    '--state-warning-solid',
+  ].map(token)
   const base: EChartsOption = {
-    color: palette,
     backgroundColor: 'transparent',
     textStyle: { color: token('--text-secondary'), fontFamily: token('--font-family-base') },
     tooltip: {
-      renderMode: 'richText',
+      renderMode: 'html',
       backgroundColor: token('--bg-container'),
       borderColor: token('--border-base'),
-      textStyle: { color: token('--text-primary') },
+      borderWidth: 1,
+      confine: true,
+      extraCssText: `font-variant-numeric: ${token('--font-variant-numeric')}; box-shadow: ${token('--shadow-lg')}`,
+      textStyle: { color: token('--text-primary'), fontFamily: token('--font-family-mono') },
     },
     legend: { bottom: 0, textStyle: { color: token('--text-secondary') } },
     grid: { left: 8, right: 8, top: 24, bottom: 48, containLabel: true },
@@ -62,7 +72,7 @@ export function buildStatisticsCharts(
           label: { show: true, position: 'top', color: token('--text-secondary') },
           data: RULE_ORDER.map((rule, index) => ({
             value: data.counts[rule],
-            itemStyle: { color: palette[index], borderRadius: [4, 4, 0, 0] },
+            itemStyle: { color: ruleColors[index], borderRadius: [4, 4, 0, 0] },
           })),
         },
       ],
@@ -77,29 +87,26 @@ export function buildStatisticsCharts(
         boundaryGap: false,
       },
       yAxis: valueAxis,
-      series: RULE_ORDER.map((rule, index) => ({
+      series: RULE_ORDER.map((rule) => ({
         name: RULE_HIT_LABEL[rule],
         type: 'line',
         showSymbol: false,
-        itemStyle: { color: palette[index] },
         data: data.trend.map((point) => point.counts[rule]),
       })),
     },
     share: {
       ...base,
-      color: [
-        '--brand-primary',
-        '--brand-primary-light-3',
-        '--brand-primary-light-5',
-        '--brand-primary-light-7',
-      ].map(token),
       series: [
         {
           type: 'pie',
           radius: ['50%', '70%'],
           center: ['50%', '45%'],
           label: { color: token('--text-secondary'), formatter: '{b}: {c}' },
-          data: data.piles.map((pile) => ({ name: pile.pileId ?? '未关联桩', value: pile.count })),
+          data: data.piles.map((pile, index) => ({
+            name: pile.pileId ?? '未关联桩',
+            value: pile.count,
+            itemStyle: { color: shareColors[index % shareColors.length] },
+          })),
         },
       ],
     },

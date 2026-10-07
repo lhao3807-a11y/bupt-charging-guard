@@ -71,7 +71,7 @@ class RecognitionResult(BaseModel):
 # 违规记录 -> /api/judge, /api/records
 # ---------------------------------------------------------------------------
 class ViolationRecord(BaseModel):
-    """违规记录，对应 occupation_record。rule_hit: 1 燃油占位 / 2 异常占位 / 3 充满未移车 / 0 正常。"""
+    """违规记录，对应 occupation_record。rule_hit: 1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电。"""
 
     id: int | None = Field(None, description="记录 ID（来自 occupation_record），新建时为 None")
     plate: str
@@ -264,8 +264,8 @@ class PilePage(BaseModel):
 # ---------------------------------------------------------------------------
 #: rule_hit → 中文标签（第 4 页图表图例直接取用）
 RULE_LABELS: dict[int, str] = {
-    0: "正常",
-    1: "燃油占位",
+    0: "正常充电",
+    1: "燃油车占位",
     2: "异常占位",
     3: "充满未移车",
 }
@@ -275,7 +275,7 @@ class RuleCount(BaseModel):
     """按命中规则聚合的计数。序列顺序由后端固定（0/1/2/3），前端不重排。"""
 
     rule_hit: int = Field(..., ge=0, le=3, description="命中规则 0~3")
-    label: str = Field(..., description="规则中文名，如 燃油占位")
+    label: str = Field(..., description="规则中文名，如 燃油车占位")
     count: int = Field(0, description="窗口内该规则的记录数")
 
 

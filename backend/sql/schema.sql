@@ -62,13 +62,13 @@ CREATE TABLE charging_pile (
 -- -----------------------------------------------------------------------------
 -- 3. occupation_record　违规记录（CONTRACT §3.3）
 -- -----------------------------------------------------------------------------
--- rule_hit：0 正常 / 1 燃油占位 / 2 异常占位 / 3 充满未移车
+-- rule_hit：0 正常充电 / 1 燃油车占位 / 2 异常占位 / 3 充满未移车
 CREATE TABLE occupation_record (
   id            BIGINT      NOT NULL AUTO_INCREMENT       COMMENT '记录 ID',
   plate         VARCHAR(15) NOT NULL                      COMMENT '车牌',
   vtype         ENUM('新能源','燃油') NOT NULL             COMMENT '车型',
   pile_id       VARCHAR(20)     DEFAULT NULL              COMMENT '桩 ID（v0.1 新增）',
-  rule_hit      TINYINT     NOT NULL DEFAULT 0            COMMENT '1 燃油占位 / 2 异常占位 / 3 充满未移车 / 0 正常',
+  rule_hit      TINYINT     NOT NULL DEFAULT 0            COMMENT '1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电',
   occur_time    DATETIME    NOT NULL                      COMMENT '命中时间',
   notify_status ENUM('未提醒','已提醒','失败') NOT NULL DEFAULT '未提醒' COMMENT '提醒状态',
   notify_time   DATETIME        DEFAULT NULL              COMMENT '提醒时间',

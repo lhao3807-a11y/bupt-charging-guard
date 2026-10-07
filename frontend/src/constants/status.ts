@@ -39,7 +39,7 @@ export const RULE_HIT_PREFIX: Record<number, TokenPrefix> = {
 
 /** 违规类型 → 中文名（与契约 §3.3 注释一致）。 */
 export const RULE_HIT_LABEL: Record<number, string> = {
-  [RULE_HIT.FUEL_OCCUPY]: '燃油占位',
+  [RULE_HIT.FUEL_OCCUPY]: '燃油车占位',
   [RULE_HIT.ABNORMAL_PARK]: '异常占位',
   [RULE_HIT.FULL_NOT_MOVED]: '充满未移车',
   [RULE_HIT.NORMAL]: '正常充电',

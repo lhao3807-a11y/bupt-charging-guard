@@ -24,8 +24,8 @@ export function extractErrorMessage(err: unknown): string {
       const first = detail[0] as { msg?: string }
       if (first?.msg) return first.msg
     }
-    if (err.code === 'ECONNABORTED') return '请求超时，请确认后端服务已启动'
-    if (!err.response) return '无法连接后端服务，请确认已启动 127.0.0.1:8000'
+    if (err.code === 'ECONNABORTED') return '请求超时，请稍后重试'
+    if (!err.response) return '无法连接服务，请确认后端已启动'
     return `请求失败（HTTP ${err.response.status}）`
   }
   return err instanceof Error ? err.message : '未知错误'

@@ -101,6 +101,8 @@
   --border-base:              #E5E6EB;  /* 表格线、分割线、输入框描边 */
   --border-strong:            #C9CDD4;  /* 需要强调的描边、表头下边线 */
   --border-light:             #F2F3F5;
+  --border-control:           #86909C;  /* 白底输入控件边界 ≥3:1；不影响表格线 */
+  --border-control-hover:     #64707D;
 
   --fill-light:               #F2F3F5;  /* 表头底、斑马纹、禁用底 */
   --bg-page:                  #F7F8FA;  /* 页面底色 */
