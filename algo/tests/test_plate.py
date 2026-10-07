@@ -16,6 +16,10 @@ import os
 
 import pytest
 
+# CV 环境守卫（任务 5.2）：算法环境没装时跳过本模块，而不是收集报错 exit 2
+pytest.importorskip("numpy", reason="算法环境未就绪（见 algo/requirements-algo.txt）")
+
+# 必须放在 importorskip 之后：plate 在模块级 import numpy
 from algo.recognize import plate
 
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -38,6 +42,92 @@ REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 )
 def test_is_valid_plate_text(text: str, ok: bool):
     assert plate.is_valid_plate_text(text) is ok
+
+
+def test_crop_plate_roi_pads_and_clips():
+    """`crop_plate_roi`：四周外扩约 8%，且不会越出图像边界。"""
+    import numpy as np
+
+    img = np.zeros((100, 200, 3), dtype=np.uint8)
+    # 框 40x20 居中：外扩 max(4, 8%*40=3.2) = 4 像素
+    roi = plate.crop_plate_roi(img, [80, 40, 120, 60])
+    assert roi.shape[:2] == (28, 48), roi.shape  # 20+8 x 40+8
+
+    # 贴边时只裁到边界内，不报错、不产生空图
+    roi_edge = plate.crop_plate_roi(img, [0, 0, 30, 10])
+    assert roi_edge.shape[0] == 14 and roi_edge.shape[1] == 34
+
+
+def test_ocr_plate_rejects_non_plate_text():
+    """`ocr_plate`：catcher 吐出非车牌字符串（HyperLPR 对合成牌的乱码）时返回空。"""
+    import numpy as np
+
+    roi = np.zeros((30, 90, 3), dtype=np.uint8)
+
+    class _FakeCatcher:
+        def __call__(self, _roi):
+            return [["0.95080864", 0.9, 0, [0, 0, 1, 1]]]
+
+    assert plate.ocr_plate(roi, _FakeCatcher()) == ("", 0.0)
+
+
+def test_ocr_plate_parses_hyperlpr3_order():
+    """**防回归**：hyperlpr3 返回 ``[号码, 置信度, 牌色, 框]``，顺序不能搞反。
+
+    第 2 周真实集评估（任务 5.5）才发现早期版本按 ``(框, 号码, 置信度, 牌色)``
+    解析 —— 于是拿置信度当号码、拿牌色当置信度，正则永远不过，
+    OCR 静默地恒定返回空串，而合成集上的验收完全看不出来（合成牌本来就识别不出）。
+    这条测试用「文本位与分数位互换会立刻掉到 0」的方式把顺序钉死。
+    """
+    import numpy as np
+
+    roi = np.zeros((30, 90, 3), dtype=np.uint8)
+
+    class _Catcher:
+        def __call__(self, _roi):
+            return [
+                ["京A12345", 0.72, 0, [0, 0, 90, 30]],  # 低分
+                ["京AD12345", 0.93, 1, [0, 0, 90, 30]],  # 高分，应被选中
+            ]
+
+    assert plate.ocr_plate(roi, _Catcher()) == ("京AD12345", 0.93)
+
+    class _SwappedCatcher:
+        """按错误顺序喂数据：分数排在文本位 → 必须判定为无效，不能误当成车牌。"""
+
+        def __call__(self, _roi):
+            return [[0.93, "京AD12345", 1, [0, 0, 90, 30]]]
+
+    assert plate.ocr_plate(roi, _SwappedCatcher()) == ("", 0.0)
+
+
+def test_ocr_plate_in_frame_picks_result_matching_box():
+    """`ocr_plate_in_frame`：多块牌时按 IoU 挑**贴合检测框**的那条，而不是最高分那条。
+
+    这条是"多车不认错车"的守卫：画面里同时有邻车车牌时，取最高分会串号，
+    而串号意味着短信提醒发错人 —— 属于会直接造成用户投诉的错。
+    """
+    import numpy as np
+
+    img = np.zeros((720, 1280, 3), dtype=np.uint8)
+
+    class _TwoPlates:
+        def __call__(self, _img):
+            return [
+                ["京B99999", 0.99, 0, [900, 100, 1100, 200]],  # 高分，但是隔壁车的
+                ["京AD12345", 0.80, 1, [100, 100, 300, 200]],  # 低分，正是要的那块
+            ]
+
+    # prefer_box 贴合第二块 → 必须选它，尽管分数更低
+    assert plate.ocr_plate_in_frame(img, _TwoPlates(), [110, 110, 290, 190]) == ("京AD12345", 0.80)
+    # 不给 prefer_box 时退化为取最高分
+    assert plate.ocr_plate_in_frame(img, _TwoPlates()) == ("京B99999", 0.99)
+
+    class _Empty:
+        def __call__(self, _img):
+            return []
+
+    assert plate.ocr_plate_in_frame(img, _Empty(), [0, 0, 10, 10]) == ("", 0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -71,22 +161,43 @@ def test_judge_vtype_by_color(scene: str, vtype: str):
 # ---------------------------------------------------------------------------
 # 端到端 recognize_frame（依赖 best.pt；缺失时 skip）
 # ---------------------------------------------------------------------------
-def _best_available() -> bool:
-    return os.path.isfile(plate.DEFAULT_WEIGHTS)
+def _synth_available() -> bool:
+    """合成集用例要看的是**合成集**权重在不在（默认权重已改为真实集，见下）。"""
+    return os.path.isfile(plate.SYNTH_WEIGHTS)
 
 
-@pytest.mark.skipif(
-    not _best_available(), reason="best.pt 不存在（先跑 algo/train/detect.py train）"
-)
+def test_default_weights_is_real_set_not_synth():
+    """**防回归**：real 模式默认必须加载真实照片权重。
+
+    第 2 周验收审查发现 `DEFAULT_WEIGHTS` 还指向 `runs/detect/train/`（合成集），
+    于是线上 real 模式一直用「只在合成图上有效的模型」跑真实图。
+    合成集 mAP50 0.995 只能证明链路跑通，不能当真实准确率对外演示。
+    2026-10-06 起默认升级为 CCPD + dataset_web 合并微调的 `train_real_web`；
+    允许 train_real（纯 CCPD）作为回退 —— 两者都是真实照片权重，合成集绝不接受。
+    """
+    real_ok = plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train_real_web", "weights", "best.pt")
+    ) or plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train_real", "weights", "best.pt")
+    )
+    assert real_ok, plate.DEFAULT_WEIGHTS
+    assert not plate.DEFAULT_WEIGHTS.endswith(
+        os.path.join("runs", "detect", "train", "weights", "best.pt")
+    )
+    assert plate.SYNTH_WEIGHTS != plate.DEFAULT_WEIGHTS
+
+
+@pytest.mark.skipif(not _synth_available(), reason="合成集 best.pt 不存在")
 def test_recognize_frame_structure_matches_contract():
-    """契约 §4：输出字段与 RecognitionResult 完全一致。"""
+    """契约 §4：输出字段与 RecognitionResult 完全一致（合成帧 + 合成集权重）。"""
     meta_path = os.path.join(REPO, "algo", "dataset", "meta.json")
     with open(meta_path, encoding="utf-8") as fh:
         metas = json.load(fh)
     name, m = next(iter(sorted(metas.items())))
     img_path = os.path.join(REPO, "algo", "dataset", "images", m["split"], f"{name}.jpg")
 
-    result = plate.recognize_frame(img_path)
+    # 合成帧必须用合成集权重：真实集权重没见过合成牌，会直接检不出
+    result = plate.recognize_frame(img_path, weights=plate.SYNTH_WEIGHTS)
     assert result is not None, "合成帧上应能检出租车牌"
     assert set(result) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
     assert result["vtype"] in ("新能源", "燃油")
@@ -101,7 +212,7 @@ def test_recognize_frame_structure_matches_contract():
     assert isinstance(result["plate"], str)
 
 
-@pytest.mark.skipif(not _best_available(), reason="best.pt 不存在")
+@pytest.mark.skipif(not _synth_available(), reason="合成集 best.pt 不存在")
 def test_recognize_frame_none_when_no_plate(tmp_path):
     """画面里没有车牌 → 返回 None（不是报错）。"""
     import cv2
@@ -110,4 +221,43 @@ def test_recognize_frame_none_when_no_plate(tmp_path):
     blank = np.full((720, 1280, 3), 90, dtype=np.uint8)
     p = tmp_path / "blank.jpg"
     cv2.imwrite(str(p), blank)
-    assert plate.recognize_frame(str(p)) is None
+    assert plate.recognize_frame(str(p), weights=plate.SYNTH_WEIGHTS) is None
+
+
+# ---------------------------------------------------------------------------
+# real 模式：默认权重在真实图上的端到端输出（契约 §4 / 验收第 3 项 M3）
+# ---------------------------------------------------------------------------
+def _real_available() -> bool:
+    return os.path.isfile(plate.DEFAULT_WEIGHTS)
+
+
+@pytest.mark.skipif(not _real_available(), reason="真实集 best.pt 不存在（先跑任务 5.4 训练）")
+def test_recognize_frame_on_real_image_outputs_contract_shape():
+    """真实集权重 + 真实图 → 输出结构与 `RecognitionResult` 一致，且号码/牌色可用。
+
+    **为什么固定取 `real_0000.jpg`（绿牌）而不是排序第一张**：真实集端到端整串
+    准确率是 91.25%、牌色 95.00%（`docs/acceptance/algo/05-eval-real.json`，
+    且该评估用的是**检测框**而非标注框，口径与线上一致）。排序第一张 `blue_0000.jpg`
+    恰好落在那 5% 的错误里（省份汉字 皖→粤、牌色蓝判成绿）—— 蓝牌是当前已知短板。
+    拿一张注定会错的图钉死断言，只会得到一个随机红的测试，掩盖不了真实准确率。
+    整集统计由 `algo/tools/eval_real.py` 负责，本条只守「默认权重跑真实图不崩、
+    结构合规、绿牌这一档确实能用」这条底线。
+    """
+    meta_path = os.path.join(REPO, "algo", "dataset_real", "meta.json")
+    with open(meta_path, encoding="utf-8") as fh:
+        metas = json.load(fh)
+    name, m = next(iter(metas.items()))  # 插入序第一张 = real_0000.jpg（绿牌）
+    assert m["vtype"] == "新能源", f"前提变了：这张图不再是绿牌（{name} → {m['vtype']}）"
+    # 注意：真实集 meta 的 key 已带 .jpg（合成集的 key 不带），别再拼一次后缀
+    img_path = os.path.join(REPO, "algo", "dataset_real", "images", m["split"], name)
+
+    result = plate.recognize_frame(img_path)
+    assert result is not None, "真实集权重应当能在真实集图上检出租车牌"
+    assert set(result) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
+    assert result["vtype"] == m["vtype"], "车型判定应与数据集标注一致"
+    assert result["plate"] == m["plate"], "绿牌这一档 OCR 号码应当可用"
+    assert 0.0 <= result["confidence"] <= 1.0
+    _x, _y, w, h = result["bbox"]
+    assert w > 0 and h > 0
+    ex, _ey, _ew, _eh = m["bbox_plate"]
+    assert abs(_x - ex) < 30, "检测框应落在标注框附近"

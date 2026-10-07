@@ -87,13 +87,83 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
         if not ok:
             failures.append("第 2 页数据源")
 
+        print("=== 13) 第 3 页充电桩数据源（C1） ===")
+        r = fe.get(f"{FRONTEND}/api/piles", params={"page": 1, "size": 20})
+        piles = r.json()
+        summary = piles.get("summary", {})
+        ok = (
+            r.status_code == 200
+            and len(piles.get("items", [])) == piles.get("total")
+            and all(key in summary for key in ("空闲", "充电中", "已充满", "total"))
+            and summary.get("total") == piles.get("total")
+        )
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理 /api/piles 返回全量分页与状态总览"
+            f"  total={piles.get('total')} summary={summary}"
+        )
+        if not ok:
+            failures.append("第 3 页数据源")
+
+        print("=== 14) 第 4 页报警统计数据源（C2） ===")
+        r = fe.get(f"{FRONTEND}/api/stats", params={"days": 7})
+        stats = r.json()
+        dates = stats.get("by_date", [])
+        ok = (
+            r.status_code == 200
+            and stats.get("days") == 7
+            and len(dates) == 7
+            and all(len(day.get("by_rule", [])) == 4 for day in dates)
+            and isinstance(stats.get("by_pile"), list)
+        )
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理 /api/stats 返回 7 日、逐日规则与桩统计"
+            f"  dates={len(dates)} by_pile={len(stats.get('by_pile', []))}"
+        )
+        if not ok:
+            failures.append("第 4 页数据源")
+
+        print("=== 15) 第 5 页参数读取和写回（C3） ===")
+        r = fe.get(f"{FRONTEND}/api/config")
+        config = r.json()
+        config_values = {item["key"]: item["value"] for item in config.get("items", [])}
+        original_value = config_values.get("full_timeout_min")
+        ok = r.status_code == 200 and set(config_values) == {
+            "full_timeout_min",
+            "abnormal_park_min",
+        }
+        if ok:
+            r = fe.put(
+                f"{FRONTEND}/api/config",
+                json={"full_timeout_min": int(original_value)},
+            )
+            updated = r.json()
+            updated_values = {item["key"]: item["value"] for item in updated.get("items", [])}
+            ok = r.status_code == 200 and updated_values == config_values
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] 经代理 /api/config 白名单读取并原值写回"
+            f"  keys={sorted(config_values)}"
+        )
+        if not ok:
+            failures.append("第 5 页参数读写")
+
         # 前端资源可加载（证明不是白屏的骨架）
-        print("=== 12) 前端入口资源 ===")
+        print("=== 16) 前端入口资源 ===")
         r = fe.get(f"{FRONTEND}/src/main.ts")
         ok = r.status_code == 200 and "createApp" in r.text
         print(f"[{'PASS' if ok else 'FAIL'}] /src/main.ts 可加载  HTTP {r.status_code}")
         if not ok:
             failures.append("前端入口资源")
+
+        print("=== 17) C1–C3 适配器已进入开发服务器 ===")
+        r = fe.get(f"{FRONTEND}/src/api/week2.ts")
+        ok = r.status_code == 200 and all(
+            token in r.text for token in ("/api/piles", "/api/stats", "/api/config")
+        )
+        print(
+            f"[{'PASS' if ok else 'FAIL'}] /src/api/week2.ts 含三页 HTTP 数据源  HTTP {r.status_code}"
+        )
+        if not ok:
+            failures.append("C1–C3 HTTP 适配器资源")
 
 
 def main() -> int:

@@ -10,14 +10,14 @@ export interface ConfigChange {
 }
 export type ViolationCounts = Record<1 | 2 | 3, number>
 
-/** Frontend domain data; deliberately does not specify the pending C2 wire response. */
+/** Frontend domain data after translation from the C1–C3 wire contracts. */
 export interface StatisticsData {
   counts: ViolationCounts
   trend: Array<{ date: string; counts: ViolationCounts }>
   piles: Array<{ pileId: string | null; count: number }>
 }
 
-/** Bind only after C1–C3 are confirmed; an HTTP adapter must translate the agreed contract. */
+/** Production and preview sources implement the same page-level data boundary. */
 export interface Week2DataSource {
   loadPiles?: (status: PileStatus | undefined) => Promise<ChargingPile[]>
   loadStatistics?: (days: 7 | 30) => Promise<StatisticsData>

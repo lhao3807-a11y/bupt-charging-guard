@@ -1,0 +1,100 @@
+{
+  "target": "127.0.0.1:3306/bupt_charging_guard_test",
+  "rows": [
+    {
+      "name": "MySQL 版本为 8.x",
+      "ok": true,
+      "detail": "VERSION()=8.0.45"
+    },
+    {
+      "name": "表 vehicle 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 vehicle 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 charging_pile 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 charging_pile 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 occupation_record 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 occupation_record 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 system_config 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 system_config 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "charging_pile.status 是原生 ENUM",
+      "ok": true,
+      "detail": "enum('空闲','充电中','已充满')"
+    },
+    {
+      "name": "ENUM 非法值不被接受",
+      "ok": true,
+      "detail": "被拒（DataError）"
+    },
+    {
+      "name": "FK ON DELETE SET NULL 真的把 bound_plate 置空",
+      "ok": true,
+      "detail": "删除车辆后 bound_plate=None"
+    },
+    {
+      "name": "occupation_record.plate 未加外键",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "DATETIME 存取往返一致（无时区）",
+      "ok": true,
+      "detail": "读出 datetime.datetime(2026, 9, 8, 10, 0)"
+    },
+    {
+      "name": "occupation_record.id 自增",
+      "ok": true,
+      "detail": "AUTO_INCREMENT=2"
+    },
+    {
+      "name": "system_config.`key` 反引号转义可用",
+      "ok": true,
+      "detail": "full_timeout_min=30"
+    },
+    {
+      "name": "种子数据 vehicle = 6 行",
+      "ok": true,
+      "detail": "实际 6"
+    },
+    {
+      "name": "种子数据 charging_pile = 4 行",
+      "ok": true,
+      "detail": "实际 4"
+    },
+    {
+      "name": "种子数据 system_config = 2 行",
+      "ok": true,
+      "detail": "实际 2"
+    }
+  ]
+}

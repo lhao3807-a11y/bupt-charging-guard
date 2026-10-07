@@ -20,8 +20,11 @@ import '@/styles/global.css'
 
 import App from '@/App.vue'
 import router from '@/router'
+import { week2DataSource } from '@/api/week2'
+import { WEEK2_DATA_SOURCE } from '@/data/week2'
 
 const app = createApp(App)
+app.provide(WEEK2_DATA_SOURCE, week2DataSource)
 
 // 图标：第 2 周已收口（PLAN_4WEEKS.md §3.3 任务 6.4）。
 // 原第 1 周做法是在这里把 @element-plus/icons-vue 的**全部**图标注册成全局组件，

@@ -1,0 +1,515 @@
+{
+ "weights": "E:\\user\\bupt-charging-guard\\algo\\runs\\detect\\train_real_web\\weights\\best.pt",
+ "val_images": 36,
+ "detected_with_plate": 33,
+ "ocr_exact_match": 28,
+ "ocr_exact_pct": 84.85,
+ "ocr_char_pct": 91.9,
+ "vtype_pct": 93.94,
+ "rows": [
+  {
+   "file": "web_0163.jpg",
+   "gt_plate": "沪AG61020",
+   "gt_vtype": "燃油",
+   "pred_plate": "沪AG61020",
+   "pred_vtype": "新能源",
+   "conf": 0.8907,
+   "bbox": [
+    1273,
+    1060,
+    309,
+    111
+   ]
+  },
+  {
+   "file": "web_0190.jpg",
+   "gt_plate": "沪ABA5559",
+   "gt_vtype": "燃油",
+   "pred_plate": "",
+   "pred_vtype": "新能源",
+   "conf": 0.8991,
+   "bbox": [
+    219,
+    948,
+    130,
+    75
+   ]
+  },
+  {
+   "file": "web_0210.jpg",
+   "gt_plate": "粤CD88145",
+   "gt_vtype": "新能源",
+   "pred_plate": "粤CD88145",
+   "pred_vtype": "新能源",
+   "conf": 0.8901,
+   "bbox": [
+    278,
+    827,
+    286,
+    119
+   ]
+  },
+  {
+   "file": "web_0243.jpg",
+   "gt_plate": "苏EA13162",
+   "gt_vtype": "燃油",
+   "pred_plate": "苏EA15162",
+   "pred_vtype": "燃油",
+   "conf": 0.8794,
+   "bbox": [
+    1163,
+    798,
+    274,
+    124
+   ]
+  },
+  {
+   "file": "web_0250.jpg",
+   "gt_plate": "沪BAS0511",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪BAS0511",
+   "pred_vtype": "新能源",
+   "conf": 0.8907,
+   "bbox": [
+    155,
+    824,
+    238,
+    162
+   ]
+  },
+  {
+   "file": "web_0270.jpg",
+   "gt_plate": "沪AD88888",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪AD88888",
+   "pred_vtype": "新能源",
+   "conf": 0.8892,
+   "bbox": [
+    393,
+    876,
+    283,
+    162
+   ]
+  },
+  {
+   "file": "web_0288.jpg",
+   "gt_plate": "沪BDZ5519",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪BDZ5519",
+   "pred_vtype": "新能源",
+   "conf": 0.8911,
+   "bbox": [
+    1109,
+    958,
+    353,
+    111
+   ]
+  },
+  {
+   "file": "web_0313.jpg",
+   "gt_plate": "粤SD68231",
+   "gt_vtype": "新能源",
+   "pred_plate": "粤SDY3228",
+   "pred_vtype": "新能源",
+   "conf": 0.8669,
+   "bbox": [
+    1299,
+    504,
+    229,
+    118
+   ]
+  },
+  {
+   "file": "web_0388.jpg",
+   "gt_plate": "沪ADJ5658",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪ADJ5658",
+   "pred_vtype": "新能源",
+   "conf": 0.8755,
+   "bbox": [
+    1286,
+    1047,
+    294,
+    113
+   ]
+  },
+  {
+   "file": "web_0540.jpg",
+   "gt_plate": "皖AM16U2",
+   "gt_vtype": "燃油",
+   "pred_plate": "皖AM16U2",
+   "pred_vtype": "燃油",
+   "conf": 0.8894,
+   "bbox": [
+    397,
+    995,
+    361,
+    138
+   ]
+  },
+  {
+   "file": "web_0546.jpg",
+   "gt_plate": "沪B66VA42",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪B66V42",
+   "pred_vtype": "燃油",
+   "conf": 0.9142,
+   "bbox": [
+    1412,
+    1072,
+    199,
+    80
+   ]
+  },
+  {
+   "file": "web_0564.jpg",
+   "gt_plate": "粤BD75803",
+   "gt_vtype": "新能源",
+   "pred_plate": "粤BD75803",
+   "pred_vtype": "新能源",
+   "conf": 0.8812,
+   "bbox": [
+    169,
+    654,
+    255,
+    132
+   ]
+  },
+  {
+   "file": "web_0579.jpg",
+   "gt_plate": "浙HDT0128",
+   "gt_vtype": "新能源",
+   "pred_plate": "浙HDT0128",
+   "pred_vtype": "新能源",
+   "conf": 0.9074,
+   "bbox": [
+    1420,
+    837,
+    213,
+    115
+   ]
+  },
+  {
+   "file": "web_0595.jpg",
+   "gt_plate": "粤BR5512",
+   "gt_vtype": "燃油",
+   "pred_plate": "鲁BR5512",
+   "pred_vtype": "燃油",
+   "conf": 0.8548,
+   "bbox": [
+    1727,
+    846,
+    179,
+    67
+   ]
+  },
+  {
+   "file": "web_0663.jpg",
+   "gt_plate": "粤BBM0320",
+   "gt_vtype": "新能源",
+   "pred_plate": "粤BBM0320",
+   "pred_vtype": "新能源",
+   "conf": 0.8881,
+   "bbox": [
+    1558,
+    631,
+    225,
+    127
+   ]
+  },
+  {
+   "file": "web_0700.jpg",
+   "gt_plate": "沪AEY0238",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪AEY0238",
+   "pred_vtype": "新能源",
+   "conf": 0.9022,
+   "bbox": [
+    1577,
+    986,
+    133,
+    75
+   ]
+  },
+  {
+   "file": "web_0703.jpg",
+   "gt_plate": "沪AA80324",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪AA80324",
+   "pred_vtype": "新能源",
+   "conf": 0.9153,
+   "bbox": [
+    188,
+    936,
+    217,
+    81
+   ]
+  },
+  {
+   "file": "web_0718.jpg",
+   "gt_plate": "沪AB62900",
+   "gt_vtype": "新能源",
+   "pred_plate": "",
+   "pred_vtype": "新能源",
+   "conf": 0.8863,
+   "bbox": [
+    145,
+    946,
+    142,
+    77
+   ]
+  },
+  {
+   "file": "web_0737.jpg",
+   "gt_plate": "沪AEV5399",
+   "gt_vtype": "新能源",
+   "pred_plate": "沪AEV5399",
+   "pred_vtype": "新能源",
+   "conf": 0.9241,
+   "bbox": [
+    445,
+    710,
+    254,
+    103
+   ]
+  },
+  {
+   "file": "web_0739.jpg",
+   "gt_plate": "浙AF69860",
+   "gt_vtype": "新能源",
+   "pred_plate": "浙AF69860",
+   "pred_vtype": "新能源",
+   "conf": 0.881,
+   "bbox": [
+    1088,
+    770,
+    304,
+    93
+   ]
+  },
+  {
+   "file": "web_0757.jpg",
+   "gt_plate": "粤BW7M65",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤BW7M65",
+   "pred_vtype": "燃油",
+   "conf": 0.9087,
+   "bbox": [
+    350,
+    650,
+    170,
+    79
+   ]
+  },
+  {
+   "file": "web_0760.jpg",
+   "gt_plate": "粤B1518R",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤B1518R",
+   "pred_vtype": "燃油",
+   "conf": 0.9021,
+   "bbox": [
+    90,
+    532,
+    156,
+    83
+   ]
+  },
+  {
+   "file": "web_0768.jpg",
+   "gt_plate": "粤BY632T",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤BY632T",
+   "pred_vtype": "燃油",
+   "conf": 0.888,
+   "bbox": [
+    1530,
+    564,
+    131,
+    72
+   ]
+  },
+  {
+   "file": "web_0786.jpg",
+   "gt_plate": "粤B6P2F0",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤B6P2F0",
+   "pred_vtype": "燃油",
+   "conf": 0.8692,
+   "bbox": [
+    884,
+    751,
+    250,
+    87
+   ]
+  },
+  {
+   "file": "web_0791.jpg",
+   "gt_plate": "粤DE893H",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤DE893H",
+   "pred_vtype": "燃油",
+   "conf": 0.8556,
+   "bbox": [
+    94,
+    624,
+    127,
+    95
+   ]
+  },
+  {
+   "file": "web_0798.jpg",
+   "gt_plate": "湘ENT688",
+   "gt_vtype": "燃油",
+   "pred_plate": "湘ENT688",
+   "pred_vtype": "燃油",
+   "conf": 0.8686,
+   "bbox": [
+    1597,
+    582,
+    103,
+    85
+   ]
+  },
+  {
+   "file": "web_0811.jpg",
+   "gt_plate": "粤A05Z82",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤A05Z82",
+   "pred_vtype": "燃油",
+   "conf": 0.8546,
+   "bbox": [
+    1433,
+    494,
+    153,
+    82
+   ]
+  },
+  {
+   "file": "web_0815.jpg",
+   "gt_plate": "粤BMK100",
+   "gt_vtype": "燃油",
+   "pred_plate": "",
+   "pred_vtype": "燃油",
+   "conf": 0.8811,
+   "bbox": [
+    84,
+    566,
+    141,
+    98
+   ]
+  },
+  {
+   "file": "web_0822.jpg",
+   "gt_plate": "粤B5627B",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤B5627B",
+   "pred_vtype": "燃油",
+   "conf": 0.8759,
+   "bbox": [
+    1049,
+    773,
+    250,
+    96
+   ]
+  },
+  {
+   "file": "web_0824.jpg",
+   "gt_plate": "粤BP6R41",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤BP6R41",
+   "pred_vtype": "燃油",
+   "conf": 0.8874,
+   "bbox": [
+    625,
+    788,
+    218,
+    80
+   ]
+  },
+  {
+   "file": "web_0832.jpg",
+   "gt_plate": "粤BNA010",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤BNA010",
+   "pred_vtype": "燃油",
+   "conf": 0.8915,
+   "bbox": [
+    1026,
+    739,
+    245,
+    87
+   ]
+  },
+  {
+   "file": "web_0846.jpg",
+   "gt_plate": "闽FDF250",
+   "gt_vtype": "燃油",
+   "pred_plate": "闽FDF250",
+   "pred_vtype": "燃油",
+   "conf": 0.8718,
+   "bbox": [
+    183,
+    720,
+    237,
+    120
+   ]
+  },
+  {
+   "file": "web_0879.jpg",
+   "gt_plate": "粤S14WM5",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤B8G26F",
+   "pred_vtype": "燃油",
+   "conf": 0.9118,
+   "bbox": [
+    143,
+    773,
+    169,
+    124
+   ]
+  },
+  {
+   "file": "web_0886.jpg",
+   "gt_plate": "粤CE783C",
+   "gt_vtype": "燃油",
+   "pred_plate": "粤CE783C",
+   "pred_vtype": "燃油",
+   "conf": 0.8857,
+   "bbox": [
+    1293,
+    806,
+    298,
+    137
+   ]
+  },
+  {
+   "file": "web_0891.jpg",
+   "gt_plate": "苏EGH447",
+   "gt_vtype": "燃油",
+   "pred_plate": "苏EGH447",
+   "pred_vtype": "燃油",
+   "conf": 0.9119,
+   "bbox": [
+    160,
+    918,
+    152,
+    99
+   ]
+  },
+  {
+   "file": "web_0893.jpg",
+   "gt_plate": "浙AG50D3",
+   "gt_vtype": "燃油",
+   "pred_plate": "浙AG50D3",
+   "pred_vtype": "燃油",
+   "conf": 0.8915,
+   "bbox": [
+    1557,
+    962,
+    219,
+    145
+   ]
+  }
+ ]
+}

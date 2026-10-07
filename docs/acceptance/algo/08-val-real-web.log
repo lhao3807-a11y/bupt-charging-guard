@@ -1,0 +1,5 @@
+== 合并 val（dataset_real 160 + dataset_web 36 = 196）==
+mAP50=0.9918  mAP50-95=0.8238  P=0.9937  R=0.9950
+
+== 仅网络实拍 val（dataset_web 36）==
+mAP50=0.9889  mAP50-95=0.8886  P=0.9970  R=0.9744

@@ -14,6 +14,11 @@ import os
 import random
 import sys
 
+import pytest
+
+# CV 环境守卫（任务 5.2）：算法环境没装时跳过本模块，而不是收集报错 exit 2
+pytest.importorskip("numpy", reason="算法环境未就绪（见 algo/requirements-algo.txt）")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 TOOLS = os.path.normpath(os.path.join(HERE, "..", "tools"))
 sys.path.insert(0, TOOLS)

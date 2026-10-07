@@ -1,0 +1,5 @@
+99      0.994      0.995      0.992      0.827
+Speed: 0.5ms preprocess, 1.4ms inference, 0.0ms loss, 1.5ms postprocess per image
+Results saved to [1mE:\user\bupt-charging-guard\algo\runs\detect\train_real_web[0m
+训练完成，最优权重：E:\user\bupt-charging-guard\algo\runs\detect\train_real_web\weights\best.pt
+

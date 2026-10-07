@@ -1,0 +1,2786 @@
+{
+ "web_0027.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤SD60747",
+  "scene": "充电位-燃油占位",
+  "bbox_plate": [
+   373,
+   984,
+   603,
+   1079
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0086.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤ADY3725",
+  "scene": "充电位-充电中(可见充电枪/桩)",
+  "bbox_plate": [
+   483,
+   791,
+   795,
+   946
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0158.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪AF27769",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1454,
+   833,
+   1692,
+   974
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0163.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "沪AG61020",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1270,
+   1063,
+   1579,
+   1168
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0164.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADVO383",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1655,
+   1058,
+   1776,
+   1132
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0173.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AD84193",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1627,
+   646,
+   1740,
+   715
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0175.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AGR8760",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1790,
+   888,
+   1871,
+   928
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0180.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤SDD1737",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1447,
+   734,
+   1710,
+   840
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0183.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AAL7712",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   457,
+   891,
+   782,
+   1000
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0187.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AAL7712",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   235,
+   1057,
+   471,
+   1218
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0189.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪AB24830",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   384,
+   966,
+   676,
+   1085
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0190.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "沪ABA5559",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   215,
+   950,
+   347,
+   1025
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0193.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪AB80412",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   256,
+   967,
+   459,
+   1060
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0210.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "粤CD88145",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   278,
+   825,
+   562,
+   946
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0223.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AAC7653",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1387,
+   816,
+   1672,
+   907
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0225.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤AAL4471",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1143,
+   823,
+   1459,
+   965
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0243.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "苏EA13162",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1161,
+   798,
+   1440,
+   924
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0250.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪BAS0511",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   159,
+   829,
+   395,
+   983
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0258.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AP29528",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1471,
+   880,
+   1696,
+   964
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0270.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪AD88888",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   395,
+   881,
+   677,
+   1037
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0272.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADW9180",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   425,
+   1092,
+   695,
+   1182
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0279.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "桂BA38037",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1169,
+   921,
+   1428,
+   1080
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0288.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪BDZ5519",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1111,
+   960,
+   1464,
+   1068
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0291.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "闽GD65658",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   444,
+   910,
+   653,
+   983
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0292.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "闽GD01013",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1575,
+   904,
+   1794,
+   1122
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0294.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "闽CD52772",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1219,
+   948,
+   1574,
+   1083
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0298.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADL2891",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   375,
+   1107,
+   553,
+   1172
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0299.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤BB37817",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1494,
+   765,
+   1714,
+   887
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0307.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADC1365",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1184,
+   1054,
+   1402,
+   1148
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0312.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤SDY3228",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1252,
+   651,
+   1441,
+   772
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0313.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "粤SD68231",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1764,
+   454,
+   1900,
+   518
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0314.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AEZ3250",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1284,
+   929,
+   1479,
+   985
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0330.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AB62180",
+  "scene": "停泊-新能源(地下车库)",
+  "bbox_plate": [
+   192,
+   940,
+   391,
+   1051
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0333.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AB70608",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1626,
+   919,
+   1761,
+   995
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0335.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AB95858",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1486,
+   897,
+   1719,
+   1027
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0337.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AB96663",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   944,
+   900,
+   1082,
+   972
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0343.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ABH2552",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   153,
+   863,
+   329,
+   949
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0347.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏EA35708",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   181,
+   515,
+   367,
+   600
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0353.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ACB7356",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   166,
+   876,
+   316,
+   969
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0373.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADG8443",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   314,
+   997,
+   600,
+   1097
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0376.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "京AC98116",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   230,
+   937,
+   443,
+   1030
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0388.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪ADJ5658",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1285,
+   1046,
+   1581,
+   1163
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0390.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AH21009",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1356,
+   835,
+   1595,
+   964
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0394.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AG55352",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   104,
+   893,
+   228,
+   988
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0402.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AF84298",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   351,
+   871,
+   560,
+   945
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0421.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AF77981",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   229,
+   892,
+   441,
+   1024
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0462.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏ADT1328",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1480,
+   760,
+   1625,
+   816
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0464.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏ABG1573",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   181,
+   728,
+   355,
+   793
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0466.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AAA7779",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1486,
+   802,
+   1627,
+   857
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0474.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤BA95799",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   242,
+   879,
+   528,
+   1005
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0477.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤CD25737",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1202,
+   910,
+   1561,
+   1062
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0487.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "皖DD18062",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1356,
+   647,
+   1552,
+   702
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0488.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "皖DD18062",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   247,
+   941,
+   449,
+   1028
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0498.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "浙GT6U27",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   127,
+   864,
+   226,
+   938
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0500.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪BDP0768",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   167,
+   934,
+   417,
+   1076
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0501.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ACP9388",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   225,
+   875,
+   360,
+   946
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0507.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤EDD2623",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   265,
+   805,
+   609,
+   938
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0514.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏EA51601",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   282,
+   938,
+   546,
+   1047
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0528.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏EB69600",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   181,
+   936,
+   347,
+   1008
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0530.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤BDR4760",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1277,
+   928,
+   1580,
+   1040
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0531.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤HY72456",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   556,
+   904,
+   797,
+   983
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0538.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤A25LG3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   360,
+   922,
+   600,
+   1021
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0540.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "皖AM16U2",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   397,
+   997,
+   756,
+   1133
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0546.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪B66VA42",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1413,
+   1077,
+   1611,
+   1153
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0563.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADB2936",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1386,
+   700,
+   1627,
+   778
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0564.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "粤BD75803",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   172,
+   654,
+   424,
+   787
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0566.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤BB38233",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1399,
+   771,
+   1688,
+   905
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0567.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤CDC7787",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   265,
+   801,
+   566,
+   935
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0570.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "云ADK9158",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1549,
+   711,
+   1754,
+   830
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0572.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "粤BBV5519",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1536,
+   854,
+   1750,
+   1011
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0579.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "浙HDT0128",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1426,
+   842,
+   1629,
+   952
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0581.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "川KGB798",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1,
+   666,
+   137,
+   726
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0582.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AQ07498",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   258,
+   897,
+   579,
+   1012
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0586.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AC98339",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1439,
+   967,
+   1616,
+   1061
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0587.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏EAN8603",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1101,
+   948,
+   1438,
+   1070
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0588.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙ABF8293",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1405,
+   891,
+   1614,
+   1034
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0594.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪C866PC",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   929,
+   870,
+   1086,
+   937
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0595.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BR5512",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1727,
+   847,
+   1904,
+   909
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0596.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AH93687",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   324,
+   985,
+   510,
+   1071
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0598.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AH93687",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1114,
+   963,
+   1371,
+   1061
+  ],
+  "source": "",
+  "license": "",
+  "artist": "",
+  "scene_source_query": ""
+ },
+ "web_0656.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ABL0266",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   590,
+   980,
+   860,
+   1058
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Voyah_Zhuiguang_20240114.jpg",
+  "license": "CC0",
+  "artist": "Evnerd",
+  "scene_source_query": "Voyah"
+ },
+ "web_0657.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AH82900",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   439,
+   913,
+   706,
+   1017
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Voyah_Zhuiguang_L_001.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Voyah"
+ },
+ "web_0658.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AF37233",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   447,
+   877,
+   708,
+   963
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Voyah_Zhuiguang_L_002.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Voyah"
+ },
+ "web_0663.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "粤BBM0320",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1561,
+   628,
+   1782,
+   762
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:2022_Avatr_11_(front).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "User3204",
+  "scene_source_query": "Avatr"
+ },
+ "web_0676.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "浙KR5010",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   9,
+   895,
+   138,
+   954
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Avatr_11_001.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Elizbeth smith",
+  "scene_source_query": "Avatr"
+ },
+ "web_0679.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪ADS1798",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   796,
+   972,
+   992,
+   1081
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Avatr_11_006.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Avatr"
+ },
+ "web_0685.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AE57805",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1370,
+   790,
+   1585,
+   867
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Avatr_12_016.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Avatr"
+ },
+ "web_0688.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AEA1678",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1369,
+   881,
+   1599,
+   1020
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Avatr_12_image01.jpg",
+  "license": "CC0",
+  "artist": "H4 boxer",
+  "scene_source_query": "Avatr"
+ },
+ "web_0692.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "苏EFX8419",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   411,
+   890,
+   685,
+   992
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_G318_003.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Deepal"
+ },
+ "web_0694.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "豫SF17177",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   159,
+   939,
+   264,
+   1011
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_G318_005.jpg",
+  "license": "CC0",
+  "artist": "Zoerides",
+  "scene_source_query": "Deepal"
+ },
+ "web_0696.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AGB1742",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1442,
+   866,
+   1577,
+   929
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_G318_008.jpg",
+  "license": "CC0",
+  "artist": "Quzhouliulian",
+  "scene_source_query": "Deepal"
+ },
+ "web_0700.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪AEY0238",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1577,
+   986,
+   1709,
+   1062
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_L07_003.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Deepal"
+ },
+ "web_0703.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪AA80324",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   192,
+   935,
+   400,
+   1017
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_L07_006.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Deepal"
+ },
+ "web_0706.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙LF78078",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   336,
+   674,
+   563,
+   756
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Deepal_S09_004.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Deepal"
+ },
+ "web_0714.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AFK4533",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1587,
+   865,
+   1785,
+   998
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Shenlan_SL03_011.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Deepal"
+ },
+ "web_0718.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪AB62900",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   146,
+   949,
+   282,
+   1025
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Shenlan_SL03_IMG001.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Zotyefan",
+  "scene_source_query": "Deepal"
+ },
+ "web_0721.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪BDW8988",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   205,
+   847,
+   440,
+   966
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_B01_009.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0729.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "沪AEA0024",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   406,
+   955,
+   704,
+   1050
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_C10_006.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0737.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "沪AEV5399",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   447,
+   713,
+   695,
+   812
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_C16_007.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0738.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "浙AGL5267",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1537,
+   896,
+   1717,
+   995
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_C16_009.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0739.jpg": {
+  "split": "val",
+  "vtype": "新能源",
+  "plate": "浙AF69860",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1086,
+   771,
+   1391,
+   865
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_C16_012.jpg",
+  "license": "CC0",
+  "artist": "Quzhouliulian",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0744.jpg": {
+  "split": "train",
+  "vtype": "新能源",
+  "plate": "京AAC8381",
+  "scene": "停泊-新能源(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1123,
+   929,
+   1442,
+   1047
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Leapmotor_S01_IMG003.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Anonymousfox36",
+  "scene_source_query": "Leapmotor"
+ },
+ "web_0751.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤LH9Z53",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   453,
+   542,
+   736,
+   631
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0753.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BZ982W",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   267,
+   728,
+   441,
+   838
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(11).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0755.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BT3X05",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   372,
+   447,
+   555,
+   532
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(13).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0757.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BW7M65",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   350,
+   652,
+   518,
+   732
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(15).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0758.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8A9S1",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   459,
+   566,
+   741,
+   706
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(17).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0760.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤B1518R",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   91,
+   534,
+   244,
+   619
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(19).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0764.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BT3X05",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1630,
+   321,
+   1787,
+   440
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(22).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0765.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B10D08",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1105,
+   690,
+   1325,
+   767
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0767.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B6X3R8",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1495,
+   597,
+   1660,
+   679
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(5).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0768.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BY632T",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1527,
+   566,
+   1660,
+   638
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(6).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0769.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B5L99U",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1510,
+   558,
+   1679,
+   654
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(7).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0770.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B1TK12",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1520,
+   565,
+   1678,
+   653
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_PHIDEON_China_(8).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0777.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B17NE0",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   178,
+   517,
+   248,
+   560
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Volkswagen_Phideon_police_car.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Zidongcheyanshe",
+  "scene_source_query": "Volkswagen China car"
+ },
+ "web_0780.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "苏E97F51",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1242,
+   1080,
+   1620,
+   1266
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FIFTH_GENERATION_China_(4).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0781.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B5C36V",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1592,
+   594,
+   1720,
+   676
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(10).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0782.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B7Y6B9",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1059,
+   749,
+   1334,
+   850
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(11).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0784.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B5U6L6",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1473,
+   651,
+   1665,
+   799
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(21).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0785.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B4R7U2",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   960,
+   713,
+   1217,
+   800
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0786.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤B6P2F0",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   884,
+   757,
+   1135,
+   843
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(4).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0787.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B83NS1",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1513,
+   825,
+   1752,
+   960
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(42).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0788.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B7WU83",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   233,
+   830,
+   505,
+   966
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(43).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0790.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B3S3L3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   137,
+   425,
+   316,
+   546
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(51).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0791.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤DE893H",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   98,
+   633,
+   221,
+   720
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(56).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0793.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤A94HE3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   52,
+   674,
+   204,
+   809
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(62).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0794.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B4U2Z3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1210,
+   742,
+   1485,
+   842
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_FOURTH_GENERATION_China_(7).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0797.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B82U79",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1116,
+   730,
+   1366,
+   818
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_HYBRID_FIFTH_GENERATION_China_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0798.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "湘ENT688",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1600,
+   582,
+   1698,
+   669
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_SIXTH_GENERATION_China_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0801.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BV6513",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1089,
+   694,
+   1275,
+   778
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_SIXTH_GENERATION_China_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0803.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B70F11",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   162,
+   555,
+   392,
+   742
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_SIXTH_GENERATION_China_(39).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0806.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BL39D3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   66,
+   632,
+   212,
+   753
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_SIXTH_GENERATION_China_(51).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0807.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤LW6P96",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1502,
+   774,
+   1660,
+   940
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:HONDA_CR-V_SIXTH_GENERATION_China_(6).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Honda CR-V China"
+ },
+ "web_0810.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8272Q",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   995,
+   860,
+   1268,
+   959
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0811.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤A05Z82",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1433,
+   489,
+   1588,
+   579
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(10).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0812.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B7K712",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1447,
+   496,
+   1604,
+   575
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(11).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0813.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤V7F057",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1134,
+   673,
+   1387,
+   775
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(12).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0814.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B4JF00",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1514,
+   569,
+   1684,
+   660
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(13).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0815.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BMK100",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   90,
+   566,
+   232,
+   669
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(14).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0817.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BT74A6",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   128,
+   854,
+   420,
+   1076
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(16).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0820.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B6F802",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   895,
+   792,
+   1109,
+   865
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0821.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BD951U",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1045,
+   729,
+   1315,
+   826
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0822.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤B5627B",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1049,
+   778,
+   1303,
+   869
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(4).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0823.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BET642",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   980,
+   812,
+   1235,
+   895
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(5).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0824.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BP6R41",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   625,
+   785,
+   843,
+   872
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(6).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0825.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8A0H1",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1532,
+   532,
+   1692,
+   617
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(7).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0826.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤NC2684",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1109,
+   706,
+   1346,
+   799
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(8).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0827.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B58P73",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1109,
+   703,
+   1320,
+   802
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_(J200)_China_(9).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0831.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8D5J9",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   990,
+   813,
+   1259,
+   910
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_XT_China.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0832.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤BNA010",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1031,
+   740,
+   1275,
+   827
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_XT_China_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0833.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8895L",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1401,
+   818,
+   1656,
+   918
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:BUICK_EXCELLE_XT_China_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0836.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤EPD376",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   170,
+   864,
+   410,
+   1046
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Buick_Excelle_II_001.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Jengtingchen",
+  "scene_source_query": "Buick Excelle"
+ },
+ "web_0844.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "闽C9131B",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   183,
+   695,
+   376,
+   789
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Nissan_Bluebird_Sylphy_G11_Shishi_01_2022-05-23.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Nissan Sylphy"
+ },
+ "web_0846.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "闽FDF250",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   183,
+   719,
+   420,
+   842
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Nissan_Bluebird_Sylphy_G11_facelift_Shishi_01_2022-05-20.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Nissan Sylphy"
+ },
+ "web_0855.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "闽C56TP0",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1396,
+   918,
+   1653,
+   1044
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Nissan_Sylphy_B17_Facelift_Shishi_01_2022-02-23.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Nissan Sylphy"
+ },
+ "web_0857.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "闽CG21OM",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1454,
+   749,
+   1697,
+   857
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Nissan_Sylphy_B17_Shishi_01_2022-05-18.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Nissan Sylphy"
+ },
+ "web_0863.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "闽FMV118",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   153,
+   675,
+   333,
+   807
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Nissan_Sylphy_Classic_G11_Longyan_01_2022-08-05.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Nissan Sylphy"
+ },
+ "web_0869.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B9K88D",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   182,
+   759,
+   458,
+   913
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:2013_SAIC-Volkswagen_Cross_Lavida_(front).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "User3204",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0870.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B57JS1",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   184,
+   727,
+   390,
+   854
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:2018_SAIC-Volkswagen_Lavida_(front).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "User3204",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0871.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B525SN",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   958,
+   714,
+   1184,
+   785
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_FIRST_GENERATION_China.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0872.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BD51TQ",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1555,
+   563,
+   1712,
+   655
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_FIRST_GENERATION_China_(13).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0873.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪A2SA23",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   94,
+   628,
+   306,
+   830
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_FIRST_GENERATION_China_(30).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0875.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B7557V",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1427,
+   676,
+   1631,
+   775
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_QIHANG_(VOLKSWAGEN_LAVIDA_SECOND_GENERATION).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0876.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤BN8449",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   199,
+   936,
+   530,
+   1139
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_QIHANG_(VOLKSWAGEN_LAVIDA_SECOND_GENERATION)_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0878.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B8G26F",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1280,
+   649,
+   1492,
+   741
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_SECOND_GENERATION_China_(18).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0879.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤S14WM5",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   144,
+   773,
+   314,
+   898
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_SECOND_GENERATION_China_(39).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0881.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B29H6N",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1595,
+   445,
+   1796,
+   616
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_THIRD_GENERATION_China_(43).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0882.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "陕AD9M00",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1707,
+   326,
+   1836,
+   430
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_THIRD_GENERATION_China_(46).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0886.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "粤CE783C",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1289,
+   808,
+   1592,
+   948
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:VOLKSWAGEN_LAVIDA_XR_(3).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0890.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "沪NK9359",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   210,
+   948,
+   461,
+   1055
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Volkswagen_Lavida_III_facelift_001.jpg",
+  "license": "CC0",
+  "artist": "JustAnotherCarDesigner",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0891.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "苏EGH447",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   161,
+   923,
+   315,
+   1014
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Volkswagen_Lavida_III_facelift_IMG001.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Zotyefan",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0893.jpg": {
+  "split": "val",
+  "vtype": "燃油",
+  "plate": "浙AG50D3",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1562,
+   954,
+   1778,
+   1111
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Volkswagen_Lavida_III_facelift_IMG01.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Quzhouliulian",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0895.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "闽C8950Y",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   1365,
+   898,
+   1639,
+   1042
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:Volkswagen_Lavida_II_Shishi_01_2022-06-11.jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "JamesYoung8167",
+  "scene_source_query": "Volkswagen Lavida"
+ },
+ "web_0899.jpg": {
+  "split": "train",
+  "vtype": "燃油",
+  "plate": "粤B9F288",
+  "scene": "停泊-燃油(街景/停车场,无充电位上下文)",
+  "bbox_plate": [
+   724,
+   933,
+   958,
+   1007
+  ],
+  "source": "https://commons.wikimedia.org/wiki/File:TOYOTA_CAMRY_(XV30)_China_(2).jpg",
+  "license": "CC BY-SA 4.0",
+  "artist": "Dinkun Chen",
+  "scene_source_query": "Toyota Camry China"
+ }
+}

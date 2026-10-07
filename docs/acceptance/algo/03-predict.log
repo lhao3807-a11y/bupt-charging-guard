@@ -1,0 +1,4 @@
+== 推理：E:\user\bupt-charging-guard\algo\dataset\images\val\charging_006.jpg（conf>=0.5）==
+  vehicle  conf=0.973 bbox[x,y,w,h]=[866,486,229,211] xyxy=[751,380,980,591]
+  plate    conf=0.923 bbox[x,y,w,h]=[865,539,205,68] xyxy=[762,505,968,573]
+可视化已保存：E:\user\bupt-charging-guard\algo\runs\detect\charging_006_pred.jpg

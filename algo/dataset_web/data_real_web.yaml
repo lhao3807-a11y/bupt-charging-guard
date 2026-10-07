@@ -1,0 +1,5 @@
+path: E:/user/bupt-charging-guard/algo
+train: [dataset_real/images/train, dataset_web/images/train]
+val: [dataset_real/images/val, dataset_web/images/val]
+names:
+  0: plate

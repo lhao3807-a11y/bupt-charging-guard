@@ -10,7 +10,9 @@ HyperLPR3 识别号码 → **HSV 颜色统计判定绿牌/蓝牌** → 输出与
 HyperLPR3 的 plate_type 枚举随版本变动，而「绿=新能源 / 蓝=燃油」本质是**底色**问题
 （契约 §3.1 已把车型标签绑到车牌底色），HSV 统计可解释、不依赖第三方内部约定。
 
-⚠️ 当前模型/OCR 在**合成帧**上训练与测试；校园实拍替换数据集后需重训再评估（algo/README.md §3）。
+⚠️ **默认权重是真实集（CCPD）训出来的**（任务 5.4）；合成集权重仅用于合成帧自测，
+需显式传 `weights=SYNTH_WEIGHTS`。真实集只标了 `plate` 单类（CCPD 没有车辆框），
+所以 `vehicle` 类仍靠合成集 —— 校园实拍补标车辆框后再合并训练。
 """
 
 from __future__ import annotations
@@ -21,12 +23,24 @@ from datetime import datetime
 
 import numpy as np
 
+from algo.recognize.box import iou
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
 
-#: 任务 2.3 训练产出的车牌检测权重
-DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train", "weights", "best.pt")
+#: **真实照片**训练产出的权重（任务 5.4 起步于 CCPD → `dataset_real`；2026-10-06 起
+#: 升级为 CCPD + `dataset_web` 网络实拍 174 张的合并微调 `train_real_web`，
+#: 合并 val mAP50 0.9918 / 仅网络实拍 val 0.9889，见 `docs/acceptance/algo/08-*.log`）。
+#: real 模式默认必须用它 —— 合成集权重只在合成图上有效，拿它跑真实图等于拿
+#: 一个不能代表真实准确率的模型对外演示（第 2 周验收审查阻断项之一）。
+DEFAULT_WEIGHTS = os.path.join(
+    ALGO, "runs", "detect", "train_real_web", "weights", "best.pt"
+)
+
+#: 合成集权重（任务 2.3）：**仅供合成帧上的链路自测**显式传入，绝不作默认值。
+#: 合成集 mAP50 0.995 只证明链路跑通，不代表真实准确率。
+SYNTH_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train", "weights", "best.pt")
 
 # HSV 底色判定阈值（OpenCV H∈[0,180]）：绿牌深绿 ≈ 35~90，蓝牌深蓝 ≈ 100~130
 _HSV_GREEN_LO, _HSV_GREEN_HI = (35, 60, 40), (90, 255, 255)
@@ -58,20 +72,98 @@ def judge_vtype_by_color(roi_bgr: np.ndarray) -> str:
     return VTYPE_NEW_ENERGY if green > blue else VTYPE_FUEL
 
 
-def _ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
+def crop_plate_roi(img: np.ndarray, bbox_xyxy) -> np.ndarray:
+    """按 ``bbox_xyxy`` 裁剪车牌 ROI，并在四周外扩 8%。
+
+    **为什么外扩**：检测框通常贴着字符边缘，直接喂给 OCR 会切掉首个汉字或末位，
+    HyperLPR3 对这种截断很敏感；外扩后识别率明显回升（任务 5.5 实测对比见
+    ``docs/acceptance/algo/``）。抽成公共函数是为了让 ``recognize_frame`` 与
+    评估脚本用**同一份**裁剪口径，避免"评估时和线上不是一回事"。
+    """
+    x1, y1, x2, y2 = (int(v) for v in bbox_xyxy)
+    pad = max(4, int(0.08 * max(x2 - x1, y2 - y1)))
+    h, w = img.shape[:2]
+    return img[max(0, y1 - pad) : min(h, y2 + pad), max(0, x1 - pad) : min(w, x2 + pad)]
+
+
+def ocr_plate(roi_bgr: np.ndarray, catcher) -> tuple[str, float]:
     """用 HyperLPR3 识别 ROI 里的车牌号，返回 (号码, 置信度)。
 
     识别不出或结果不像车牌号（``is_valid_plate_text`` 不过）都返回 ("", 0.0)。
+
+    ``catcher`` 由调用方传入而不是内部新建：`LicensePlateCatcher()` 构造开销大，
+    逐帧重建会让批量评估慢一个量级（任务 5.5 的 `eval_real.py` 一次要跑几百张）。
+
+    ⚠️ **返回结构**（hyperlpr3 3.x 实测，``algo/tools/eval_real.py`` 调试确认）::
+
+        [ [号码(str), 置信度(float), 牌色(int), 框([x1,y1,x2,y2])], ... ]
+
+    早期版本按 ``(box, text, score, plate_type)`` 解析，于是**把置信度当号码、
+    把牌色当置信度**——正则必然不通过，OCR 静默地永远返回空串。第 2 周在真实集
+    上评估（任务 5.5）才暴露：80 张绿牌整串匹配率 0.00%。
+    解析顺序改动后同批数据升到 90%+，**这里不要凭记忆改回旧顺序**。
     """
     results = catcher(roi_bgr) or []
     if not results:
         return "", 0.0
-    # HyperLPR3 返回形如 [(box, text, score, plate_type), ...]，取分最高的一条
-    best = max(results, key=lambda r: float(r[2]))
-    text = str(best[1]).strip().replace("·", "").replace("-", "").upper()
+    # 取置信度最高的一条；结果可能有多个（画面里不止一块牌）
+    best = max(results, key=lambda r: _as_score(r[1]))
+    text = str(best[0]).strip().replace("·", "").replace("-", "").upper()
     if not is_valid_plate_text(text):
         return "", 0.0
-    return text, float(best[2])
+    return text, _as_score(best[1])
+
+
+def ocr_plate_in_frame(img_bgr: np.ndarray, catcher, prefer_box=None) -> tuple[str, float]:
+    """**整帧**跑 OCR，返回 (号码, 置信度)；``prefer_box`` 用来在多块牌中挑对的那一块。
+
+    **为什么是整帧而不是裁剪 ROI**（任务 5.5 实测，160 张真实集，见
+    ``docs/acceptance/algo/05-eval-real.json``）：
+
+    ==========  =======  =======  =======
+    OCR 输入     整串匹配   字符级    蓝牌
+    ==========  =======  =======  =======
+    裁剪 ROI     82.50%   89.42%  68.92%
+    整帧         91.25%   96.82%  85.14%
+    ==========  =======  =======  =======
+
+    HyperLPR3 自带检测器，把整帧交给它比喂一块裁好的小图更准 —— 裁剪会丢掉
+    车牌边缘的上下文，蓝牌（字符更小、反光更强）掉得尤其厉害（+16pp）。
+
+    **但整帧有个坑**：画面里有两块牌时，"取置信度最高的一条"可能是隔壁车的。
+    故传入 YOLO 检出框 ``prefer_box``，按 IoU 挑**最贴合检测框**的那条
+    （IoU 相同时再看置信度）。实测与"取最高分"准确率持平（91.25%），
+    但多车场景不会认错车，所以线上走这条。
+    """
+    results = catcher(img_bgr) or []
+    if not results:
+        return "", 0.0
+
+    if prefer_box is None:
+        best = max(results, key=lambda r: _as_score(r[1]))
+    else:
+        best = max(
+            results,
+            key=lambda r: (iou([float(v) for v in r[3]], prefer_box), _as_score(r[1])),
+        )
+    text = str(best[0]).strip().replace("·", "").replace("-", "").upper()
+    if not is_valid_plate_text(text):
+        return "", 0.0
+    return text, _as_score(best[1])
+
+
+def _as_score(value) -> float:
+    """把置信度位置的值转成 float；不是数字一律记 0。
+
+    **为什么不能让它抛**：``recognize_frame`` 是跑在识别循环里的，
+    上游（hyperlpr3）一旦改返回结构，直接 ``float()`` 会把整个识别进程打挂，
+    而这本该只是"这张没认出来"。降级成 0 后该条不会被选中，
+    后续正则也过不了，最终安全返回空结果。
+    """
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def recognize_frame(
@@ -83,7 +175,7 @@ def recognize_frame(
 ) -> dict | None:
     """完整识别：帧文件 → ``RecognitionResult`` 兼容 dict；未检出租车牌返回 ``None``。
 
-    ``frame_time`` 缺省取当前时间；``weights`` 缺省用任务 2.3 训练出的 best.pt。
+    ``frame_time`` 缺省取当前时间；``weights`` 缺省用 ``DEFAULT_WEIGHTS``（**真实集**权重）。
     """
     import cv2
 
@@ -100,15 +192,15 @@ def recognize_frame(
     plate_box = max(plates, key=lambda b: b["conf"])
     x1, y1, x2, y2 = (int(v) for v in plate_box["bbox_xyxy"])
 
-    # ROI 外扩一点，补偿检测框偏紧导致的 OCR 失败
-    pad = max(4, int(0.08 * max(x2 - x1, y2 - y1)))
-    h, w = img.shape[:2]
-    roi = img[max(0, y1 - pad) : min(h, y2 + pad), max(0, x1 - pad) : min(w, x2 + pad)]
+    roi = crop_plate_roi(img, plate_box["bbox_xyxy"])
 
     from hyperlpr3 import LicensePlateCatcher
 
-    text, ocr_score = _ocr_plate(roi, LicensePlateCatcher())
+    # 牌色判定用**裁剪 ROI**：整帧里大面积车身/背景会把绿蓝像素统计带偏，
+    # 只有车牌区域的颜色才是有意义的（实测牌色 95%，与 OCR 走整帧并不冲突）。
     vtype = judge_vtype_by_color(roi)
+    # OCR 走**整帧**并锚定到检测框，理由见 ocr_plate_in_frame 的文档串。
+    text, ocr_score = ocr_plate_in_frame(img, LicensePlateCatcher(), plate_box["bbox_xyxy"])
 
     return {
         "plate": text,

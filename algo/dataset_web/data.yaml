@@ -1,0 +1,5 @@
+path: E:\user\bupt-charging-guard\algo\dataset_web
+train: images/train
+val: images/val
+names:
+  0: plate
