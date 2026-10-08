@@ -4,7 +4,7 @@
  *
  * 用途有两点：
  *  1. 第 3/4/5 页在第 1 周的中间态（能点进、有标题、显示「开发中」，不留白屏）；
- *  2. 第 6 页「实时识别预览」契约 §1.1 明确第 1 周**不做**，走 reserved 文案。
+ *  2. 第 6 页旧占位入口：保留与当前静态截图预览、后续真实采集联调一致的说明。
  *
  * 明确列出「本周还差什么」，避免 Demo 时被误认为已完成。
  */
@@ -18,7 +18,7 @@ const props = withDefaults(
     description?: string
     /** 该页依赖的接口 / 数据源，写清楚便于对齐契约 */
     dependencies?: string[]
-    /** 是否为契约 §1.1 明确「第 1 周不做」的预留页 */
+    /** 是否展示第 6 页采集联调的预留说明 */
     reserved?: boolean
     /** 里程碑归属，如「第 2 周」 */
     milestone?: string
@@ -32,19 +32,19 @@ const props = withDefaults(
     <PageHeader :title="props.title" :description="props.description">
       <template #actions>
         <StatusTag :prefix="props.reserved ? 'info' : 'warning'">
-          {{ props.reserved ? '第 1 周预留' : '开发中' }}
+          {{ props.reserved ? '第 2 周线框已解禁' : '开发中' }}
         </StatusTag>
       </template>
     </PageHeader>
 
     <el-card shadow="never">
-      <EmptyState :description="props.reserved ? '按计划本页不在第 1 周范围内' : '本页尚未实现'">
+      <EmptyState :description="props.reserved ? '静态截图预览已开放，真实采集待接入' : '本页尚未实现'">
         <div class="placeholder__body">
           <el-alert
             v-if="props.reserved"
             type="info"
             :closable="false"
-            title="契约 §1.1 明确：本页第 1 周 Demo 不验收，前端仅保留导航占位。"
+            title="静态截图预览已开放；真实采集联调计划第 3 周完成。"
             class="placeholder__alert"
           />
 

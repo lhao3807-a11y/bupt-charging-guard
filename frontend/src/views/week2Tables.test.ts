@@ -61,6 +61,7 @@ describe('week two tables', () => {
     const columns = mounted.all('column')
     const timestamp = columns.find((column) => mounted.text(column).startsWith('录入时间'))
     expect(Number(timestamp?.props.width)).toBeGreaterThanOrEqual(210)
+    expect(mounted.all('span', timestamp).find((cell) => mounted.text(cell).includes('2026-10-01'))?.props.style).toMatchObject({ 'white-space': 'nowrap' })
     mounted.app.unmount()
   })
 })

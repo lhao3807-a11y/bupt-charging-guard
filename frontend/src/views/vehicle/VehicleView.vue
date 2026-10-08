@@ -240,7 +240,7 @@ onMounted(handleLoad)
 
         <el-table-column label="录入时间" width="210">
           <template #default="{ row }">
-            <span class="mono">{{ formatDateTime(row.created_at) }}</span>
+            <span class="mono" style="white-space: nowrap">{{ formatDateTime(row.created_at) }}</span>
           </template>
         </el-table-column>
 
