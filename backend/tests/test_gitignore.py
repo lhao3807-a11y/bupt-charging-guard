@@ -47,6 +47,13 @@ def test_heavy_dirs_are_ignored():
         assert r.returncode == 0, f"{rel} 居然没被 .gitignore 忽略（会把几百 MB 提交上去）"
 
 
+def test_local_photo_worktree_is_ignored():
+    """The retained local worktree must not appear as untracked project content."""
+    r = _git("status", "--porcelain", "--untracked-files=normal")
+    assert r.returncode == 0
+    assert "?? .tang-photo-supplement/" not in r.stdout
+
+
 def test_gitignore_has_no_inline_comments():
     """行尾注释会让整行变成模式，是本次事故的直接原因 —— 禁止再出现。"""
     with open(os.path.join(REPO, ".gitignore"), encoding="utf-8") as fh:
