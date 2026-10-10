@@ -50,7 +50,7 @@ def check_frontend(expected_id: int, failures: list[str]) -> None:
     """前端段：验证 Vite dev server 起来了、代理通、页面能拿到真实数据。
 
     这里刻意**只用 HTTP 验证**（不引入浏览器依赖），保证脚本在任何机器上都能跑。
-    真实渲染的视觉验收由 `docs/acceptance/week1/` 的截图承担。
+    真实渲染的视觉验收由 `docs/design/demo/screenshots/` 的截图承担。
     """
     print("=== 前端 dev server ===")
     with httpx.Client(timeout=10, follow_redirects=True) as fe:

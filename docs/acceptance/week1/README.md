@@ -27,7 +27,7 @@
 | 2 | `POST /api/judge` 三规则命中 + 正常返回 `null` | ✅ | e2e；`pytest backend/tests` 57 passed |
 | 3 | `POST /api/notify` 沙箱写库 + 日志落盘 | ✅ | e2e；`p2-records.png` 第 3 行「已提醒」 |
 | 4 | `GET /api/records` 可查、分页 `total` 正确 | ✅ | `p2-records.png` 显示「共 3 条」 |
-| 5 | `GET /api/records` 筛选参数（§6.4）生效 | ⏳ | **待汤瑾睿**（`docs/TASK_TANG_v1.3.md` 任务 A） |
+| 5 | `GET /api/records` 筛选参数（§6.4）生效 | ⏳ | **待汤瑾睿**（历史任务书（见 Git） 任务 A） |
 | 6 | 后台「违规记录查询」能看到该条记录 | ✅ | **`p2-records.png`** ← 本项为 Demo 核心 |
 | 7 | 后台「车辆信息管理」可用（§6.6 CRUD） | ⏳ | **待汤瑾睿**（任务 B）；当前为 localStorage 演示，见 `p1-vehicle.png` 黄色警示条 |
 | 8 | `GET /api/health` = 200 + `test_health.py` 通过 | ✅ | `curl /api/health` → `{"status":"ok"}` |

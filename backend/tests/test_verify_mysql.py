@@ -1,7 +1,7 @@
 """MySQL 8 真机验证脚本的**纯逻辑**测试（任务 5.6）。
 
 `scripts/verify_mysql.py` 真正跑起来需要一台 MySQL 8（本机没有，见
-`docs/WEEK2_PROGRESS_TANG.md` §5.6）。但脚本里**不依赖数据库的部分**必须现在就测：
+Git 中的历史记录 §5.6）。但脚本里**不依赖数据库的部分**必须现在就测：
 
 - `split_statements`：建表 SQL 切分错了，整套验证会静默少建表、
   然后一堆断言莫名 FAIL，排查方向完全跑偏

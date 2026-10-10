@@ -641,7 +641,7 @@ const chartTheme = ensureChartTheme()   // 在 onMounted 之后调用
 > （喂一个没人用的图标名必须被报出来）；`src/` 里也不允许再出现
 > `@element-plus/icons-vue` 的 import。同时 **`RuleHitPill.test.ts`** 断言四条规则
 > 各渲染**对应**的图标（比对的是图标文件内容，不是「有没有图标」）。
-> 引入这两条的原因，是合并审查（`docs/WEEK2_REVIEW_WU.md`）留下的那句判词：
+> 引入这两条的原因，是合并审查（Git 中的历史记录）留下的那句判词：
 > **「不能把『文件已复制』等同于『逐处替换』」**。
 >
 > ⚠️ 副作用（已知并接受）：`mask` 只取形状，**不继承语义**，所以素材 SVG 里的

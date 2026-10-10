@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * 登录页 —— 第 2 周任务 6.6（`PLAN_4WEEKS.md` §3.3 / `docs/TASK_WU_WEEK2.md`）
+ * 登录页 —— 第 2 周任务 6.6（`PLAN_4WEEKS.md` §3.3）
  *
  * 交付物是两件：① 线框 `docs/design/wireframes/login.html`；② **前端可直接用的页面结构**（本文件）。
  * 本组件的定位是**视觉骨架**，不是鉴权实现 —— 契约尚未定义登录接口，

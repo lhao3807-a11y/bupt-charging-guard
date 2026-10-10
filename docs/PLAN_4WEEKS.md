@@ -8,7 +8,7 @@
 > **唯一事实源** `docs/CONTRACT.md` **v1.4**。本文件是**排期与分工**，与契约冲突时以契约为准。
 > **配套规范** `AGENTS.md`（每次改动必 commit、交付前测试全过）、`第0天开发文档.md`。
 >
-> **第 2 周入口状态**（详见 `docs/WEEK1_PROGRESS.md`）：
+> **第 2 周入口状态**（详见 Git 中的历史记录）：
 > 第 1 周契约 §11 验收 **10/10**；后端 132 passed；前端 2 页可用；e2e 12/12。
 > **唯一真风险 = CV 产物无仓库内凭据**（`algo/dataset` + `algo/runs` 被 gitignore 且本机不存在）。
 
@@ -126,7 +126,7 @@
 | **2.8** | 🆕 **`GET /api/records` 筛选参数**（契约 §6.4） | `backend/app/routers/records.py` | 7 参数（`plate`/`vtype`/`pile_id`/`rule_hit`/`notify_status`/`start_time`/`end_time`）**AND 关系**；`plate`/`pile_id` 模糊匹配；`end_time` 只给日期时按当日 `23:59:59.999999` 解释；**`total` 必须反映筛选后总数** |
 | **2.9** | 🆕 **车辆 CRUD 四端点**（契约 §6.6） | `backend/app/routers/vehicles.py` | `GET/POST /api/vehicles`、`PUT/DELETE /api/vehicles/{plate}`；**`plate` 主键不可改**（`VehicleUpdate` 不含该字段）；重复 `POST` → **`409`**；`DELETE` → **`204` 且不级联删违规记录**（`occupation_record.plate` **不加 FK**） |
 
-> **任务书**：2.8 / 2.9 的完整口径、curl 验收命令与专项测试要求见 `docs/TASK_TANG_v1.3.md`。
+> **任务书**：2.8 / 2.9 的完整口径、curl 验收命令与专项测试要求见 Git 中的历史记录。
 > 这两项是契约 v1.3 新增的验收项（§11 第 5、7 条），**v1.0 计划里遗漏了任务分派**，v1.1 补入。
 
 ### 2.3 吴和庆（UI / 美术）
@@ -161,7 +161,7 @@
 | 10 | 本周不卡准确率 / 响应时间 | 全员 | ✅ 遵守 | ✅ |
 
 > **第 1 周最终结果：10/10**（第 5、7 项由汤瑾睿在 `24ee309` 补齐，2026-09-19 实测复跑确认）。
-> 完整证据见 `docs/WEEK1_PROGRESS.md`。
+> 完整证据见 Git 中的历史记录。
 
 > **第 1 周的核心是第 6 项**：后端闭环已经通了，前端一接上，全项目就从“后端能跑”变成“**能给老师看**”。
 
