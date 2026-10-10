@@ -49,6 +49,33 @@ describe('week two tables', () => {
     notify.mockRestore()
   })
 
+  it('shows a retry action and does not report success when the sandbox fails', async () => {
+    const warning = vi.spyOn(ElMessage, 'warning').mockImplementation(vi.fn())
+    const success = vi.spyOn(ElMessage, 'success').mockImplementation(vi.fn())
+    vi.mocked(http.get).mockResolvedValue({
+      data: {
+        items: [{
+          id: 8, plate: '京AD67890', vtype: '新能源', pile_id: 'PILE-002',
+          rule_hit: 3, occur_time: '2026-10-01T10:00:00', notify_status: '失败',
+        }],
+        total: 1, page: 1, size: 20,
+      },
+    })
+    vi.mocked(http.post).mockResolvedValue({ data: { notify_status: '失败' } })
+    const mounted = mountView(RecordsView)
+    await flush()
+
+    expect(mounted.text()).toContain('重试提醒')
+    await mounted.click('重试提醒')
+    await flush()
+
+    expect(warning).toHaveBeenCalledWith('京AD67890 的沙箱提醒仍未成功，可稍后重试')
+    expect(success).not.toHaveBeenCalled()
+    mounted.app.unmount()
+    warning.mockRestore()
+    success.mockRestore()
+  })
+
   it('gives the full timestamp column enough width for one line', async () => {
     vi.mocked(http.get).mockResolvedValue({
       data: {

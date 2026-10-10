@@ -71,8 +71,14 @@ async function handleNotify(row: { id: number | null; plate: string }) {
   }
   notifyingId.value = row.id
   try {
-    await store.sendNotify(row.id)
-    ElMessage.success(`已向 ${row.plate} 发送提醒（演示环境，未真实下发）`)
+    const result = await store.sendNotify(row.id)
+    if (result.notify_status === NOTIFY_STATUS.已提醒) {
+      ElMessage.success(`已向 ${row.plate} 发送提醒（演示环境，未真实下发）`)
+    } else if (result.notify_status === NOTIFY_STATUS.失败) {
+      ElMessage.warning(`${row.plate} 的沙箱提醒仍未成功，可稍后重试`)
+    } else {
+      ElMessage.info(`${row.plate} 的提醒状态：${result.notify_status}`)
+    }
   } catch {
     // 错误提示已由 http 拦截器统一弹出
   } finally {
@@ -220,7 +226,7 @@ async function handleNotify(row: { id: number | null; plate: string }) {
               @click="handleNotify(row)"
             >
               <AppIcon name="icon-send" :size="14" />
-              <span>发送提醒</span>
+              <span>{{ row.notify_status === NOTIFY_STATUS.失败 ? '重试提醒' : '发送提醒' }}</span>
             </el-button>
           </template>
         </el-table-column>
