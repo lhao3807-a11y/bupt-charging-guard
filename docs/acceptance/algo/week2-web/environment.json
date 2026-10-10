@@ -1,0 +1,28 @@
+{
+  "python": "3.11.9",
+  "platform": "Windows",
+  "machine": "",
+  "device": "cpu",
+  "torch_cuda_available": false,
+  "OMP_NUM_THREADS": 4,
+  "packages": {
+    "torch": "2.6.0",
+    "torchvision": "0.21.0",
+    "ultralytics": "8.4.155",
+    "hyperlpr3": "0.1.3",
+    "opencv-python": "5.0.0.93",
+    "onnxruntime": "1.31.0",
+    "numpy": "2.4.6",
+    "pillow": "12.3.0",
+    "polars": "1.35.2",
+    "pydantic": "2.14.0",
+    "pytest": "9.1.1",
+    "ruff": "0.16.10"
+  },
+  "ocr_models": {
+    "litemodel_cls_96x_r1.onnx": "fe123688d3bf08b9ef029fcd57f3ac4644ac2e5ef8b9e7a676aacd5fad152142",
+    "rpv3_mdict_160_r3.onnx": "8fb08b5db2adeccf43b05006bbbf409e4659d08d72e46a62631c00ff751eaeb3",
+    "y5fu_320x_sim.onnx": "2a985dc63a5cc947ec36d18503d6fc0fd54525b9dba17f2fe29a71e86b44456d",
+    "y5fu_640x_sim.onnx": "0306de937471b87f56eb3f5620815e7e7058f8ab7428e0734fc64627cc4d716c"
+  }
+}

@@ -1,0 +1,28 @@
+web_0656.jpg: {'plate': '沪ABL0266', 'vtype': '新能源', 'confidence': 0.9180101752281189, 'bbox': [587, 978, 267, 78], 'frame_time': '2026-10-10T00:00:00'}
+web_0663.jpg: {'plate': '粤BBM0320', 'vtype': '新能源', 'confidence': 0.9060875177383423, 'bbox': [1556, 633, 224, 126], 'frame_time': '2026-10-10T00:00:00'}
+web_0688.jpg: {'plate': '沪AEA1678', 'vtype': '新能源', 'confidence': 0.8533310890197754, 'bbox': [1364, 880, 233, 130], 'frame_time': '2026-10-10T00:00:00'}
+web_0694.jpg: {'plate': '', 'vtype': '新能源', 'confidence': 0.5649540424346924, 'bbox': [157, 936, 110, 80], 'frame_time': '2026-10-10T00:00:00'}
+web_0696.jpg: None
+web_0718.jpg: None
+web_0739.jpg: {'plate': '浙AF69860', 'vtype': '新能源', 'confidence': 0.881689190864563, 'bbox': [1086, 774, 305, 89], 'frame_time': '2026-10-10T00:00:00'}
+web_0744.jpg: {'plate': '京AAC8381', 'vtype': '新能源', 'confidence': 0.9313955307006836, 'bbox': [1124, 930, 316, 127], 'frame_time': '2026-10-10T00:00:00'}
+web_0844.jpg: {'plate': '闽C9131B', 'vtype': '燃油', 'confidence': 0.9089345932006836, 'bbox': [176, 698, 197, 88], 'frame_time': '2026-10-10T00:00:00'}
+web_0846.jpg: {'plate': '闽FDF250', 'vtype': '燃油', 'confidence': 0.9482489228248596, 'bbox': [175, 715, 241, 124], 'frame_time': '2026-10-10T00:00:00'}
+web_0855.jpg: {'plate': '闽C56TP0', 'vtype': '燃油', 'confidence': 0.9620072245597839, 'bbox': [1403, 919, 249, 123], 'frame_time': '2026-10-10T00:00:00'}
+web_0857.jpg: {'plate': '闽CG210M', 'vtype': '燃油', 'confidence': 0.9725319147109985, 'bbox': [1453, 750, 241, 110], 'frame_time': '2026-10-10T00:00:00'}
+web_0863.jpg: {'plate': '闽FMV118', 'vtype': '燃油', 'confidence': 0.8182340264320374, 'bbox': [152, 674, 183, 133], 'frame_time': '2026-10-10T00:00:00'}
+web_0869.jpg: {'plate': '粤B9K88D', 'vtype': '燃油', 'confidence': 0.9725610017776489, 'bbox': [188, 751, 273, 165], 'frame_time': '2026-10-10T00:00:00'}
+web_0870.jpg: {'plate': '粤B57JS1', 'vtype': '燃油', 'confidence': 0.9207706451416016, 'bbox': [180, 725, 205, 130], 'frame_time': '2026-10-10T00:00:00'}
+web_0891.jpg: {'plate': '苏EGH447', 'vtype': '燃油', 'confidence': 0.8533492088317871, 'bbox': [160, 921, 153, 95], 'frame_time': '2026-10-10T00:00:00'}
+web_0893.jpg: {'plate': '浙AG50D3', 'vtype': '燃油', 'confidence': 0.9290752410888672, 'bbox': [1557, 961, 218, 152], 'frame_time': '2026-10-10T00:00:00'}
+web_0895.jpg: {'plate': '闽C8950Y', 'vtype': '燃油', 'confidence': 0.9629505276679993, 'bbox': [1365, 902, 271, 139], 'frame_time': '2026-10-10T00:00:00'}
+{
+  "images": 18,
+  "detected": 16,
+  "detection_iou50_all": 0.8888888888888888,
+  "ocr_exact_detected": 0.9375,
+  "ocr_exact_all": 0.8333333333333334,
+  "vtype_correct_detected": 1.0,
+  "vtype_correct_all": 0.8888888888888888,
+  "plate_and_vtype_correct_all": 0.8333333333333334
+}

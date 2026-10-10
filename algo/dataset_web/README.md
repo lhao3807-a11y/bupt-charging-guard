@@ -1,5 +1,7 @@
 # 网络实拍集 `dataset_web`（任务 5.3 的网络补充路线）
 
+2026-10-10 复核：本目录 174 张中有 80 行来源/许可不完整；旧号码标注亦发现多处错配。当前 M2/M3 改用 [`dataset_plate_web/`](../dataset_plate_web/) 中经人工复核的 93 张子集，修正记录见其 `review.json`。下文为历史采集记录，不代表本目录全量图片已通过来源和真值复核。
+
 > 计划 §3.4 风险表备选②「网络公开数据集补充」的落地产物：**真实照片**（非合成），
 > 全部来自可自由许可的公开图库（Wikimedia Commons + Openverse/Flickr）。
 > 采集脚本：`scripts/fetch_web_photos.py`；筛查/标注：`scripts/review_web_photos.py`、

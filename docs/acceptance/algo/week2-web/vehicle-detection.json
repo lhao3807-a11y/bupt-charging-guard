@@ -1,0 +1,311 @@
+{
+  "kind": "vehicle",
+  "weights": "algo/runs/detect/train_vehicle_web/weights/best.pt",
+  "weights_sha256": "dafc6d87ae916e265bba2c098ab949795a4fdf054fcaa657749bb484c92dc6fb",
+  "manifest_sha256": "e5c61c3f56512cf5d5fb3994b744b09faaedeb94250b0d6b0347ca01c7346b5c",
+  "train_images": 80,
+  "val_images": 17,
+  "val_boxes": 14,
+  "map50": 0.8341415796166958,
+  "map50_95": 0.56921117232736,
+  "precision": 0.9000093719270027,
+  "recall": 0.7857142857142857,
+  "map_scope": "Raw Ultralytics mAP on large-vehicle labels, without ignored-region support; correct small-vehicle detections outside the labeling scope can conservatively lower this mAP. Operating metrics below handle manually recorded ignored regions.",
+  "operating_confidence_threshold": 0.4,
+  "operating_counts_iou50": {
+    "tp": 12,
+    "fp": 3,
+    "fn": 2,
+    "ignored": 1
+  },
+  "operating_precision": 0.8,
+  "operating_recall": 0.8571428571428571,
+  "predictions": [
+    {
+      "file": "charging_0017.jpg",
+      "boxes_xyxy": [
+        [
+          36.446144104003906,
+          220.33969116210938,
+          385.5829772949219,
+          418.7303771972656
+        ]
+      ],
+      "confidence": [
+        0.9546458721160889
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0032.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0047.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0050.jpg",
+      "boxes_xyxy": [
+        [
+          0.0,
+          347.95263671875,
+          474.12042236328125,
+          1000.91943359375
+        ]
+      ],
+      "confidence": [
+        0.9824291467666626
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0071.jpg",
+      "boxes_xyxy": [
+        [
+          33.14775466918945,
+          144.53060913085938,
+          791.5734252929688,
+          649.1324462890625
+        ],
+        [
+          618.70703125,
+          93.2990493774414,
+          1024.0,
+          309.6335754394531
+        ]
+      ],
+      "confidence": [
+        0.9633057117462158,
+        0.8429812788963318
+      ],
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0125.jpg",
+      "boxes_xyxy": [
+        [
+          211.77871704101562,
+          222.62393188476562,
+          1016.2677001953125,
+          680.0
+        ]
+      ],
+      "confidence": [
+        0.8899198770523071
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 2,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0176.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0178.jpg",
+      "boxes_xyxy": [
+        [
+          11.520898818969727,
+          276.20745849609375,
+          760.76123046875,
+          638.1043090820312
+        ]
+      ],
+      "confidence": [
+        0.4894405007362366
+      ],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0179.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0182.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0194.jpg",
+      "boxes_xyxy": [
+        [
+          177.48245239257812,
+          206.12631225585938,
+          811.8297119140625,
+          492.34112548828125
+        ],
+        [
+          588.2892456054688,
+          186.81715393066406,
+          1018.7823486328125,
+          460.38385009765625
+        ],
+        [
+          0.0,
+          109.35691833496094,
+          610.9768676757812,
+          499.31805419921875
+        ]
+      ],
+      "confidence": [
+        0.8499595522880554,
+        0.6533175706863403,
+        0.42692479491233826
+      ],
+      "tp": 1,
+      "fp": 2,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0252.jpg",
+      "boxes_xyxy": [
+        [
+          138.2866668701172,
+          137.80429077148438,
+          584.7286987304688,
+          671.43896484375
+        ]
+      ],
+      "confidence": [
+        0.605863630771637
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0320.jpg",
+      "boxes_xyxy": [
+        [
+          37.776939392089844,
+          78.41153717041016,
+          1023.0,
+          731.0
+        ],
+        [
+          836.5220336914062,
+          293.86865234375,
+          1021.5112915039062,
+          488.09197998046875
+        ]
+      ],
+      "confidence": [
+        0.5233057737350464,
+        0.5131486058235168
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 1
+    },
+    {
+      "file": "charging_0347.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0386.jpg",
+      "boxes_xyxy": [
+        [
+          413.30499267578125,
+          120.22918701171875,
+          845.9786376953125,
+          518.1153564453125
+        ],
+        [
+          800.15771484375,
+          166.052978515625,
+          1024.0,
+          357.8173828125
+        ]
+      ],
+      "confidence": [
+        0.9634242057800293,
+        0.7172608971595764
+      ],
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0388.jpg",
+      "boxes_xyxy": [
+        [
+          0.0,
+          126.24043273925781,
+          517.9847412109375,
+          726.2986450195312
+        ],
+        [
+          680.6060791015625,
+          166.85214233398438,
+          941.7027587890625,
+          399.7879333496094
+        ]
+      ],
+      "confidence": [
+        0.9970105886459351,
+        0.9471218585968018
+      ],
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    },
+    {
+      "file": "charging_0390.jpg",
+      "boxes_xyxy": [],
+      "confidence": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "ignored": 0
+    }
+  ],
+  "manifest_hash_format": "canonical-json-utf8-sortkeys-compact"
+}

@@ -1,0 +1,18 @@
+{
+  "reviewer": "Codex manual plate crop inspection, 2026-10-10",
+  "reviewed": "All 94 sourced plate crops; corrections below are read from pixels, not model predictions.",
+  "exclude": {"web_0777.jpg": "White police plate with red police suffix; outside the ordinary blue/green plate scope."},
+  "corrections": {
+    "web_0676.jpg": {"plate": "沪KR5010"},
+    "web_0780.jpg": {"plate": "粤B17NE0"},
+    "web_0781.jpg": {"plate": "苏E97F5T"},
+    "web_0782.jpg": {"plate": "粤B5C36V"},
+    "web_0817.jpg": {"plate": "粤BT7446"},
+    "web_0836.jpg": {"plate": "苏EPD376"},
+    "web_0857.jpg": {"plate": "闽CG210M"},
+    "web_0875.jpg": {"plate": "粤B8T29S"},
+    "web_0876.jpg": {"plate": "粤B7557V"},
+    "web_0878.jpg": {"plate": "粤BN8449"},
+    "web_0879.jpg": {"plate": "粤B8G26F"}
+  }
+}

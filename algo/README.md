@@ -2,6 +2,8 @@
 
 负责人：**汤瑾睿**（后端 / DB / 算法）。契约唯一事实源 `docs/CONTRACT.md`，分工排期见 `docs/PLAN_4WEEKS.md`。
 
+当前实拍交付（2026-10-10）：M2 车辆与车牌检测已分别微调，M3 已完成 18 张网络 val 的 OCR/车型及生产 real 路由验证。当前模型、数据划分、真实指标、失败样例和复现命令见 [`week2-web`](../docs/acceptance/algo/week2-web/README.md)。下面标有旧日期的环境和 CCPD 记录为历史基线。
+
 ---
 
 ## 1. CV 环境搭建（PLAN §2.2 任务 2.1）✅ 已完成

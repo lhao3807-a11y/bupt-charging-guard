@@ -22,6 +22,35 @@ pytest.importorskip("numpy", reason="算法环境未就绪（见 algo/requiremen
 # 必须放在 importorskip 之后：plate 在模块级 import numpy
 from algo.recognize import plate
 
+
+def test_ocr_models_are_reused_between_frames(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+
+    created = []
+
+    def create():
+        instance = object()
+        created.append(instance)
+        return instance
+
+    monkeypatch.setitem(sys.modules, "hyperlpr3", SimpleNamespace(LicensePlateCatcher=create))
+    plate.get_catcher.cache_clear()
+    try:
+        assert plate.get_catcher() is plate.get_catcher()
+        assert len(created) == 1
+    finally:
+        plate.get_catcher.cache_clear()
+
+
+def test_frame_ocr_rejects_plate_from_unrelated_vehicle():
+    import numpy as np
+
+    frame = np.zeros((100, 200, 3), dtype=np.uint8)
+    catcher = lambda _: [["京A12345", 0.99, 0, [150, 60, 190, 80]]]
+    assert plate.ocr_plate_in_frame(frame, catcher, [10, 10, 50, 30]) == ("", 0.0)
+
+
 REPO = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
@@ -138,13 +167,13 @@ def _meta_and_roi(scene: str):
     if not os.path.isfile(meta_path):
         pytest.skip("数据集尚未生成（先跑 gen_synth_dataset.py）")
 
-    import cv2
+    from algo.recognize.image import read_image
 
     with open(meta_path, encoding="utf-8") as fh:
         metas = json.load(fh)
     name, m = next((n, m) for n, m in sorted(metas.items()) if m["scene"] == scene)
     img_path = os.path.join(REPO, "algo", "dataset", "images", m["split"], f"{name}.jpg")
-    img = cv2.imread(img_path)
+    img = read_image(img_path)
     assert img is not None, img_path
 
     x, y, w, h = m["bbox_plate"]
@@ -172,13 +201,10 @@ def test_default_weights_is_real_set_not_synth():
     第 2 周验收审查发现 `DEFAULT_WEIGHTS` 还指向 `runs/detect/train/`（合成集），
     于是线上 real 模式一直用「只在合成图上有效的模型」跑真实图。
     合成集 mAP50 0.995 只能证明链路跑通，不能当真实准确率对外演示。
-    2026-10-06 起默认升级为 CCPD + dataset_web 合并微调的 `train_real_web`；
-    允许 train_real（纯 CCPD）作为回退 —— 两者都是真实照片权重，合成集绝不接受。
+    2026-10-10 默认使用来源完整且人工复核的网络号牌集 `train_plate_web`。
     """
     real_ok = plate.DEFAULT_WEIGHTS.endswith(
-        os.path.join("runs", "detect", "train_real_web", "weights", "best.pt")
-    ) or plate.DEFAULT_WEIGHTS.endswith(
-        os.path.join("runs", "detect", "train_real", "weights", "best.pt")
+        os.path.join("runs", "detect", "train_plate_web", "weights", "best.pt")
     )
     assert real_ok, plate.DEFAULT_WEIGHTS
     assert not plate.DEFAULT_WEIGHTS.endswith(
@@ -233,31 +259,18 @@ def _real_available() -> bool:
 
 @pytest.mark.skipif(not _real_available(), reason="真实集 best.pt 不存在（先跑任务 5.4 训练）")
 def test_recognize_frame_on_real_image_outputs_contract_shape():
-    """真实集权重 + 真实图 → 输出结构与 `RecognitionResult` 一致，且号码/牌色可用。
+    """默认权重在来源完整的真实 val 图上输出契约结构；准确率由全 val 报告覆盖。"""
+    from backend.app.schemas import RecognitionResult
 
-    **为什么固定取 `real_0000.jpg`（绿牌）而不是排序第一张**：真实集端到端整串
-    准确率是 91.25%、牌色 95.00%（`docs/acceptance/algo/05-eval-real.json`，
-    且该评估用的是**检测框**而非标注框，口径与线上一致）。排序第一张 `blue_0000.jpg`
-    恰好落在那 5% 的错误里（省份汉字 皖→粤、牌色蓝判成绿）—— 蓝牌是当前已知短板。
-    拿一张注定会错的图钉死断言，只会得到一个随机红的测试，掩盖不了真实准确率。
-    整集统计由 `algo/tools/eval_real.py` 负责，本条只守「默认权重跑真实图不崩、
-    结构合规、绿牌这一档确实能用」这条底线。
-    """
-    meta_path = os.path.join(REPO, "algo", "dataset_real", "meta.json")
+    meta_path = os.path.join(REPO, "algo", "dataset_plate_web", "manifest.json")
     with open(meta_path, encoding="utf-8") as fh:
-        metas = json.load(fh)
-    name, m = next(iter(metas.items()))  # 插入序第一张 = real_0000.jpg（绿牌）
-    assert m["vtype"] == "新能源", f"前提变了：这张图不再是绿牌（{name} → {m['vtype']}）"
-    # 注意：真实集 meta 的 key 已带 .jpg（合成集的 key 不带），别再拼一次后缀
-    img_path = os.path.join(REPO, "algo", "dataset_real", "images", m["split"], name)
+        items = json.load(fh)
+    item = next(r for r in items if r["split"] == "val")
+    img_path = os.path.join(REPO, item["image"])
 
     result = plate.recognize_frame(img_path)
-    assert result is not None, "真实集权重应当能在真实集图上检出租车牌"
+    assert result is not None, "真实集权重应当在首张 val 图片检出车牌"
     assert set(result) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
-    assert result["vtype"] == m["vtype"], "车型判定应与数据集标注一致"
-    assert result["plate"] == m["plate"], "绿牌这一档 OCR 号码应当可用"
-    assert 0.0 <= result["confidence"] <= 1.0
+    RecognitionResult.model_validate(result)
     _x, _y, w, h = result["bbox"]
     assert w > 0 and h > 0
-    ex, _ey, _ew, _eh = m["bbox_plate"]
-    assert abs(_x - ex) < 30, "检测框应落在标注框附近"

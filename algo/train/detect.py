@@ -3,7 +3,7 @@
 流程
 ----
 1. ``train``：从 ``algo/dataset/data.yaml`` 读合成数据集，在预训练 ``yolov8n.pt``
-   基础上微调（GPU 设备 0），产出 ``algo/runs/detect/weights/best.pt``。
+   基础上微调（自动选择 CUDA / CPU），产出 ``algo/runs/detect/train/weights/best.pt``。
 2. ``predict``：用 best.pt 对指定图推理，把检出框存为 ``*_pred.jpg`` 并打印
    ``cls xywh``（车辆/车牌检测的验收：能框出车牌与车辆区域、输出 bbox）。
 
@@ -26,9 +26,12 @@ from __future__ import annotations
 import argparse
 import glob
 import os
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, "..", ".."))
+if REPO not in sys.path:
+    sys.path.insert(0, REPO)
 DATA_YAML = os.path.join(REPO, "algo", "dataset", "data.yaml")
 #: 真实数据集（CCPD 转换产出，任务 5.3）—— 与合成集分开训练，见 algo/tools/ccpd_to_yolo.py
 REAL_DATA_YAML = os.path.join(REPO, "algo", "dataset_real", "data.yaml")
@@ -36,9 +39,29 @@ BASE_WEIGHTS = os.path.join(REPO, "algo", "weights", "yolov8n.pt")
 RUN_DIR = os.path.join(REPO, "algo", "runs", "detect")
 # ultralytics 按 name="train" 存产物：algo/runs/detect/train/weights/best.pt
 BEST_PT = os.path.join(RUN_DIR, "train", "weights", "best.pt")
+VEHICLE_WEIGHTS = os.path.join(RUN_DIR, "train_vehicle_web", "weights", "best.pt")
 
 
-def do_train(epochs: int, model: str, data: str = DATA_YAML, name: str = "train") -> int:
+def select_device(device: str = "auto") -> str | int:
+    if device != "auto":
+        return device
+    import torch
+
+    return 0 if torch.cuda.is_available() else "cpu"
+
+
+def do_train(
+    epochs: int,
+    model: str,
+    data: str = DATA_YAML,
+    name: str = "train",
+    *,
+    device: str = "auto",
+    imgsz: int = 640,
+    batch: int = 16,
+    freeze: int = 0,
+    patience: int = 10,
+) -> int:
     """训练。``data`` / ``name`` 可指定，便于**真实集与合成集分开训**。
 
     为什么不混在一起训：CCPD 只有车牌框、没有车辆框（见 `ccpd_to_yolo.py` 的说明），
@@ -52,20 +75,24 @@ def do_train(epochs: int, model: str, data: str = DATA_YAML, name: str = "train"
         )
         return 1
 
-    print(f"== 训练：{model} → {data}，epochs={epochs}，device=0，name={name} ==")
+    selected = select_device(device)
+    print(f"== 训练：{model} → {data}，epochs={epochs}，device={selected}，name={name} ==")
     yolo = YOLO(model)
     yolo.train(
         data=data,
         epochs=epochs,
-        device=0,
+        device=selected,
         project=RUN_DIR,
         name=name,
         exist_ok=True,
         verbose=True,
-        # 合成数据集小而规整，适度收敛即可，防止过拟合到噪声
-        patience=10,
-        batch=16,
-        imgsz=640,
+        # 小数据集默认允许早停；可用 --patience 0 完成所有 epoch。
+        patience=patience,
+        batch=batch,
+        imgsz=imgsz,
+        freeze=freeze,
+        workers=0,
+        seed=42,
     )
     print(f"训练完成，最优权重：{os.path.join(RUN_DIR, name, 'weights', 'best.pt')}")
     return 0
@@ -84,7 +111,7 @@ def detect_boxes(image: str, conf: float = 0.5, weights: str | None = None) -> l
         raise FileNotFoundError(f"缺少 {src}，请先执行 train 子命令")
 
     yolo = YOLO(src)
-    results = yolo.predict(image, conf=conf, device=0, verbose=False)[0]
+    results = yolo.predict(image, conf=conf, device=select_device(), verbose=False)[0]
     names = results.names
     out: list[dict] = []
     for box in results.boxes:
@@ -101,9 +128,15 @@ def detect_boxes(image: str, conf: float = 0.5, weights: str | None = None) -> l
     return out
 
 
+def detect_vehicles(image: str, conf: float = 0.4) -> list[dict]:
+    """M2 real charging-photo vehicle detector, separate from the plate detector."""
+    return [box for box in detect_boxes(image, conf, VEHICLE_WEIGHTS) if box["name"] == "vehicle"]
+
+
 def do_predict(image: str, conf: float, weights: str | None = None) -> int:
-    import cv2
     from ultralytics import YOLO
+
+    from algo.recognize.image import write_image
 
     if not os.path.isfile(image):
         print(f"找不到图片：{image}")
@@ -121,11 +154,11 @@ def do_predict(image: str, conf: float, weights: str | None = None) -> int:
         )
 
     # 重新推理一次拿可视化结果（保持 detect_boxes 纯净、可复用）
-    results = YOLO(used).predict(image, conf=conf, device=0, verbose=False)[0]
+    results = YOLO(used).predict(image, conf=conf, device=select_device(), verbose=False)[0]
     annotated = results.plot()  # BGR
     out = os.path.splitext(os.path.basename(image))[0] + "_pred.jpg"
     out_path = os.path.join(RUN_DIR, out)
-    cv2.imwrite(out_path, annotated)
+    write_image(out_path, annotated)
     print(f"可视化已保存：{out_path}")
     return 0
 
@@ -141,6 +174,13 @@ def main() -> int:
         "--data", default=DATA_YAML, help="数据集 yaml（真实集用 algo/dataset_real/data.yaml）"
     )
     p_train.add_argument("--name", default="train", help="运行名，产物落在 algo/runs/detect/<name>")
+    p_train.add_argument("--device", default="auto", help="auto / cpu / CUDA 设备号")
+    p_train.add_argument("--imgsz", type=int, default=640)
+    p_train.add_argument("--batch", type=int, default=16)
+    p_train.add_argument("--freeze", type=int, default=0)
+    p_train.add_argument(
+        "--patience", type=int, default=10, help="早停耐心值；0 表示完成全部 epoch"
+    )
 
     p_pred = sub.add_parser("predict", help="推理验证")
     p_pred.add_argument("--image", help="待推理图片；缺省则取 val 集第一张")
@@ -149,7 +189,17 @@ def main() -> int:
 
     args = ap.parse_args()
     if args.cmd == "train":
-        return do_train(args.epochs, args.model, args.data, args.name)
+        return do_train(
+            args.epochs,
+            args.model,
+            args.data,
+            args.name,
+            device=args.device,
+            imgsz=args.imgsz,
+            batch=args.batch,
+            freeze=args.freeze,
+            patience=args.patience,
+        )
 
     image = args.image
     if image is None:

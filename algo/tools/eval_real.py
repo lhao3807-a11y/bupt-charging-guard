@@ -121,9 +121,9 @@ def evaluate(
     ocr_input: str = "full-match",
 ) -> dict:
     """逐样本跑 检测 → OCR → 牌色，汇总成指标字典。"""
-    import cv2
     from hyperlpr3 import LicensePlateCatcher
 
+    from algo.recognize.image import read_image
     from algo.recognize.plate import (
         crop_plate_roi,
         judge_vtype_by_color,
@@ -138,7 +138,7 @@ def evaluate(
     n = len(samples)
     rows = []
     for img_path, info in samples:
-        img = cv2.imread(img_path)
+        img = read_image(img_path)
         if img is None:
             continue
 

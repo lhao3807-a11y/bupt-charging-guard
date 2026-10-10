@@ -10,9 +10,9 @@ HyperLPR3 识别号码 → **HSV 颜色统计判定绿牌/蓝牌** → 输出与
 HyperLPR3 的 plate_type 枚举随版本变动，而「绿=新能源 / 蓝=燃油」本质是**底色**问题
 （契约 §3.1 已把车型标签绑到车牌底色），HSV 统计可解释、不依赖第三方内部约定。
 
-⚠️ **默认权重是真实集（CCPD）训出来的**（任务 5.4）；合成集权重仅用于合成帧自测，
-需显式传 `weights=SYNTH_WEIGHTS`。真实集只标了 `plate` 单类（CCPD 没有车辆框），
-所以 `vehicle` 类仍靠合成集 —— 校园实拍补标车辆框后再合并训练。
+默认权重在来源完整、人工复核的普通中国号牌网络实拍上微调；合成集权重仅用于
+合成帧自测，需显式传 `weights=SYNTH_WEIGHTS`。车辆检测另用网络充电实拍训练的
+`train_vehicle_web/weights/best.pt`，两类模型分别评估，见 week2-web 验收记录。
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from __future__ import annotations
 import os
 import re
 from datetime import datetime
+from functools import lru_cache
 
 import numpy as np
 
@@ -29,14 +30,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ALGO = os.path.normpath(os.path.join(HERE, ".."))
 REPO = os.path.normpath(os.path.join(ALGO, ".."))
 
-#: **真实照片**训练产出的权重（任务 5.4 起步于 CCPD → `dataset_real`；2026-10-06 起
-#: 升级为 CCPD + `dataset_web` 网络实拍 174 张的合并微调 `train_real_web`，
-#: 合并 val mAP50 0.9918 / 仅网络实拍 val 0.9889，见 `docs/acceptance/algo/08-*.log`）。
+#: 来源完整且人工复核的普通中国号牌网络实拍微调权重。
+#: 数据划分与指标见 docs/acceptance/algo/week2-web/。
 #: real 模式默认必须用它 —— 合成集权重只在合成图上有效，拿它跑真实图等于拿
 #: 一个不能代表真实准确率的模型对外演示（第 2 周验收审查阻断项之一）。
-DEFAULT_WEIGHTS = os.path.join(
-    ALGO, "runs", "detect", "train_real_web", "weights", "best.pt"
-)
+DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train_plate_web", "weights", "best.pt")
 
 #: 合成集权重（任务 2.3）：**仅供合成帧上的链路自测**显式传入，绝不作默认值。
 #: 合成集 mAP50 0.995 只证明链路跑通，不代表真实准确率。
@@ -142,6 +140,9 @@ def ocr_plate_in_frame(img_bgr: np.ndarray, catcher, prefer_box=None) -> tuple[s
     if prefer_box is None:
         best = max(results, key=lambda r: _as_score(r[1]))
     else:
+        results = [r for r in results if iou([float(v) for v in r[3]], prefer_box) > 0]
+        if not results:
+            return "", 0.0
         best = max(
             results,
             key=lambda r: (iou([float(v) for v in r[3]], prefer_box), _as_score(r[1])),
@@ -166,6 +167,13 @@ def _as_score(value) -> float:
         return 0.0
 
 
+@lru_cache(maxsize=1)
+def get_catcher():
+    from hyperlpr3 import LicensePlateCatcher
+
+    return LicensePlateCatcher()
+
+
 def recognize_frame(
     image_path: str,
     *,
@@ -177,11 +185,10 @@ def recognize_frame(
 
     ``frame_time`` 缺省取当前时间；``weights`` 缺省用 ``DEFAULT_WEIGHTS``（**真实集**权重）。
     """
-    import cv2
-
+    from algo.recognize.image import read_image
     from algo.train.detect import detect_boxes
 
-    img = cv2.imread(image_path)
+    img = read_image(image_path)
     if img is None:
         raise FileNotFoundError(f"读不到图片：{image_path}")
 
@@ -194,13 +201,11 @@ def recognize_frame(
 
     roi = crop_plate_roi(img, plate_box["bbox_xyxy"])
 
-    from hyperlpr3 import LicensePlateCatcher
-
     # 牌色判定用**裁剪 ROI**：整帧里大面积车身/背景会把绿蓝像素统计带偏，
     # 只有车牌区域的颜色才是有意义的（实测牌色 95%，与 OCR 走整帧并不冲突）。
     vtype = judge_vtype_by_color(roi)
     # OCR 走**整帧**并锚定到检测框，理由见 ocr_plate_in_frame 的文档串。
-    text, ocr_score = ocr_plate_in_frame(img, LicensePlateCatcher(), plate_box["bbox_xyxy"])
+    text, ocr_score = ocr_plate_in_frame(img, get_catcher(), plate_box["bbox_xyxy"])
 
     return {
         "plate": text,
