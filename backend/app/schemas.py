@@ -373,6 +373,39 @@ class SimulateResp(BaseModel):
     statuses: dict[str, str] = Field(default_factory=dict, description="推进后各桩状态")
 
 
+# ---------------------------------------------------------------------------
+# 自动闭环编排结果 -> GET /api/pipeline/status（CONTRACT §6.11，v1.9 新增）
+# ---------------------------------------------------------------------------
+class PipelineFrame(BaseModel):
+    """单帧的处理结果（一帧一行，UI 与验收据此追溯）。"""
+
+    frame_id: str = Field(..., description="帧标识（文件名）")
+    frame_digest: str | None = Field(None, description="帧内容 MD5，内容变了才重新识别")
+    recognized: bool = Field(False, description="本帧是否拿到识别结果")
+    reused: bool = Field(False, description="内容未变，复用了上次识别结果")
+    plate: str | None = None
+    vtype: VType | None = None
+    pile_id: str | None = None
+    rule_hit: int | None = Field(None, ge=0, le=3, description="命中规则；None = 未违规")
+    record_id: int | None = Field(None, description="落库的违规记录 ID")
+    notify_status: NotifyStatus | None = None
+    notify_reason: str | None = Field(None, description="提醒结果说明（失败原因 / 已发过）")
+    error: str | None = Field(None, description="处理失败原因；成功为 None")
+
+
+class PipelineStatus(BaseModel):
+    """最近一轮编排的结果。**只读**：不承担编排职责、不触发任何写操作。"""
+
+    running: bool = Field(False, description="编排进程是否在跑（按状态文件新鲜度推断）")
+    last_run_at: datetime | None = Field(None, description="最近一轮完成时刻；从未运行为 None")
+    frame_count: int = 0
+    recognized: int = 0
+    violations: int = 0
+    notified: int = 0
+    skipped_unchanged: int = 0
+    frames: list[PipelineFrame] = Field(default_factory=list)
+
+
 #: 阈值取值范围（分钟）：下界 1（0 会让规则②③对任何车立刻命中），上界 1440（24 小时）
 CONFIG_MIN_VALUE = 1
 CONFIG_MAX_VALUE = 1440
