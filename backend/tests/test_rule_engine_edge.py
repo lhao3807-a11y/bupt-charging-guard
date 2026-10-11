@@ -14,8 +14,9 @@ from datetime import datetime, timedelta
 
 import pytest
 from app import models as m
+from app import occupancy
 from app.db import Base
-from app.rule_engine import judge
+from app.rule_engine import judge, save_violation
 from app.schemas import RecognitionResult, VType
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -126,3 +127,97 @@ def test_backwards_time_never_raises(db):
     weird = datetime(2000, 1, 1)
     assert judge(rec(pile2.bound_plate, VType.新能源, weird), db) is None
     assert judge(rec(pile3.bound_plate, VType.新能源, weird), db) is None
+
+
+# ---------------------------------------------------------------------------
+# 5) 占用标识判重（契约 v1.9 §6.2 / 第 3 周 T4）
+# ---------------------------------------------------------------------------
+def _judge_and_save(db, plate, vtype, moment=NOW):
+    """判定 + 落库一步到位，返回带 id 的记录。"""
+    hit = judge(rec(plate, vtype, moment), db)
+    assert hit is not None, "该场景应当命中规则"
+    return save_violation(db, hit)
+
+
+def test_ten_rounds_same_occupancy_keeps_exactly_one_record(db):
+    """**验收 A05**：同一次占用连续判定 10 次 → 只有 1 条记录。
+
+    v1.2 口径下「已提醒后新增一条」，自动轮询每 3 秒一条，一晚上就是几万条；
+    v1.9 用 `(pile_id, occupancy_id, rule_hit)` 判重，通知状态不参与判重。
+    """
+    ids = {_judge_and_save(db, "京A88888", VType.燃油).id for _ in range(10)}
+    assert len(ids) == 1
+    assert db.query(m.OccupationRecord).count() == 1
+
+
+def test_reused_record_keeps_first_occur_time(db):
+    """复用时**保留首次命中时刻**：`occur_time` 是违规发生时间，不是最后一次看到的时间。
+
+    若被轮询刷新，第 2/4 页按时间筛选与统计会整体漂移（呼应 A08「历史不被重写」）。
+    """
+    first = _judge_and_save(db, "京A88888", VType.燃油, moment=NOW)
+    later = NOW + timedelta(minutes=45)
+    second = _judge_and_save(db, "京A88888", VType.燃油, moment=later)
+
+    assert second.id == first.id
+    assert second.occur_time == NOW
+    row = db.get(m.OccupationRecord, first.id)
+    assert row.occur_time == NOW
+
+
+def test_new_occupancy_after_vehicle_swap_creates_new_record(db):
+    """**换车**：标识变了 → 新起一条，后车的违规不会被并进前车那条。"""
+    first = _judge_and_save(db, "京A88888", VType.燃油)
+
+    pile = db.query(m.ChargingPile).filter(m.ChargingPile.pile_id == "PILE-004").one()
+    occupancy.begin_occupancy(pile, "京N66666", NOW + timedelta(seconds=1), db=db)
+
+    second = _judge_and_save(db, "京N66666", VType.燃油)
+    assert second.id != first.id
+    assert second.plate == "京N66666"
+    assert db.query(m.OccupationRecord).count() == 2
+
+
+def test_leave_and_reenter_creates_new_record(db):
+    """**离车 → 重入**：算新的一次占用，不能复用上次的记录。"""
+    first = _judge_and_save(db, "京A88888", VType.燃油)
+
+    pile = db.query(m.ChargingPile).filter(m.ChargingPile.pile_id == "PILE-004").one()
+    occupancy.end_occupancy(pile, db=db)
+    occupancy.begin_occupancy(pile, "京A88888", NOW + timedelta(seconds=2), db=db)
+
+    second = _judge_and_save(db, "京A88888", VType.燃油)
+    assert second.id != first.id
+    assert db.query(m.OccupationRecord).count() == 2
+
+
+def test_rule_change_creates_new_record(db):
+    """同一辆车、同一次占用，但**规则变了**（久停 → 充满超时）→ 新一条。
+
+    两条规则的处置方式不同（挪车 vs 拔枪），合并成一条会让记录没法解释。
+    """
+    pile = db.query(m.ChargingPile).filter(m.ChargingPile.pile_id == "PILE-003").one()
+    abnormal = _judge_and_save(db, pile.bound_plate, VType.新能源)
+
+    pile.status = m.PILE_FULL
+    pile.end_time = NOW - timedelta(hours=2)
+    db.commit()
+    timeout = _judge_and_save(db, pile.bound_plate, VType.新能源)
+
+    assert abnormal.rule_hit == m.RULE_ABNORMAL
+    assert timeout.rule_hit == m.RULE_FULL_NOT_MOVED
+    assert timeout.id != abnormal.id
+
+
+def test_record_snapshots_occupancy_id_and_never_rewrites_it(db):
+    """落库时快照 `occupancy_id`，之后桩上换了占用也**不回溯改写**历史记录。"""
+    saved = _judge_and_save(db, "京A88888", VType.燃油)
+    snapshot = saved.occupancy_id
+    assert snapshot
+
+    pile = db.query(m.ChargingPile).filter(m.ChargingPile.pile_id == "PILE-004").one()
+    occupancy.begin_occupancy(pile, "京N66666", NOW + timedelta(seconds=1), db=db)
+
+    row = db.get(m.OccupationRecord, saved.id)
+    assert row.occupancy_id == snapshot
+    assert row.occupancy_id != pile.occupancy_id

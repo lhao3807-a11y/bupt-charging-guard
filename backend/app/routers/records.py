@@ -21,9 +21,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app import models as m
+from app import rule_engine
 from app.db import get_db
 from app.query import enum_exact, like_ci
-from app.schemas import RecordPage, ViolationRecord
+from app.schemas import RecordPage
 
 router = APIRouter(tags=["records"])
 
@@ -108,17 +109,9 @@ def list_records(
         .all()
     )
 
-    items = [
-        ViolationRecord(
-            id=row.id,
-            plate=row.plate,
-            vtype=row.vtype,
-            pile_id=row.pile_id,
-            rule_hit=row.rule_hit,
-            occur_time=row.occur_time,
-            notify_status=row.notify_status,
-        )
-        for row in rows
-    ]
+    # v1.9 起统一走 rule_engine.to_violation_record()：新增字段（occupancy_id /
+    # notify_attempts / notify_error）只在一处映射，不会出现「/api/judge 返回了、
+    # /api/records 却漏掉」的半截接口。
+    items = [rule_engine.to_violation_record(row) for row in rows]
 
     return RecordPage(items=items, total=total, page=page, size=size)

@@ -101,16 +101,22 @@ def test_judge_dedup_same_violation_reuses_record(client):
     assert records["total"] == 1
 
 
-def test_judge_creates_new_record_after_notified(client):
-    """已提醒后再命中同一违规 → 视为新违规，新增一条。"""
+def test_judge_reuses_record_after_notified_within_same_occupancy(client):
+    """**契约 v1.9 §6.2**：同一次占用 + 同一条规则 → 已提醒后**仍复用原记录**。
+
+    v1.2 的口径是「已提醒过就新增一条」，人工点击时看不出问题，但自动轮询下会
+    **每轮新增一条记录并发一次短信** —— 第 3 周 A05/A07 要的就是这个保护。
+    """
     payload = _recognize(client, FRAME_FUEL)
     first = client.post("/api/judge", json=payload).json()
 
-    client.post("/api/notify", json={"id": first["id"], "notify_status": "已提醒"})
+    notified = client.post("/api/notify", json={"id": first["id"]})
+    assert notified.status_code == 200
+    assert notified.json()["notify_status"] == "已提醒"
 
     second = client.post("/api/judge", json=payload).json()
-    assert second["id"] != first["id"]
-    assert client.get("/api/records", params={"page": 1, "size": 50}).json()["total"] == 2
+    assert second["id"] == first["id"], "同一次占用的同一条规则不应产生第二条记录"
+    assert client.get("/api/records", params={"page": 1, "size": 50}).json()["total"] == 1
 
 
 # ---------------------------------------------------------------------------
@@ -129,6 +135,45 @@ def test_notify_updates_status(client):
 def test_notify_unknown_id_returns_404(client):
     resp = client.post("/api/notify", json={"id": 999999, "notify_status": "已提醒"})
     assert resp.status_code == 404
+
+
+def test_notify_result_comes_from_sender_not_from_request(client):
+    """**契约 v1.9 §6.3**：请求里的 `notify_status` 被忽略，结果由沙箱执行产生。
+
+    旧调用（只带 `notify_status`）仍能 200，但库里的状态是发送器写出来的，
+    不是回显前端传的值 —— 「前端说已提醒就写已提醒」不能作为验收证据。
+    """
+    record = client.post("/api/judge", json=_recognize(client, FRAME_FUEL)).json()
+    resp = client.post("/api/notify", json={"id": record["id"], "notify_status": "失败"})
+    assert resp.status_code == 200
+
+    body = resp.json()
+    assert body["notify_status"] == "已提醒"  # 沙箱默认成功，不理会请求里的「失败」
+    assert body["notify_attempts"] == 1
+    assert body["max_attempts"] == 3
+    assert body["already_sent"] is False
+
+
+def test_notify_twice_reports_already_sent(client):
+    """重复人工请求：不重发，`already_sent` 明确告知前端把按钮置灰。"""
+    record = client.post("/api/judge", json=_recognize(client, FRAME_FUEL)).json()
+    client.post("/api/notify", json={"id": record["id"]})
+
+    again = client.post("/api/notify", json={"id": record["id"]}).json()
+    assert again["already_sent"] is True
+    assert again["notify_attempts"] == 1
+    assert client.get("/api/records", params={"page": 1, "size": 50}).json()["total"] == 1
+
+
+def test_notify_retry_false_only_reads_state(client):
+    """`retry=false` 只回显，不产生发送副作用（第 2 页查状态用）。"""
+    record = client.post("/api/judge", json=_recognize(client, FRAME_FUEL)).json()
+    body = client.post("/api/notify", json={"id": record["id"], "retry": False}).json()
+
+    assert body["notify_status"] == "未提醒"
+    assert body["notify_attempts"] == 0
+    items = client.get("/api/records", params={"page": 1, "size": 10}).json()["items"]
+    assert items[0]["notify_status"] == "未提醒"
 
 
 # ---------------------------------------------------------------------------

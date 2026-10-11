@@ -77,23 +77,46 @@ class ViolationRecord(BaseModel):
     plate: str
     vtype: VType
     pile_id: str | None = Field(None, description="关联桩 ID（v0.1 新增）")
+    occupancy_id: str | None = Field(
+        None, description="本次占用标识（v1.9 §3.6），落库时快照，之后不改写"
+    )
     rule_hit: int = Field(..., ge=0, le=3)
     occur_time: datetime
     notify_status: NotifyStatus = NotifyStatus.未提醒
+    notify_attempts: int = Field(0, ge=0, description="已尝试发送次数（v1.9，重启不清零）")
+    notify_error: str | None = Field(None, description="最近一次发送失败原因（v1.9）")
 
 
 # ---------------------------------------------------------------------------
 # 短信沙箱 -> /api/notify
 # ---------------------------------------------------------------------------
 class NotifyReq(BaseModel):
-    """短信沙箱请求：按记录 id 更新提醒状态（契约 v1.2 起入参含 id）。"""
+    """`POST /api/notify` 请求体（契约 v1.9 重写）。
 
-    id: int = Field(..., description="违规记录 ID，取自 /api/judge 的返回")
-    notify_status: NotifyStatus
+    **提交的是「记录 ID + 重试意图」，不是结果**：`已提醒` / `失败` 一律由沙箱发送器的
+    实际执行产生（§6.3）。v1.2 的 `notify_status` 字段保留仅为兼容旧调用，
+    服务端**不再按它写库** —— 「前端说已提醒就写已提醒」不能作为验收证据。
+    """
+
+    id: int = Field(..., description="违规记录 ID，取自 /api/judge 或 /api/records")
+    retry: bool = Field(True, description="true = 发起一次发送尝试；false = 只回显状态不发送")
+    notify_status: NotifyStatus | None = Field(
+        None, description="【已弃用】v1.2 遗留字段，服务端忽略，仅作兼容保留"
+    )
 
 
 class NotifyResp(BaseModel):
-    notify_status: NotifyStatus
+    """`POST /api/notify` 响应：结果**来自发送器**，不是回显请求。"""
+
+    id: int = Field(..., description="违规记录 ID")
+    notify_status: NotifyStatus = Field(..., description="发送器执行后的状态")
+    notify_attempts: int = Field(0, ge=0, description="累计尝试次数（含本次）")
+    max_attempts: int = Field(0, ge=0, description="部署配置的尝试上限（NOTIFY_MAX_ATTEMPTS）")
+    reason: str | None = Field(None, description="失败原因（人话），成功时为 None")
+    already_sent: bool = Field(False, description="此前已发送成功，本次未重发")
+    exhausted: bool = Field(False, description="尝试次数已达上限，本次未发送")
+    conflict: bool = Field(False, description="并发请求已被另一方处理，本次未发送")
+    message: str | None = Field(None, description="本次生成/最后一次生成的短信内容")
 
 
 # ---------------------------------------------------------------------------

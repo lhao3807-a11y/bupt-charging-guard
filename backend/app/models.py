@@ -69,6 +69,9 @@ class ChargingPile(Base):
     - ``start_time``：绑定 / 到达该桩的时间。新能源车停着不充电（``status=空闲``）时，
       规则②以 ``now - start_time > abnormal_park_min`` 判定「异常占位 · 久停」。
     - ``end_time``：充满时间，规则③以 ``now - end_time > full_timeout_min`` 判定。
+    - ``occupancy_id``（契约 v1.9 §3.6）：**本次占用**的稳定标识，到车时生成、离车时清空。
+      违规判重键用它而不是 ``start_time`` —— 后者会在「开始充电」时被重置成当前时刻。
+    - ``scenario``（契约 v1.9）：模拟场景标签，**仅供演示夹具标记，不参与任何判定**。
     """
 
     __tablename__ = "charging_pile"
@@ -81,6 +84,8 @@ class ChargingPile(Base):
         default=None,
         index=True,
     )
+    occupancy_id: Mapped[str | None] = mapped_column(String(40), default=None, index=True)
+    scenario: Mapped[str | None] = mapped_column(String(20), default=None)
     start_time: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     end_time: Mapped[datetime | None] = mapped_column(DateTime, default=None)
 
@@ -97,10 +102,16 @@ class OccupationRecord(Base):
     plate: Mapped[str] = mapped_column(String(15), nullable=False, index=True)
     vtype: Mapped[str] = mapped_column(String(10), nullable=False)
     pile_id: Mapped[str | None] = mapped_column(String(20), default=None)
+    #: 落库时从桩上快照的占用标识，落库后**永不改写**（契约 v1.9 §3.6）
+    occupancy_id: Mapped[str | None] = mapped_column(String(40), default=None, index=True)
     rule_hit: Mapped[int] = mapped_column(Integer, nullable=False, default=RULE_NORMAL)
     occur_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     notify_status: Mapped[str] = mapped_column(String(10), nullable=False, default=NOTIFY_PENDING)
     notify_time: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: 已尝试发送次数 —— 持久化，进程重启不清零（契约 v1.9 §6.3）
+    notify_attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    #: 最近一次发送失败原因（人话，可直接展示）
+    notify_error: Mapped[str | None] = mapped_column(String(120), default=None)
 
 
 # ---------------------------------------------------------------------------
@@ -135,6 +146,17 @@ SEED_VEHICLES = (
     ("京N66666", VTYPE_FUEL, "李明", "13800000006"),
 )
 
+
+def make_occupancy_id(pile_id: str, arrival: datetime) -> str:
+    """生成**占用标识**（契约 v1.9 §3.6）：``PILE-003@20260908100000123456``。
+
+    只由「桩 + 绑定时刻」决定：**确定性**（同样输入必然同样输出，T5 场景可复现的前提），
+    且**不掷随机数、不依赖进程状态**，进程重启后仍然一致。
+    时间戳取到微秒：保证「离车 → 立刻重入」不会被算成同一次占用。
+    """
+    return f"{pile_id}@{arrival:%Y%m%d%H%M%S%f}"
+
+
 #: 种子充电桩（与 schema.sql 的 INSERT 一致）
 SEED_PILES = (
     # pile_id, status, bound_plate, start_time, end_time
@@ -146,12 +168,21 @@ SEED_PILES = (
 
 
 def init_db(engine=None) -> None:
-    """按 ORM 模型建表（开发期 SQLite 等价验证；正式交付物是 schema.sql）。"""
+    """建表 + **补 v1.9 新增列**（开发期 SQLite 等价验证；正式交付物是 schema.sql）。
+
+    为什么要多一步补列：`create_all()` 只建「不存在的表」，对**已存在的表不补列**。
+    本机开发库 `backend/app.db` 是 v1.8 时期建的，直接跑新代码会
+    `no such column: charging_pile.occupancy_id`；MySQL 演示库同理。
+    `migrate.ensure_v19_columns()` 是**幂等的加法迁移**，只补缺失的列与索引。
+    """
+    from app import migrate
+
     if engine is None:
         from app.db import engine as default_engine
 
         engine = default_engine
     Base.metadata.create_all(bind=engine)
+    migrate.ensure_v19_columns(engine)
 
 
 def seed_db(session) -> None:
@@ -166,7 +197,16 @@ def seed_db(session) -> None:
         session.flush()
     if session.query(ChargingPile).count() == 0:
         session.add_all(
-            ChargingPile(pile_id=pid, status=st, bound_plate=bp, start_time=s, end_time=e)
+            ChargingPile(
+                pile_id=pid,
+                status=st,
+                bound_plate=bp,
+                # 种子桩「已绑定」即视为一次进行中的占用：给它一个与到达时刻对应的标识，
+                # 判重键（pile_id, occupancy_id, rule_hit）才有身份可用（契约 §3.6）。
+                occupancy_id=make_occupancy_id(pid, s) if (bp and s) else None,
+                start_time=s,
+                end_time=e,
+            )
             for pid, st, bp, s, e in SEED_PILES
         )
     session.commit()
