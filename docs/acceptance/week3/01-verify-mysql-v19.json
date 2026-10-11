@@ -1,0 +1,160 @@
+{
+  "target": "127.0.0.1:3306/bupt_charging_guard_test",
+  "rows": [
+    {
+      "name": "MySQL 版本为 8.x",
+      "ok": true,
+      "detail": "VERSION()=8.0.45"
+    },
+    {
+      "name": "表 vehicle 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 vehicle 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 charging_pile 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 charging_pile 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 occupation_record 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 occupation_record 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "表 system_config 存在且 ENGINE=InnoDB",
+      "ok": true,
+      "detail": "('InnoDB', 'utf8mb4_0900_ai_ci')"
+    },
+    {
+      "name": "表 system_config 字符集 utf8mb4",
+      "ok": true,
+      "detail": "utf8mb4_0900_ai_ci"
+    },
+    {
+      "name": "charging_pile.status 是原生 ENUM",
+      "ok": true,
+      "detail": "enum('空闲','充电中','已充满')"
+    },
+    {
+      "name": "ENUM 非法值不被接受",
+      "ok": true,
+      "detail": "被拒（DataError）"
+    },
+    {
+      "name": "FK ON DELETE SET NULL 真的把 bound_plate 置空",
+      "ok": true,
+      "detail": "删除车辆后 bound_plate=None"
+    },
+    {
+      "name": "occupation_record.plate 未加外键",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "DATETIME 存取往返一致（无时区）",
+      "ok": true,
+      "detail": "读出 datetime.datetime(2026, 9, 8, 10, 0)"
+    },
+    {
+      "name": "occupation_record.id 自增",
+      "ok": true,
+      "detail": "AUTO_INCREMENT=2"
+    },
+    {
+      "name": "system_config.`key` 反引号转义可用",
+      "ok": true,
+      "detail": "full_timeout_min=30"
+    },
+    {
+      "name": "种子数据 vehicle = 6 行",
+      "ok": true,
+      "detail": "实际 6"
+    },
+    {
+      "name": "种子数据 charging_pile = 4 行",
+      "ok": true,
+      "detail": "实际 4"
+    },
+    {
+      "name": "种子数据 system_config = 2 行",
+      "ok": true,
+      "detail": "实际 2"
+    },
+    {
+      "name": "charging_pile.occupancy_id 存在且类型为 varchar(40)",
+      "ok": true,
+      "detail": "('varchar(40)', 'YES', None)"
+    },
+    {
+      "name": "charging_pile.scenario 存在且类型为 varchar(20)",
+      "ok": true,
+      "detail": "('varchar(20)', 'YES', None)"
+    },
+    {
+      "name": "occupation_record.occupancy_id 存在且类型为 varchar(40)",
+      "ok": true,
+      "detail": "('varchar(40)', 'YES', None)"
+    },
+    {
+      "name": "occupation_record.notify_attempts 存在且类型为 tinyint",
+      "ok": true,
+      "detail": "('tinyint', 'NO', '0')"
+    },
+    {
+      "name": "occupation_record.notify_error 存在且类型为 varchar(120)",
+      "ok": true,
+      "detail": "('varchar(120)', 'YES', None)"
+    },
+    {
+      "name": "occupation_record.notify_attempts 是 NOT NULL 且默认 0",
+      "ok": true,
+      "detail": "('tinyint', 'NO', '0')"
+    },
+    {
+      "name": "索引 idx_pile_occupancy 已建立（charging_pile）",
+      "ok": true,
+      "detail": "现有 ['PRIMARY', 'idx_occ_occupancy', 'idx_occ_occur_time', 'idx_occ_plate', 'idx_occ_rule_hit', 'idx_pile_bound_plate', 'idx_pile_occupancy']"
+    },
+    {
+      "name": "索引 idx_occ_occupancy 已建立（occupation_record）",
+      "ok": true,
+      "detail": "现有 ['PRIMARY', 'idx_occ_occupancy', 'idx_occ_occur_time', 'idx_occ_plate', 'idx_occ_rule_hit', 'idx_pile_bound_plate', 'idx_pile_occupancy']"
+    },
+    {
+      "name": "占用标识与失败原因原样读回（中文不乱码）",
+      "ok": true,
+      "detail": "读出 ('PILE-TEST2@20260908100000000000', 2, '车主未绑定手机号')"
+    },
+    {
+      "name": "NULL 占用标识不与新数据匹配（判重键空值安全）",
+      "ok": true,
+      "detail": "NULL 行 1、匹配新标识 1"
+    },
+    {
+      "name": "加法迁移把 5 个新列与 2 个索引补回（v1.8 老库升级）",
+      "ok": true,
+      "detail": "补了 7 条：['ALTER TABLE charging_pile ADD COLUMN occupancy_id VARCHAR(40) NULL', 'ALTER TABLE charging_pile ADD COLUMN scenario VARCHAR(20) NULL', 'ALTER TABLE occupation_record ADD COLUMN occupancy_id VARCHAR(40) NULL', 'ALTER TABLE occupation_record ADD COLUMN notify_attempts TINYINT NOT NULL DEFAULT 0', 'ALTER TABLE occupation_record ADD COLUMN notify_error VARCHAR(120) NULL', 'CREATE INDEX idx_pile_occupancy ON charging_pile (occupancy_id)', 'CREATE INDEX idx_occ_occupancy ON occupation_record (occupancy_id)']"
+    },
+    {
+      "name": "加法迁移幂等（第二次执行无操作）",
+      "ok": true,
+      "detail": "第二次又执行了 []"
+    }
+  ]
+}

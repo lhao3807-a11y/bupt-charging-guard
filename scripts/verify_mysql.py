@@ -32,6 +32,12 @@
 
 ⚠️ 脚本会 **DROP 并重建** ``MYSQL_DB`` 库里的四张表（schema.sql 自带 DROP），
 **不要指向有数据的库**。
+
+**第 3 周扩展（T7）**：旧基线 19 项只验到 v1.8 的 schema。v1.9 新增了占用标识与
+提醒结果字段（契约 §3.6 / §6.3），本脚本补验第 11–16 组：新列存在且类型正确、
+``notify_attempts`` 有默认值且非空、新索引建起来了、含中文失败原因的记录能原样读回、
+``occupancy_id`` 为 NULL 的历史行不与新数据匹配（``<=>`` 空值安全比较），
+以及 ``app/migrate.py`` 的**加法迁移在真机上是幂等的**（先删列再补回、补两次）。
 """
 
 from __future__ import annotations
@@ -43,10 +49,27 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.normpath(os.path.join(HERE, ".."))
-SCHEMA_SQL = os.path.join(REPO, "backend", "sql", "schema.sql")
+BACKEND_DIR = os.path.join(REPO, "backend")
+SCHEMA_SQL = os.path.join(BACKEND_DIR, "sql", "schema.sql")
 
 #: 期望的四张表与存储引擎（契约 §3）
 EXPECTED_TABLES = ("vehicle", "charging_pile", "occupation_record", "system_config")
+
+#: v1.9 新增列（契约 §3.6 / §6.3）与期望的 MySQL 类型前缀
+NEW_COLUMNS: dict[str, list[tuple[str, str]]] = {
+    "charging_pile": [("occupancy_id", "varchar(40)"), ("scenario", "varchar(20)")],
+    "occupation_record": [
+        ("occupancy_id", "varchar(40)"),
+        ("notify_attempts", "tinyint"),
+        ("notify_error", "varchar(120)"),
+    ],
+}
+
+#: v1.9 新增索引
+NEW_INDEXES: dict[str, tuple[str, ...]] = {
+    "charging_pile": ("idx_pile_occupancy",),
+    "occupation_record": ("idx_occ_occupancy",),
+}
 
 
 def load_driver():
@@ -98,7 +121,7 @@ class Checker:
         return [r for r in self.rows if not r["ok"]]
 
 
-def run(conn) -> Checker:
+def run(conn, *, driver_name: str = "pymysql", args=None) -> Checker:
     ck = Checker()
     cur = conn.cursor()
 
@@ -232,8 +255,176 @@ def run(conn) -> Checker:
         n = cur.fetchone()[0]
         ck.check(f"种子数据 {table} = {expect} 行", n == expect, f"实际 {n}")
 
+    _check_v19_columns(cur, ck)
+    _check_v19_write_read(cur, ck, conn)
+    _check_migration_idempotent(ck, driver_name, args)
+
     cur.close()
     return ck
+
+
+# ---------------------------------------------------------------------------
+# 第 3 周 T7：v1.9 新列 / 默认值 / 索引 / 空值语义 / 加法迁移幂等
+# ---------------------------------------------------------------------------
+def _columns(cur, table: str) -> dict[str, tuple[str, str, str]]:
+    """列名 → (类型, 是否可空, 默认值)。"""
+    cur.execute(
+        "SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT "
+        "FROM information_schema.COLUMNS "
+        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+        (table,),
+    )
+    return {r[0]: (r[1], r[2], r[3]) for r in cur.fetchall()}
+
+
+def _check_v19_columns(cur, ck) -> None:
+    """新列存在且类型正确；`notify_attempts` 必须 NOT NULL 且有默认值。"""
+    for table, cols in NEW_COLUMNS.items():
+        have = _columns(cur, table)
+        for name, type_prefix in cols:
+            info = have.get(name)
+            ck.check(
+                f"{table}.{name} 存在且类型为 {type_prefix}",
+                bool(info) and info[0].lower().startswith(type_prefix),
+                str(info) if info else "列不存在",
+            )
+
+    occ = _columns(cur, "occupation_record")
+    attempts = occ.get("notify_attempts")
+    ck.check(
+        "occupation_record.notify_attempts 是 NOT NULL 且默认 0",
+        bool(attempts) and attempts[1] == "NO" and str(attempts[2]) == "0",
+        str(attempts),
+    )
+
+    cur.execute(
+        "SELECT INDEX_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE()"
+    )
+    indexes = {r[0] for r in cur.fetchall()}
+    for table, names in NEW_INDEXES.items():
+        for name in names:
+            ck.check(f"索引 {name} 已建立（{table}）", name in indexes, f"现有 {sorted(indexes)}")
+
+
+def _check_v19_write_read(cur, ck, conn) -> None:
+    """写入带占用标识与失败原因的记录并原样读回（中文不能乱码/截断）。"""
+    reason = "车主未绑定手机号"
+    cur.execute(
+        "INSERT INTO occupation_record "
+        "(plate, vtype, pile_id, occupancy_id, rule_hit, occur_time, "
+        " notify_status, notify_attempts, notify_error) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+        (
+            "京TEST02",
+            "新能源",
+            "PILE-TEST2",
+            "PILE-TEST2@20260908100000000000",
+            2,
+            "2026-09-08 10:00:00",
+            "失败",
+            2,
+            reason,
+        ),
+    )
+    # 另一行故意留空占用标识，代表「历史数据」
+    cur.execute(
+        "INSERT INTO occupation_record "
+        "(plate, vtype, pile_id, rule_hit, occur_time, notify_status) "
+        "VALUES (%s, %s, %s, %s, %s, %s)",
+        ("京TEST03", "燃油", "PILE-TEST2", 1, "2026-09-08 09:00:00", "未提醒"),
+    )
+    conn.commit()
+
+    cur.execute(
+        "SELECT occupancy_id, notify_attempts, notify_error FROM occupation_record "
+        "WHERE plate = %s",
+        ("京TEST02",),
+    )
+    row = cur.fetchone()
+    ck.check(
+        "占用标识与失败原因原样读回（中文不乱码）",
+        row == ("PILE-TEST2@20260908100000000000", 2, reason),
+        f"读出 {row!r}",
+    )
+
+    # 空值安全比较：判重键里 occupancy_id 为 NULL 的行只与 NULL 行匹配
+    cur.execute(
+        "SELECT COUNT(*) FROM occupation_record WHERE pile_id = %s AND occupancy_id <=> NULL",
+        ("PILE-TEST2",),
+    )
+    null_rows = cur.fetchone()[0]
+    cur.execute(
+        "SELECT COUNT(*) FROM occupation_record WHERE pile_id = %s AND occupancy_id = %s",
+        ("PILE-TEST2", "PILE-TEST2@20260908100000000000"),
+    )
+    matched = cur.fetchone()[0]
+    ck.check(
+        "NULL 占用标识不与新数据匹配（判重键空值安全）",
+        null_rows == 1 and matched == 1,
+        f"NULL 行 {null_rows}、匹配新标识 {matched}",
+    )
+
+    cur.execute("DELETE FROM occupation_record WHERE plate IN (%s, %s)", ("京TEST02", "京TEST03"))
+    conn.commit()
+
+
+def _sqlalchemy_url(driver_name: str, args) -> str:
+    """把驱动名与连接参数拼成 SQLAlchemy URL（真机跑 `app/migrate.py` 需要）。"""
+    from urllib.parse import quote_plus
+
+    dialect = {
+        "pymysql": "mysql+pymysql",
+        "mysql-connector-python": "mysql+mysqlconnector",
+        "mysqlclient": "mysql+mysqldb",
+    }[driver_name]
+    secret = quote_plus(args.password or "")
+    auth = f"{args.user}:{secret}@" if secret else f"{args.user}@"
+    return f"{dialect}://{auth}{args.host}:{args.port}/{args.db}?charset=utf8mb4"
+
+
+def _check_migration_idempotent(ck, driver_name: str, args) -> None:
+    """**真机验证 `app/migrate.py`**：先把新列删掉（模拟 v1.8 老库），再让迁移补回来。
+
+    只验「列存在」不够 —— 真正会翻车的是「老库升级」这条路径，而 SQLite 单测
+    覆盖不到 MySQL 的 `ALTER TABLE ... ADD COLUMN` 与索引语法差异。
+    """
+    if args is None:  # 被其他调用方直接用时跳过（不伪造一次假验证）
+        return
+    try:
+        if BACKEND_DIR not in sys.path:
+            sys.path.insert(0, BACKEND_DIR)
+        from app import migrate
+        from sqlalchemy import create_engine, text
+    except ImportError as exc:  # pragma: no cover - 环境问题
+        ck.check("app/migrate.py 可导入（需要 sqlalchemy）", False, f"{type(exc).__name__}: {exc}")
+        return
+
+    engine = create_engine(_sqlalchemy_url(driver_name, args), future=True)
+    drop = [
+        (
+            "ALTER TABLE charging_pile DROP INDEX idx_pile_occupancy, DROP COLUMN occupancy_id, "
+            "DROP COLUMN scenario"
+        ),
+        (
+            "ALTER TABLE occupation_record DROP INDEX idx_occ_occupancy, DROP COLUMN occupancy_id, "
+            "DROP COLUMN notify_attempts, DROP COLUMN notify_error"
+        ),
+    ]
+    with engine.connect() as conn:
+        for stmt in drop:
+            conn.execute(text(stmt))
+        conn.commit()
+
+    applied = migrate.ensure_v19_columns(engine)
+    ck.check(
+        "加法迁移把 5 个新列与 2 个索引补回（v1.8 老库升级）",
+        len(applied) == 7,
+        f"补了 {len(applied)} 条：{applied}",
+    )
+
+    again = migrate.ensure_v19_columns(engine)
+    ck.check("加法迁移幂等（第二次执行无操作）", again == [], f"第二次又执行了 {again}")
+    engine.dispose()
 
 
 def main() -> int:
@@ -261,7 +452,7 @@ def main() -> int:
         autocommit=False,
     )
     try:
-        ck = run(conn)
+        ck = run(conn, driver_name=drv_name, args=args)
     finally:
         conn.close()
 

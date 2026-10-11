@@ -12,6 +12,7 @@
 .venv\\Scripts\\python.exe scripts\\run_pipeline.py --at 2026-09-08T10:00:00   # 固定时刻（可复现）
 .venv\\Scripts\\python.exe scripts\\run_pipeline.py --bind-map 003.jpg=PILE-003,004.jpg=PILE-002
 .venv\\Scripts\\python.exe scripts\\run_pipeline.py --sandbox-fail        # 演示「发送失败」
+.venv\\Scripts\\python.exe scripts\\run_pipeline.py --timing 5            # 耗时采样（T7 性能凭据）
 ```
 
 **与前端的关系**：本进程把每轮结果写到状态文件，`GET /api/pipeline/status`
@@ -23,12 +24,14 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
 from datetime import datetime
 
 BACKEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend")
+REPO = os.path.dirname(BACKEND_DIR)
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
@@ -45,8 +48,6 @@ def _parse_bind_map(raw: str | None) -> dict[str, str]:
     if not raw:
         return {}
     if os.path.isfile(raw):
-        import json
-
         with open(raw, encoding="utf-8") as fh:
             return {str(k): str(v) for k, v in json.load(fh).items()}
     mapping: dict[str, str] = {}
@@ -78,7 +79,85 @@ def _print_run(run: pl.PipelineRun) -> None:
         else:
             extra = "（复用识别结果）" if frame.reused else ""
             print(f"  [正常] {frame.frame_id}　{frame.plate}　未违规{extra}")
-    print(f"  小计：违规 {run.violations}　成功提醒 {run.notified}")
+    # 「已提醒」是状态，「本轮新发」才是动作 —— 自动轮询下两者经常不等，别混着报
+    print(f"  小计：违规 {run.violations}　已提醒 {run.notified}（本轮新发 {run.newly_notified}）")
+
+
+def _stats(samples: list[float]) -> dict:
+    """一组耗时的 min/max/均值/中位数（毫秒，两位小数）。"""
+    ordered = sorted(samples)
+    n = len(ordered)
+    return {
+        "count": n,
+        "min_ms": round(ordered[0], 2),
+        "max_ms": round(ordered[-1], 2),
+        "mean_ms": round(sum(ordered) / n, 2),
+        "p50_ms": round(ordered[(n - 1) // 2], 2),
+    }
+
+
+def _default_timing_path() -> str:
+    return os.path.join(REPO, "docs", "acceptance", "week3", "04-timing-sample.json")
+
+
+def _run_timing(worker: pl.Pipeline, rounds: int, out: str | None, fixed_now) -> int:
+    """耗时采样：连跑 N 轮，统计整轮与逐帧耗时（第 3 周 T7 的性能凭据）。
+
+    刻意**连跑多轮**而不是只跑一轮：第 2 轮起会复用识别结果（内容未变），
+    两组数字摆在一起才能说明「复用到底省了多少」，而不是拍脑袋说「很快」。
+    """
+    target = out or _default_timing_path()
+    samples = []
+    for i in range(1, rounds + 1):
+        run = worker.run_once(now=fixed_now)
+        samples.append(run)
+        print(
+            f"  第 {i:>2} 轮：{run.elapsed_ms:>8.2f} ms　"
+            f"识别 {run.recognized}/{run.frame_count}　复用 {run.skipped_unchanged}　"
+            f"违规 {run.violations}　已提醒 {run.notified}（本轮新发 {run.newly_notified}）"
+        )
+
+    per_frame: dict[str, list[float]] = {}
+    for run in samples:
+        for frame in run.frames:
+            if frame.elapsed_ms is not None:
+                per_frame.setdefault(frame.frame_id, []).append(frame.elapsed_ms)
+
+    payload = {
+        "sampled_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "rounds": rounds,
+        "frame_count": samples[0].frame_count if samples else 0,
+        "recognition_mode": os.environ.get("RECOGNITION_MODE", "stub"),
+        "round_elapsed_ms": _stats([r.elapsed_ms for r in samples if r.elapsed_ms is not None]),
+        "per_frame_elapsed_ms": {k: _stats(v) for k, v in sorted(per_frame.items())},
+        "detail": [
+            {
+                "round": i,
+                "elapsed_ms": r.elapsed_ms,
+                "recognized": r.recognized,
+                "reused": r.skipped_unchanged,
+                "violations": r.violations,
+                "notified": r.notified,
+                "newly_notified": r.newly_notified,
+                "frames": [
+                    {
+                        "frame_id": f.frame_id,
+                        "elapsed_ms": f.elapsed_ms,
+                        "reused": f.reused,
+                        "rule_hit": f.rule_hit,
+                    }
+                    for f in r.frames
+                ],
+            }
+            for i, r in enumerate(samples, start=1)
+        ],
+    }
+
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, ensure_ascii=False, indent=2)
+    print(f"  耗时采样已写入：{target}")
+    return 0
 
 
 def main() -> int:
@@ -97,6 +176,14 @@ def main() -> int:
         action="store_true",
         help="把沙箱发送器置为恒失败（演示失败与恢复，等价 SMS_SANDBOX_RESULT=fail）",
     )
+    parser.add_argument(
+        "--timing",
+        type=int,
+        default=0,
+        metavar="N",
+        help="耗时采样：连跑 N 轮并统计整轮/逐帧耗时（T7 性能凭据），0 = 不采样",
+    )
+    parser.add_argument("--timing-out", default=None, help="耗时采样 JSON 的写入路径")
     args = parser.parse_args()
 
     if args.sandbox_fail:
@@ -111,6 +198,9 @@ def main() -> int:
     worker = pl.Pipeline(db, frame_dir=args.frames, bind_map=bind_map)
 
     try:
+        if args.timing:
+            return _run_timing(worker, args.timing, args.timing_out, fixed_now)
+
         rounds = 0
         while True:
             run = worker.run_once(now=fixed_now)

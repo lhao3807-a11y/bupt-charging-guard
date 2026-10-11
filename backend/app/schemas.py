@@ -390,7 +390,11 @@ class PipelineFrame(BaseModel):
     record_id: int | None = Field(None, description="落库的违规记录 ID")
     notify_status: NotifyStatus | None = None
     notify_reason: str | None = Field(None, description="提醒结果说明（失败原因 / 已发过）")
+    notified_now: bool = Field(
+        False, description="本轮是否真的发了短信（区别于一直为「已提醒」的 notify_status）"
+    )
     error: str | None = Field(None, description="处理失败原因；成功为 None")
+    elapsed_ms: float | None = Field(None, description="本帧处理耗时（毫秒，墙钟采样）")
 
 
 class PipelineStatus(BaseModel):
@@ -401,8 +405,12 @@ class PipelineStatus(BaseModel):
     frame_count: int = 0
     recognized: int = 0
     violations: int = 0
-    notified: int = 0
+    notified: int = Field(
+        0, description="处于「已提醒」状态的帧数（**含**此前已提醒、本轮未重发的）"
+    )
+    newly_notified: int = Field(0, description="本轮**真实发出**的短信条数（验收 A05 的凭据）")
     skipped_unchanged: int = 0
+    elapsed_ms: float | None = Field(None, description="整轮耗时（毫秒，墙钟采样）")
     frames: list[PipelineFrame] = Field(default_factory=list)
 
 

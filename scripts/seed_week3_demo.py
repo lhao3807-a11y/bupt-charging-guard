@@ -33,6 +33,7 @@ if BACKEND_DIR not in sys.path:
 
 from app import charging_adapter as ca
 from app import models as m
+from app import occupancy
 from app.db import SessionLocal, engine
 from app.rule_engine import judge
 from app.schemas import RecognitionResult
@@ -58,7 +59,12 @@ def _ensure_pile(db, pile_id: str) -> m.ChargingPile:
 
 
 def _expected_rule(db, pile: m.ChargingPile, at: datetime) -> int | None:
-    """按当前桩状态预演一次判定（只读，不落库）。"""
+    """按当前桩状态预演一次判定（只读，不落库）。
+
+    返回 `0` = 规则④ 正常（不违规），`1/2/3` = 命中对应规则，
+    `None` = **无法判定**（车没录入 / 没绑桩）—— 与「正常」区分开，
+    否则演示时会把「数据没准备好」说成「正常」，正是最容易被误读的一句。
+    """
     vehicle = db.get(m.Vehicle, pile.bound_plate) if pile.bound_plate else None
     if vehicle is None:
         return None
@@ -73,7 +79,24 @@ def _expected_rule(db, pile: m.ChargingPile, at: datetime) -> int | None:
         db,
         now=at,
     )
-    return None if hit is None else hit.rule_hit
+    return 0 if hit is None else hit.rule_hit
+
+
+def _unbind_elsewhere(db, plate: str, keep_pile_id: str) -> int:
+    """把同一车牌从**别的桩**上摘掉，返回摘掉的桩数。
+
+    规则引擎按「车牌 → 桩」反查（`find_pile_by_plate`），同一车牌绑在两处会直接
+    `MultipleResultsFound`。种子桩（PILE-001..004）本来就绑着这几块演示车牌，
+    所以夹具**必须**先清理 —— 这是夹具的责任，不是判定逻辑该操心的。
+    """
+    freed = 0
+    for other in db.query(m.ChargingPile).filter(m.ChargingPile.bound_plate == plate).all():
+        if other.pile_id == keep_pile_id:
+            continue
+        occupancy.end_occupancy(other)
+        freed += 1
+    db.commit()
+    return freed
 
 
 def seed(db, scenario: str, at: datetime, overshoot: int | None) -> int:
@@ -82,6 +105,7 @@ def seed(db, scenario: str, at: datetime, overshoot: int | None) -> int:
         if scenario != "all" and scen != scenario:
             continue
         pile = _ensure_pile(db, pile_id)
+        _unbind_elsewhere(db, plate, keep_pile_id=pile_id)
         ca.apply_scenario(pile, plate, scen, at, db, overshoot_min=overshoot)
         rule = _expected_rule(db, pile, at)
         print(

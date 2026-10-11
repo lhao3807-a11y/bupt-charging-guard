@@ -1,6 +1,6 @@
 """自动闭环编排测试（契约 v1.9 §6.11 / 第 3 周 T3 / 验收 A01、A04、A05、A09、A10）。
 
-钉死六件事：
+钉死七件事：
 
 1. **整链跑通**：帧 → 识别 → 判定 → 落库 → 沙箱发送，一条龙不需要人点
 2. **正常不打扰**：规则④ 的帧不落库、**不调用发送器**（A04）
@@ -8,6 +8,9 @@
 4. **单帧失败不中断**：坏帧只让自己失败，其余帧照常处理（A10）
 5. **同次占用不重复提醒**：连跑 10 轮只有 1 条记录、1 次成功发送（A05）
 6. **状态只读**：`GET /api/pipeline/status` 不产生任何写操作
+7. **状态与动作分开报**：`elapsed_ms` 是真实墙钟（固定演示时刻时也不为 0），
+   `newly_notified` 是本轮真发的条数（区别于一直是「已提醒」的 `notified`）；
+   两者都进状态文件供 T7 / A05 采样，**不影响任何判定结果**
 """
 
 from __future__ import annotations
@@ -215,6 +218,23 @@ def test_ten_rounds_produce_one_record_and_one_send(db, frames):
     row = db.query(m.OccupationRecord).one()
     assert row.notify_attempts == 1
     assert row.notify_status == m.NOTIFY_SENT
+    # 第 10 轮：状态是「已提醒」，但这一轮并没有再发一次（契约 §6.11 口径 3）
+    assert run.notified == 1
+    assert run.newly_notified == 0
+
+
+def test_newly_notified_separates_state_from_action(db, frames):
+    """`notified` 是状态、`newly_notified` 是动作 —— 两者在轮询场景下必然不等。
+
+    只报前者会让「成功提醒 10 次」看起来像发了 10 条短信，而库里其实只有 1 次尝试。
+    """
+    worker = _worker(db, frames(FRAME_FUEL))
+
+    first = worker.run_once(now=T_1000)
+    assert (first.notified, first.newly_notified) == (1, 1)
+
+    second = worker.run_once(now=T_1000 + timedelta(seconds=30))
+    assert (second.notified, second.newly_notified) == (1, 0)
 
 
 def test_failure_then_recovery_sends_only_once_more(db, frames):
@@ -321,8 +341,12 @@ def test_pipeline_status_endpoint_reports_last_run(
     assert body["frame_count"] == 1
     assert body["violations"] == 1
     assert body["notified"] == 1
+    assert body["newly_notified"] == 1
+    assert body["elapsed_ms"] is not None
     assert body["frames"][0]["frame_id"] == FRAME_FUEL
     assert body["frames"][0]["record_id"] is not None
+    assert body["frames"][0]["notified_now"] is True
+    assert body["frames"][0]["elapsed_ms"] is not None
     assert body["last_run_at"] is not None
 
 
@@ -332,6 +356,44 @@ def test_frame_digest_changes_with_content(tmp_path):
     first = pl.frame_digest(str(path))
     path.write_bytes(b"two")
     assert pl.frame_digest(str(path)) != first
+
+
+# ---------------------------------------------------------------------------
+# 8) 耗时采样（T7 性能凭据，口径 6：只记录、不参与判定）
+# ---------------------------------------------------------------------------
+def test_every_frame_reports_elapsed_ms(db, frames):
+    """每帧都有耗时，失败的帧也有 —— 定位慢帧靠它，不能默认 0 糊过去。"""
+    run = _worker(db, frames(FRAME_FUEL, FRAME_NORMAL, FRAME_MISSING_LABEL)).run_once(now=T_1000)
+
+    assert run.frame_count == 3
+    assert [f.elapsed_ms is not None for f in run.frames] == [True, True, True]
+    assert all(f.elapsed_ms >= 0 for f in run.frames)
+    assert run.elapsed_ms >= 0
+
+
+def test_elapsed_is_wall_clock_not_demo_time(db, frames):
+    """固定演示时刻时 `started_at == finished_at`，但耗时仍是真实墙钟。
+
+    踩过一次就懂：若把 `elapsed_ms` 算成「finished_at - started_at」，
+    所有可复现的演示凭据都会是 0ms —— 那不是快，是假。
+    """
+    run = _worker(db, frames(FRAME_FUEL)).run_once(now=T_1000)
+
+    assert run.started_at == T_1000
+    assert run.finished_at == T_1000
+    assert run.elapsed_ms > 0
+
+
+def test_status_file_carries_elapsed_ms(db, frames, tmp_path):
+    """耗时随状态文件一起外泄给 UI 与 T7 采样脚本。"""
+    run = _worker(db, frames(FRAME_FUEL)).run_once(now=T_1000)
+    target = str(tmp_path / "status.json")
+    pl.write_status(run, target)
+
+    data = pl.load_status(target)
+    assert data["elapsed_ms"] == run.elapsed_ms
+    assert data["newly_notified"] == 1
+    assert data["frames"][0]["elapsed_ms"] == run.frames[0].elapsed_ms
 
 
 def test_list_frames_is_sorted_and_filters_non_images(tmp_path):

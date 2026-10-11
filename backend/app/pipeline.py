@@ -16,10 +16,14 @@
 2. **单帧失败不中断**：坏图 / 无牌 / 缺权重只让**这一帧**失败并给出原因，
    其余帧照常处理。不伪造识别结果、不静默切回 stub。
 3. **正常场景不调用发送器**：只有落库成功的违规才会走提醒流程（验收 A04）。
+   `notified`（处于「已提醒」状态）与 `newly_notified`（本轮真发了）**分开记**：
+   自动轮询下第 2 轮起状态都是已提醒，只有后者能证明「没有重复发短信」（A05）。
 4. **判定交回规则引擎、发送交回提醒服务**：本模块不自己写 `rule_hit`、
    不自己写 `notify_status`，避免与 `/api/judge`、`/api/notify` 口径打架。
 5. **状态只读外置**：编排通常跑在**独立进程**里，结果写到状态文件，
    `GET /api/pipeline/status` 只读该文件，**不承担编排职责、不触发任何副作用**。
+6. **耗时只作凭据**：`elapsed_ms`（单帧 + 整轮）是墙钟采样，用来定位慢帧、
+   写性能凭据（第 3 周 T7），**不参与任何判定** —— 判定只看 `frame_time` 与 `system_config`。
 
 维护人：汤瑾睿
 """
@@ -29,6 +33,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
@@ -67,6 +72,13 @@ class FrameOutcome:
     notify_status: str | None = None
     notify_reason: str | None = None
     error: str | None = None
+    #: **本轮**是否真的调用发送器并成功发了短信。
+    #: 与 `notify_status` 不同：第 2 轮起记录已是「已提醒」，状态照旧显示已提醒，
+    #: 但并**没有再发一次** —— 少了这个字段，「成功提醒」这个数会一直虚高。
+    notified_now: bool = False
+    #: 本帧从「读盘」到「出结果」的墙钟耗时（毫秒，两位小数）。
+    #: 留它是为了性能凭据：单帧超时能定位到具体是哪一帧慢，而不是「整体有点卡」。
+    elapsed_ms: float | None = None
 
 
 @dataclass
@@ -76,6 +88,9 @@ class PipelineRun:
     started_at: datetime
     finished_at: datetime | None = None
     frames: list[FrameOutcome] = field(default_factory=list)
+    #: 整轮墙钟耗时（毫秒）。`started_at/finished_at` 可能是固定的演示时刻，
+    #: 两者**不是**一回事 —— 判重用前者，性能看后者。
+    elapsed_ms: float | None = None
 
     @property
     def frame_count(self) -> int:
@@ -91,7 +106,13 @@ class PipelineRun:
 
     @property
     def notified(self) -> int:
+        """处于「已提醒」状态的帧数（**含**此前已提醒、本轮未重发的）。"""
         return sum(1 for f in self.frames if f.notify_status == m.NOTIFY_SENT)
+
+    @property
+    def newly_notified(self) -> int:
+        """本轮**真正发出**短信的帧数 —— 验收 A05 看这个数，不看 `notified`。"""
+        return sum(1 for f in self.frames if f.notified_now)
 
     @property
     def skipped_unchanged(self) -> int:
@@ -106,7 +127,9 @@ class PipelineRun:
             recognized=self.recognized,
             violations=self.violations,
             notified=self.notified,
+            newly_notified=self.newly_notified,
             skipped_unchanged=self.skipped_unchanged,
+            elapsed_ms=self.elapsed_ms,
         )
         return payload
 
@@ -202,7 +225,14 @@ class Pipeline:
         occupancy.begin_occupancy(pile, recognition.plate, now, db=self.db)
 
     def process_frame(self, frame_id: str, now: datetime) -> FrameOutcome:
-        """处理一帧；**任何异常都变成 `error` 字段返回**，不向外抛。"""
+        """处理一帧并记下耗时；**任何异常都变成 `error` 字段返回**，不向外抛。"""
+        started = time.perf_counter()
+        outcome = self._process_frame(frame_id, now)
+        outcome.elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+        return outcome
+
+    def _process_frame(self, frame_id: str, now: datetime) -> FrameOutcome:
+        """实际处理逻辑（``process_frame`` 只负责计时，方便单独测逻辑不看耗时）。"""
         outcome = FrameOutcome(frame_id=frame_id)
         path = os.path.join(self.frame_dir, frame_id)
 
@@ -249,6 +279,9 @@ class Pipeline:
             outcome.notify_reason = result.reason or (
                 "此前已成功提醒，本次未重发" if result.already_sent else None
             )
+            outcome.notified_now = result.status == m.NOTIFY_SENT and not (
+                result.already_sent or result.conflict or result.exhausted
+            )
         except Exception as exc:  # noqa: BLE001 - 单帧失败不得中断整轮（口径 2）
             self.db.rollback()
             outcome.error = f"判定/提醒失败：{type(exc).__name__}: {exc}"
@@ -258,12 +291,14 @@ class Pipeline:
     def run_once(self, now: datetime | None = None) -> PipelineRun:
         """处理取帧目录下的全部图片，返回本轮结果。"""
         moment = now or datetime.now()
+        started = time.perf_counter()
         run = PipelineRun(started_at=moment)
 
         for frame_id in list_frames(self.frame_dir):
             run.frames.append(self.process_frame(frame_id, moment))
 
         run.finished_at = now or datetime.now()
+        run.elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
         return run
 
 
