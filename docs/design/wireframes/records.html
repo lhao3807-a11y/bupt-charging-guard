@@ -631,13 +631,110 @@
     <div class="spec-row">
       <span class="spec-label">已提醒</span>
       <span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿 · 操作列转为置灰文字，防误发</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">绿 · <b>操作列不渲染按钮</b>（第三周 W1 改，见下）</span>
     </div>
     <div class="spec-row">
       <span class="spec-label">失败</span>
       <span class="pill pill-danger"><i class="dot dot-danger"></i>失败</span>
-      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 · 行内可点「重试」</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">红 · 行内按失败原因分流为「重试」或「补充绑定」</span>
     </div>
+  </div>
+
+  <div class="specimen">
+    <h4>第三周 · 操作列七态规格（任务 W2 交付 L3）</h4>
+    <p class="anno-desc" style="margin-bottom: var(--space-4);">
+      第三周起提醒由<b>自动闭环</b>发起（计划 §2 D1 第 2 项），本页行内操作退化为
+      <b>「异常时的补救入口」</b>，而不是常规操作。因此按钮的<b>出现条件</b>比按钮本身更重要。
+    </p>
+    <div class="spec-row">
+      <span class="spec-label">未提醒</span>
+      <span class="col-actions"><span class="btn btn-link">发送提醒</span></span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">可点</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">请求进行中</span>
+      <span class="col-actions"><span class="btn btn-link is-disabled">发送提醒</span></span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;"><b>禁用</b>（前端第一道并发闸，配合后端状态约束）</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">已提醒</span>
+      <span class="col-actions" style="color: var(--text-tertiary); font-size: var(--font-size-xs);">（空）</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;"><b>不渲染按钮</b>，不置灰</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">失败 · 未绑定手机号</span>
+      <span class="col-actions"><span class="btn btn-link">补充绑定</span> <span class="btn btn-link">重试</span></span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">先补数据再重试</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">失败 · 发送器未就绪</span>
+      <span class="col-actions"><span class="btn btn-link">重试</span></span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">可直接重试</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">已达尝试上限</span>
+      <span class="col-actions"><span class="btn btn-link is-disabled">重试</span></span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">禁用，文案不变</span>
+    </div>
+    <div class="spec-row">
+      <span class="spec-label">正常场景</span>
+      <span class="col-actions" style="color: var(--text-tertiary); font-size: var(--font-size-xs);">（无此行）</span>
+      <span class="spec-label" style="width:auto;flex:0 0 auto;">正常充电<b>不生成违规记录</b>，本表不会出现该行</span>
+    </div>
+    <p class="anno-desc" style="margin: var(--space-4) 0 0;">
+      <b>为什么「已提醒」改成不渲染</b>：第 2 周写的是「置灰文字不可点」。第三周改为
+      <b>不渲染</b> —— 置灰按钮会被读屏软件念成「不可用按钮」，让用户以为还有未完成的事。
+      本周已实测确认该风险（<code>a11y-report.md</code> §2.2 记录了 mask 图标同类问题）。
+    </p>
+    <p class="anno-desc" style="margin: var(--space-3) 0 0;">
+      <b>动词口径</b>：一律叫「重试」，<b>不叫「重新发送」或「重新判定」</b> ——
+      重试只作用于同一条记录（计划 §5 A06「同记录不新增」），用可能被理解为新建记录的动词会误导。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>第三周 · 自动闭环结果条规格（交付 L3）</h4>
+    <p class="anno-desc" style="margin-bottom: var(--space-4);">
+      结果条承载「<b>刚刚发生了什么</b>」，状态列承载「<b>现在是什么状态</b>」。两者职责不重合：
+      结果条是事件流（一行一条），状态列是快照（一行一态）。逐态文案见 <code>copywriting.md</code> §6.5.2。
+    </p>
+    <div class="alert is-info-brand" style="margin-bottom: var(--space-3);">
+      <svg class="alert-icon" viewBox="0 0 16 16" role="img" aria-label="成功">
+        <circle cx="8" cy="8" r="7" style="fill: none; stroke: var(--state-success-solid);" stroke-width="1.5"/>
+        <path d="M5 8.2l2.2 2.2L11 6.6" style="fill: none; stroke: var(--state-success-solid);" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <p style="margin: 0 0 var(--space-1); font-weight: var(--font-weight-medium); color: var(--state-success-text);">已向 京A12345 发送提醒（演示环境，未真实下发）</p>
+        <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-tertiary);">记录 ID 1 · 桩 PILE-001 · 燃油车占位 · 第 1 次尝试成功</p>
+      </div>
+    </div>
+    <div class="alert is-info-brand" style="margin-bottom: var(--space-3);">
+      <svg class="alert-icon" viewBox="0 0 16 16" role="img" aria-label="失败">
+        <circle cx="8" cy="8" r="7" style="fill: none; stroke: var(--state-danger-solid);" stroke-width="1.5"/>
+        <path d="M8 4.5v4" style="stroke: var(--state-danger-solid);" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.9" style="fill: var(--state-danger-solid);"/>
+      </svg>
+      <div>
+        <p style="margin: 0 0 var(--space-1); font-weight: var(--font-weight-medium); color: var(--state-danger-text);">该车辆未绑定手机号，请先补充绑定后再重试</p>
+        <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-tertiary);">记录 ID 2 · 补齐手机号后点「重试」，<b>不会新增违规记录</b></p>
+      </div>
+    </div>
+    <div class="alert is-info-brand">
+      <svg class="alert-icon" viewBox="0 0 16 16" role="img" aria-label="已达上限">
+        <circle cx="8" cy="8" r="7" style="fill: none; stroke: var(--state-danger-solid);" stroke-width="1.5"/>
+        <path d="M8 4.5v4" style="stroke: var(--state-danger-solid);" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.9" style="fill: var(--state-danger-solid);"/>
+      </svg>
+      <div>
+        <p style="margin: 0 0 var(--space-1); font-weight: var(--font-weight-medium); color: var(--state-danger-text);">已尝试 3 次仍未成功，如需继续请调整尝试上限</p>
+        <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-tertiary);">记录 ID 5 · 尝试次数与结果已持久化，重启后仍然保留</p>
+      </div>
+    </div>
+    <p class="anno-desc" style="margin: var(--space-4) 0 0;">
+      <b>不夸大沙箱表述</b>：成功提示写「演示环境，未真实下发」，<b>不写「已通知车主」「短信已下发」</b>
+      （计划 §2 D1 第 7 项证据边界）。
+      <b>正常场景整条结果条不出现</b> —— 否则每次正常判定都刷一条消息，用户反而看不出哪条是真异常。
+    </p>
   </div>
 
   <div class="specimen">
@@ -703,6 +800,10 @@
     <li><b>表中不出现 rule_hit = 0</b>：契约 §6.2 规定规则 ④（正常充电）判定返回 <code>null</code>，不落库，因此记录里只有 1 / 2 / 3。枚举 0 仅为兼容历史数据保留，所以「命中规则」筛选下拉只给 1 / 2 / 3 三项，不给「正常」。</li>
     <li><b>不需要前端去重</b>：契约 v1.2 §6.2 已定去重口径——同 <code>pile_id</code> + 同 <code>rule_hit</code> 且未提醒时，视为「同一违规持续中」，后端复用原记录并刷新 <code>occur_time</code>，不新增行。前端<b>不要</b>再自行合并同名记录，否则统计会与后端不一致。</li>
     <li><b>操作列三态由 notify_status 决定</b>：未提醒 → 「发送提醒」（主色文字按钮）；失败 → 「重试」（同 id 再调一次 notify）；已提醒 → 置灰文字不可点。这是纯前端行为差异，<b>接口只需 id + notify_status</b>，不改契约。</li>
+    <li><b>【第三周 W1/W2】上条的三态已扩展为七态</b>：自动闭环引入「请求进行中」「已达尝试上限」，失败按原因分流为「补充绑定」与「重试」。逐态规格见上方「操作列七态规格」。<b>「已提醒」由「置灰文字」改为「不渲染按钮」</b> —— 置灰按钮会被读屏软件念成不可用控件，规格与理由见该节末。</li>
+    <li><b>【第三周 W1/W2】<code>notify_status</code> 枚举不变</b>：仍是 <code>ENUM('未提醒','已提醒','失败')</code> 三值。「请求进行中」「已达上限」是<b>请求级过程态</b>，由前端 <code>pending</code> 标记承载，<b>不落库</b>；失败原因随响应下发，也不落库。若把它们写成新枚举值，会同时破坏契约 §3.3、§6.4 筛选参数与本页筛选下拉。</li>
+    <li><b>【第三周 W2】本页新增自动闭环结果条</b>：位于表格上方，承载「刚刚发生了什么」。<b>正常场景整条不出现</b>。文案以 <code>copywriting.md</code> §6.5.2 为准，本线框只定版式与令牌。</li>
+    <li><b>【第三周 W2】失败原因不靠颜色区分</b>：「未绑定手机号」与「发送器未就绪」同为红，但<b>标题文字不同</b>，处置路径也不同。前端<b>不许</b>用「有没有手机号」自己猜原因，原因必须来自响应。</li>
     <li><b>行内操作用文字按钮而非实心按钮</b>：一屏十余行，实心按钮会把表格变成色块墙。依据 <code>design-tokens.md</code> §3.3 ⑤。</li>
     <li><b>车型与命中规则必须语义自洽</b>：<code>rule_hit = 1</code>（燃油占位）对应车型「燃油」；<code>rule_hit = 2 / 3</code> 对应车型「新能源」。线框数据已按此规则构造，前端无需校验，但演示数据不能配错，否则答辩现场一眼看穿。</li>
     <li><b>提醒时间为空显示「—」</b>并降级到 <code>--text-tertiary</code>，不留空白单元格，避免被误认为渲染失败。</li>

@@ -266,6 +266,31 @@
     margin: 0 0 var(--space-3); font-size: var(--font-size-md);
     font-weight: var(--font-weight-medium);
   }
+  /* 第三周 W2：结果区表头带帧标识，作为「图片 ↔ 结果」的关联锚点 */
+  .result-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-3); margin: 0 0 var(--space-3);
+  }
+  .result-head .section-title { margin: 0; }
+  .frame-ref-tag {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    height: 22px; padding: 0 var(--space-2);
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--brand-primary-border);
+    background: var(--brand-primary-bg); color: var(--brand-primary);
+    font-size: var(--font-size-xs);
+  }
+  /* 结果区脚注：说明当前帧的处理结论，不承担表格列 */
+  .result-note {
+    margin-top: var(--space-3); padding: var(--space-2) var(--space-3);
+    border-left: 3px solid var(--border-base);
+    background: var(--fill-light); border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm); color: var(--text-secondary);
+  }
+  .result-note.is-danger { border-left-color: var(--state-danger-solid); }
+  .result-note.is-success { border-left-color: var(--state-success-solid); }
+  .result-note.is-warning { border-left-color: var(--state-warning-solid); }
+  .result-note.is-info { border-left-color: var(--state-info-solid); }
 
   /* ---------- 标签 / 胶囊 ---------- */
   .tag {
@@ -466,15 +491,22 @@
               <div class="frame-meta">
                 <span>帧引用 <b class="mono">001.jpg</b></span>
                 <span>帧时间 <b class="mono num">2026-09-26 10:00:00</b></span>
-                <span>轮询间隔 <b class="num">5</b> s</span>
+                <span>轮询间隔 <b class="num">3</b> s</span>
                 <span>识别耗时 <b class="num">86</b> ms</span>
               </div>
             </div>
 
             <!-- 右：本次识别结果 -->
             <div>
-              <h2 class="section-title">本次识别结果</h2>
+              <div class="result-head">
+                <h2 class="section-title">本次处理结果</h2>
+                <span class="frame-ref-tag"><span class="mono">001.jpg</span></span>
+              </div>
               <div class="kv">
+                <div class="kv-row">
+                  <span class="kv-key">最近处理时间</span>
+                  <span class="kv-val mono num">2026-09-26 10:00:06</span>
+                </div>
                 <div class="kv-row">
                   <span class="kv-key">车牌</span>
                   <span class="kv-val mono">京AD67890</span>
@@ -496,14 +528,13 @@
                   <span class="kv-val"><span class="pill pill-caution"><i class="dot dot-caution"></i>异常占位</span></span>
                 </div>
                 <div class="kv-row">
-                  <span class="kv-key">命中时间</span>
-                  <span class="kv-val mono num">2026-09-26 10:00:05</span>
-                </div>
-                <div class="kv-row">
                   <span class="kv-key">提醒状态</span>
                   <span class="kv-val"><span class="pill pill-warning"><i class="dot dot-warning"></i>未提醒</span></span>
                 </div>
               </div>
+              <p class="result-note is-warning">
+                已命中「异常占位」，沙箱提醒<b>尚未执行</b>；本页只显示结果，发送与重试在第 2 页「违规记录查询」进行。
+              </p>
             </div>
 
           </div>
@@ -667,17 +698,124 @@
     </div>
   </div>
 
+  <h2 class="anno-title">第三周 · 结果区五态样张（任务 W2 交付 L4）</h2>
+  <p class="anno-desc">
+    第五态「源中断」与第三态「识别失败」的<b>处置不同</b>：源中断要恢复采集端，识别失败要查权重或依赖。
+    下面五态<b>不靠颜色区分</b> —— 每态都同时具备「图标 / 标题 / 说明文字」三重线索，
+    色弱用户与读屏软件都能分辨（对应 <code>a11y-report.md</code> 的非颜色依赖要求）。
+  </p>
+
+  <div class="specimen">
+    <h4>① 正常充电 —— 规则 ④ 返回 <code>null</code>、不落库</h4>
+    <div class="kv" style="max-width: 520px;">
+      <div class="kv-row"><span class="kv-key">判定结果</span><span class="kv-val"><span class="pill pill-success"><i class="dot dot-success"></i>正常充电</span></span></div>
+      <div class="kv-row"><span class="kv-key">提醒状态</span><span class="kv-val"><span class="pill pill-info"><i class="dot dot-info"></i>未提醒</span></span></div>
+    </div>
+    <p class="result-note is-success">
+      本次未命中规则，属正常充电。正常场景<b>不生成违规记录、不调用发送器</b>，因此没有提醒状态可显示。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>② 违规命中 —— 规则胶囊 + 提醒状态胶囊</h4>
+    <div class="kv" style="max-width: 520px;">
+      <div class="kv-row"><span class="kv-key">判定结果</span><span class="kv-val"><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></span></div>
+      <div class="kv-row"><span class="kv-key">提醒状态</span><span class="kv-val"><span class="pill pill-success"><i class="dot dot-success"></i>已提醒</span></span></div>
+    </div>
+    <p class="result-note is-success">
+      已命中「燃油车占位」，沙箱提醒已执行。<b>本页不提供发送或重试按钮</b> —— 该动作归第 2 页，避免同一动作两处可触发。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>③ 识别失败 —— 缺权重 / 坏帧 / 依赖缺失</h4>
+    <div class="kv" style="max-width: 520px;">
+      <div class="kv-row"><span class="kv-key">判定结果</span><span class="kv-val">—</span></div>
+      <div class="kv-row"><span class="kv-key">车牌</span><span class="kv-val">—</span></div>
+      <div class="kv-row"><span class="kv-key">车型</span><span class="kv-val">—</span></div>
+      <div class="kv-row"><span class="kv-key">桩 ID</span><span class="kv-val">—</span></div>
+    </div>
+    <p class="result-note is-danger">
+      本帧识别未成功：模型权重文件缺失。已跳过该帧，<b>后续帧继续处理</b>。
+      车牌与车型<b>显示为 —</b>，不保留上一帧结果，也不显示占位车牌。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>④ 车牌未在台账登记 —— 识别成功但无法关联桩</h4>
+    <div class="kv" style="max-width: 520px;">
+      <div class="kv-row"><span class="kv-key">车牌</span><span class="kv-val mono">京AD24680</span></div>
+      <div class="kv-row"><span class="kv-key">车型</span><span class="kv-val"><span class="tag tag-new-energy">新能源</span></span></div>
+      <div class="kv-row"><span class="kv-key">桩 ID</span><span class="kv-val">—</span></div>
+      <div class="kv-row"><span class="kv-key">判定结果</span><span class="kv-val">—</span></div>
+    </div>
+    <p class="result-note is-info">
+      车牌 京AD24680 未在车辆台账中登记，无法关联桩 ID。
+      <b>桩 ID 显示 —</b>，不按车位就近猜测；需先在第 1 页登记该车。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>⑤ 源中断 —— 帧采集目录不可读 / 无新帧</h4>
+    <div class="alert is-info-brand">
+      <svg class="alert-icon" viewBox="0 0 16 16" role="img" aria-label="警告">
+        <circle cx="8" cy="8" r="7" style="fill: none; stroke: var(--state-danger-solid);" stroke-width="1.5"/>
+        <path d="M8 4.5v4" style="stroke: var(--state-danger-solid);" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="11" r="0.9" style="fill: var(--state-danger-solid);"/>
+      </svg>
+      <div>
+        <p style="margin: 0 0 var(--space-1); font-weight: var(--font-weight-medium); color: var(--state-danger-text);">帧采集目录暂时不可读，已暂停本帧处理</p>
+        <p style="margin: 0; font-size: var(--font-size-sm); color: var(--text-tertiary);">请检查采集端进程与帧目录权限，恢复后点击「重试」。已成功处理的记录不受影响。</p>
+      </div>
+    </div>
+    <p style="margin-top: var(--space-3);"><button class="btn btn-default">重试</button></p>
+  </div>
+
+  <h2 class="anno-title">同帧关联 · 反例对照</h2>
+  <p class="anno-desc">
+    第 6 页最容易出的错是<b>把上一帧的结果叠到新图上</b>：图片刷新了，右边数字还是旧的，
+    演示时看起来像识别错了。下面两格演示<b>正确</b>与<b>错误</b>的对照。
+  </p>
+
+  <div class="specimen">
+    <h4>✅ 正确：帧标识一致，图片与结果同源</h4>
+    <div class="result-head">
+      <h4 style="margin: 0; font-size: var(--font-size-base);">本次处理结果</h4>
+      <span class="frame-ref-tag"><span class="mono">002.jpg</span></span>
+    </div>
+    <p class="result-note is-success" style="margin-top: var(--space-2);">
+      图片左上角帧标识与此处一致，均为 <span class="mono">002.jpg</span>。可按该标识在编排日志与第 2 页违规记录中追溯。
+    </p>
+  </div>
+
+  <div class="specimen">
+    <h4>❌ 错误：图片已换成 003.jpg，结果仍标 002.jpg 且仍是上一帧的车牌</h4>
+    <div class="result-head">
+      <h4 style="margin: 0; font-size: var(--font-size-base);">本次处理结果</h4>
+      <span class="frame-ref-tag" style="border-color: var(--state-danger-border); background: var(--state-danger-bg); color: var(--state-danger-text);"><span class="mono">002.jpg</span>（串帧）</span>
+    </div>
+    <p class="result-note is-danger" style="margin-top: var(--space-2);">
+      帧标识与图片不一致 → <b>结果已失效</b>。实现要求：新帧到达后，<b>先清空结果区再填新结果</b>；
+      识别耗时未结束时显示骨架，<b>不显示上一帧残留值</b>。
+    </p>
+  </div>
+
   <h2 class="anno-title">标注说明</h2>
   <ol class="notes">
     <li><b>导航第 6 项已解禁</b>：CONTRACT v1.5 §1.1 起本页导航不再 <code>disabled</code> 置灰，「第 1 周预留」角标同步移除。<code>tools/check_tokens.py</code> 第 [5] 项已从「要求恰有 1 个 <code>is-reserved</code>」改为「<b>要求 0 个</b>」，6 页同改。</li>
-    <li><b>但接口仍未就绪</b>：<code>GET /api/frame/latest</code> 按契约 §6.5 仍是预留端点。所以第 2 周本页是<b>「可进入、有骨架、无真实数据」的占位页</b>，<b>不进第 2 周验收</b>；完整实现为第 3 周。前端在接口就绪前打开本页，应显示上面的空态与说明条，<b>不要报错、也不要伪造数据</b>。</li>
+    <li><b>第三周已实现静态帧接口</b>：<code>GET /api/frame/latest</code>（契约 §6.5）已交付，本页按 <b>3 秒</b>间隔轮询最近更新的静态截图（原线框写的 5 s 与实现 <code>POLL_INTERVAL_MS = 3_000</code> 不一致，本次按实现回写）。<b>仍不接实时视频流</b>，页面说明条不得删。</li>
     <li><b>表格列严格取契约 §3.5 的 P6 登记</b>：车牌 / 车型 / 桩 ID / 命中规则 / 命中时间，对应 <code>occupation_record</code> 的 <code>plate</code> / <code>vtype</code> / <code>pile_id</code> / <code>rule_hit</code> / <code>occur_time</code>。<b>不新增业务字段</b>；「操作」列本页不需要（发送提醒在第 2 页做）。</li>
-    <li><b>右侧「本次识别结果」不是表格列</b>：<code>confidence</code> / <code>frame_time</code> 属 <code>RecognitionResult</code>（契约 §4）的<b>接口字段</b>，故不进 §3.5、也不算自造列。左侧「帧引用 / 轮询间隔 / 识别耗时」同理，是运行参数而非业务数据。</li>
+    <li><b>「本次处理结果」不是表格列</b>：<code>confidence</code> / <code>最近处理时间</code> 属 <code>RecognitionResult</code>（契约 §4）与只读结果接口的<b>接口字段</b>，故不进 §3.5、也不算自造列。左侧「帧引用 / 轮询间隔 / 识别耗时」同理，是运行参数而非业务数据。</li>
     <li><b>说明条是硬要求</b>：<code>el-alert</code>（info）写明「仅展示最近一帧截图（轮询刷新），不接实时视频流」—— 开发大纲已确认此表述，<b>答辩时避免被误解为真实视频流接入</b>，不得删。</li>
     <li><b>两种空态语义不同</b>：①「取不到帧」是<b>异常/未就绪</b>，引导重试；②「未命中规则」是<b>正常状态</b>（规则 ④ 返回 <code>null</code>），不引导任何操作。混用会让演示时看不出系统到底是否正常。</li>
     <li><b>规则色与其余 5 页同序</b>：燃油车占位红 / 异常占位橙 / 充满未移车黄，与第 2 页表格、第 4 页图表完全一致（<code>design-tokens.md</code> §3.3①）。</li>
     <li><b>数据与第 2 页自洽</b>：本页「最近识别记录」取的就是第 2 页那批记录（PILE-003 异常占位对应京AD67890），仅是数量更少、时间更近，<b>演示时两页数字必须对得上</b>。</li>
     <li><b>加载态样张是第 2 周新增交付</b>：规格见 <code>component-inventory.md</code> §2.1，脚本第 [6] 项会断言本页存在骨架屏样张、且 §2.1 三类齐全。</li>
+    <li><b>【第三周 W2】结果区五态</b>：上方「结果区五态样张」给出 ① 正常充电 / ② 违规命中 / ③ 识别失败 / ④ 车牌未登记 / ⑤ 源中断 的<b>完整可检查规格</b>，交付 L4 实现。逐态的字段归属、令牌与边界见 <code>copywriting.md</code> §6.5.4 与 <code>component-inventory.md</code> §4.6。</li>
+    <li><b>【第三周 W2】三条硬约束</b>：① <b>不伪造</b> —— 识别失败时结果区<b>清空</b>，不保留上一帧号码、不显示占位车牌；② <b>不编造桩关联</b> —— 车牌未登记时桩 ID 显示 <code>—</code>，不按车位猜测；③ <b>同帧关联</b> —— 图片与结果共用同一帧标识，新帧到达后旧结果不得停留在新图上（「同帧关联 · 反例对照」给出演示）。</li>
+    <li><b>【第三周 W2】本页不提供发送入口</b>：提醒与重试只在第 2 页「违规记录查询」进行，同一动作两处可触发会造成重复发送（计划 §5 A07「成功后不再发」）。</li>
+    <li><b>【第三周 W2】结果字段待 L1 签定</b>：本页先定<b>展示什么、怎么区分</b>，<b>不定字段名</b>。字段以 L1 写入 <code>CONTRACT.md</code> 的只读结果接口为准（依赖 T3）；签定后本页与 <code>component-inventory.md</code> §4.6 同步。</li>
+    <li><b>不靠颜色区分状态</b>：五态样张每态都同时具备图标 / 标题 / 说明文字三重线索，色弱用户与读屏软件均可分辨。新增状态若只用颜色区分，视为不合规。</li>
   </ol>
 </div>
 
