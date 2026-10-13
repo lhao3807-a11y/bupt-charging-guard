@@ -1,0 +1,48 @@
+{
+  "task": "W6-03",
+  "acceptance": "A04 正常充电/未超时/无车：不生成违规，不调用发送器，不增加违规统计",
+  "generated_at": "2026-10-13T19:42:11",
+  "env": {
+    "api": "http://127.0.0.1:8000",
+    "db": "SQLite 开发库（backend/app.db，可再生产物）"
+  },
+  "command": "python docs/design/tools/demo_normal_scene.py --json",
+  "request": {
+    "method": "POST",
+    "path": "/api/judge",
+    "body": {
+      "plate": "京AD12345",
+      "vtype": "新能源",
+      "confidence": 0.97,
+      "bbox": [
+        120,
+        80,
+        200,
+        120
+      ],
+      "frame_time": "2026-10-13T19:42:11"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": null
+  },
+  "before": {
+    "records_total": 11,
+    "stats_total": 11,
+    "by_rule_normal_charge": 0
+  },
+  "after": {
+    "records_total": 11,
+    "stats_total": 11,
+    "by_rule_normal_charge": 0
+  },
+  "checks": {
+    "规则 ④ 返回 null（不产生违规记录）": true,
+    "违规记录总数不变": true,
+    "统计总数不变": true,
+    "「正常充电」分项计数不变": true
+  },
+  "notify_called": false,
+  "all_passed": true
+}
