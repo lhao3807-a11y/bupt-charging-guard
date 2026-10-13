@@ -104,19 +104,12 @@ def _recognize_stub(frame_ref: str) -> RecognitionResult:
     return RecognitionResult.model_validate(payload)
 
 
-def _recognize_real(frame_ref: str) -> RecognitionResult:
-    """real：读真图跑 CV 链路（检测 → OCR → 绿蓝牌判定）。
+def _cv_recognize(path: str):
+    """调用算法链路识别一张真图（导入 + 调用）。
 
-    CV 依赖（torch/ultralytics/hyperlpr3）只在算法环境 ``.venv-algo`` 里，
-    后端进程缺依赖时返回 503 并给出可操作的提示，而不是让 demo 崩掉。
+    单独抽出来是为了**可测**：CV 依赖只在 `.venv-algo` 里，后端测试环境没有
+    torch，测试通过替换本函数注入「检出/无牌/空号码」三种结果，而不必装模型。
     """
-    path = frame_path_for(frame_ref)
-    if not os.path.isfile(path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"real 模式未找到图片：{frame_ref} → 期望 {path}",
-        )
-
     if _REPO_DIR not in sys.path:
         sys.path.insert(0, _REPO_DIR)
     try:
@@ -131,11 +124,42 @@ def _recognize_real(frame_ref: str) -> RecognitionResult:
             ),
         ) from exc
 
-    result = recognize_frame(path)
+    return recognize_frame(path)
+
+
+def _recognize_real(frame_ref: str) -> RecognitionResult:
+    """real：读真图跑 CV 链路（检测 → OCR → 绿蓝牌判定）。
+
+    失败一律**显式报错**，不静默兜底、不伪造车牌（验收 A09）：
+
+    - 图不存在 → `404`；
+    - 缺 CV 依赖 → `503`（提示可换用 stub）；
+    - 画面里没检出车牌 → `422`；
+    - 检出框但 **OCR 得到空号码** → `422`（**v1.9 收紧**：空号码若放过去，
+      会拿空串去反查桩、静默判成「无违规」，看上去像「识别成功但其实没识别到」）。
+    """
+    path = frame_path_for(frame_ref)
+    if not os.path.isfile(path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"real 模式未找到图片：{frame_ref} → 期望 {path}",
+        )
+
+    result = _cv_recognize(path)
     if result is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"real 模式未在画面中检出租车牌：{frame_ref}",
+        )
+
+    plate = str(result.get("plate") or "").strip()
+    if not plate:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                f"real 模式检出车牌框但未识别出号码（OCR 空结果）：{frame_ref}。"
+                "不猜号码、不落库；请换更清晰的一帧。"
+            ),
         )
     return RecognitionResult.model_validate(result)
 

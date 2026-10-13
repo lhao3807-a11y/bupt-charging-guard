@@ -135,3 +135,68 @@ def test_real_mode_looks_up_image_in_frame_source_dir(client, monkeypatch, tmp_p
     resp = client.post("/api/recognize", json={"frame_ref": "001.jpg"})
     assert resp.status_code == 404
     assert str(tmp_path) in resp.json()["detail"], "报错里应给出实际查找目录，便于排障"
+
+
+# ---------------------------------------------------------------------------
+# real 模式的失败必须可见（验收 A09）
+#
+# CV 依赖只在 .venv-algo 里，这里通过替换 `_cv_recognize` 注入「检出 / 无牌 /
+# 空号码」三种结果 —— 被测的是**失败口径**，不是模型本身。
+# ---------------------------------------------------------------------------
+def _inject_cv(monkeypatch, result):
+    """把 real 模式的 CV 调用替换成固定返回（不加载模型）。"""
+    from app.routers import recognize
+
+    monkeypatch.setattr(recognize, "_cv_recognize", lambda path: result)
+
+
+def _real_request(client, monkeypatch, tmp_path, name="001.jpg"):
+    """在 real 模式下请求一帧（图片文件存在，内容无所谓 —— CV 已被注入替换）。"""
+    monkeypatch.setenv(MODE_ENV, "real")
+    monkeypatch.setenv(FRAME_DIR_ENV, str(tmp_path))
+    (tmp_path / name).write_bytes(b"not-a-real-jpeg")
+    return client.post("/api/recognize", json={"frame_ref": name})
+
+
+def test_real_no_plate_detected_is_422(client, monkeypatch, tmp_path):
+    """画面里没检出车牌 → 422，且说明「未检出」而不是假装成功。"""
+    _inject_cv(monkeypatch, None)
+    resp = _real_request(client, monkeypatch, tmp_path)
+    assert resp.status_code == 422
+    assert "未在画面中检出租车牌" in resp.json()["detail"]
+
+
+def test_real_empty_ocr_plate_is_422(client, monkeypatch, tmp_path):
+    """检出框但 OCR 空号码 → 422（旧实现会拿空串往下走，静默判成「无违规」）。"""
+    _inject_cv(
+        monkeypatch,
+        {
+            "plate": "   ",
+            "vtype": "新能源",
+            "confidence": 0.9,
+            "bbox": [10, 20, 30, 40],
+            "frame_time": "2026-10-13T10:00:00",
+        },
+    )
+    resp = _real_request(client, monkeypatch, tmp_path)
+    assert resp.status_code == 422
+    assert "OCR 空结果" in resp.json()["detail"]
+
+
+def test_real_success_structure_matches_contract(client, monkeypatch, tmp_path):
+    """成功路径：结构仍与 stub 完全一致（契约 §4），号码原样透出。"""
+    _inject_cv(
+        monkeypatch,
+        {
+            "plate": "沪AG61020",
+            "vtype": "新能源",
+            "confidence": 0.89,
+            "bbox": [1273, 1060, 309, 111],
+            "frame_time": "2026-10-13T10:00:00",
+        },
+    )
+    resp = _real_request(client, monkeypatch, tmp_path)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["plate"] == "沪AG61020"
+    assert set(body) == {"plate", "vtype", "confidence", "bbox", "frame_time"}
