@@ -45,6 +45,7 @@ ASSETS_DIR = os.path.join(DESIGN_DIR, "assets")
 ILLUSTRATION_DIR = os.path.join(ASSETS_DIR, "illustrations")
 DEMO_DIR = os.path.join(DESIGN_DIR, "demo")
 COMPONENT_INVENTORY = os.path.join(DESIGN_DIR, "component-inventory.md")
+COPYWRITING = os.path.join(DESIGN_DIR, "copywriting.md")
 
 # ---------------------------------------------------------------- WCAG 工具
 
@@ -721,6 +722,63 @@ def check_consistency():
     print()
 
 
+CIRCLED = "①②③④⑤⑥⑦⑧"
+EXPECTED_NUMBERS = ["①", "②", "③", "④", "⑤", "⑥", "⑦"]
+
+
+def _numbered_states(text, start_marker, end_marker):
+    """抽取某区间内表格里以 ①～⑧ 开头的行，返回 [(编号, 状态名)]。
+
+    只认行首的圈号，因此正文里引用「④ 与 ⑤ 必须分开文案」这类句子不会被误当作表格行。
+    """
+    i = text.find(start_marker)
+    if i < 0:
+        return []
+    j = text.find(end_marker, i + len(start_marker))
+    seg = text[i: j if j > 0 else len(text)]
+    out = []
+    for line in seg.splitlines():
+        m = re.match(r"^\|\s*([①-⑧])\s*\|\s*\*\*(.+?)\*\*", line)
+        if m:
+            out.append((m.group(1), m.group(2).strip()))
+    return out
+
+
+def check_notify_state_numbering():
+    """第 2 页提醒状态「七态」在两份文档里的编号必须逐条一致。
+
+    起因（walkthrough.md §21.1 R-01）：`component-inventory.md` §2.2.2 曾把
+    「正常场景不提醒」编为第 ⑦ 态，而 `copywriting.md` §6.5.2 不给正常场景编号，
+    导致 ③～⑦ 全部错位一位 —— 两份都是「设计侧事实源」，各实现一套就必然对不上。
+
+    本项只断言「两份文档的编号序列一致」，不比较措辞（措辞允许同义）。
+    """
+    print("[7] 第 2 页七态编号跨文档一致性（copywriting §6.5.2 ↔ component-inventory §2.2.2）")
+    if not (os.path.isfile(COPYWRITING) and os.path.isfile(COMPONENT_INVENTORY)):
+        fail("找不到 copywriting.md 或 component-inventory.md，无法校验七态编号")
+        return
+    with open(COPYWRITING, encoding="utf-8") as fh:
+        cw = fh.read()
+    with open(COMPONENT_INVENTORY, encoding="utf-8") as fh:
+        ci = fh.read()
+
+    a = _numbered_states(cw, "### 6.5.2", "### 6.5.3")
+    b = _numbered_states(ci, "#### 2.2.2", "#### 2.2.3")
+    if len(a) != 7 or len(b) != 7:
+        fail("七态应为 7 条：copywriting §6.5.2 实得 %d 条、component-inventory §2.2.2 实得 %d 条"
+             % (len(a), len(b)))
+        return
+    if [x[0] for x in a] != EXPECTED_NUMBERS or [x[0] for x in b] != EXPECTED_NUMBERS:
+        fail("七态编号序列不完整或有跳号，应为 ①～⑦")
+        return
+    mismatch = [(a[i][0], a[i][1], b[i][1]) for i in range(7) if a[i][1] != b[i][1]]
+    if mismatch:
+        for num, x, y in mismatch:
+            fail("七态 %s 编号错位：copywriting 写「%s」，component-inventory 写「%s」" % (num, x, y))
+        return
+    print("  七态编号 ①～⑦ 两份文档逐条一致：%s" % " / ".join(x[1] for x in a))
+
+
 def check_narrative_vs_mapping():
     """§3.1–§3.4 字段说明档的「说明」列 vs §3.5 映射表的列名。
 
@@ -959,6 +1017,7 @@ def main():
     check_wireframes(tokens)
     check_assets()
     check_consistency()
+    check_notify_state_numbering()
     check_deliverables()
 
     print("=" * 78)

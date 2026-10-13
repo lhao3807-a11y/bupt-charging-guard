@@ -38,6 +38,7 @@ PREVIEW = os.path.join(DESIGN_DIR, "wireframes", "preview.html")
 ICON = os.path.join(DESIGN_DIR, "assets", "icons", "icon-search.svg")
 CONTRACT = os.path.join(REPO_ROOT, "docs", "CONTRACT.md")
 INV = os.path.join(DESIGN_DIR, "component-inventory.md")
+CW = os.path.join(DESIGN_DIR, "copywriting.md")
 RAW_SHOT = os.path.join(DESIGN_DIR, "demo", "screenshots", "raw", "login.png")
 
 # (用例名, 目标文件, 原串, 替换串, 期望出现的失败信息, 是否替换全部)
@@ -90,6 +91,17 @@ CASES = [
      "| plate | 车牌 | P2 |",
      "| plate | 车牌号 | P2 |",
      "同表同字段", False),
+    # --- 2026-10-13 补入：第 7 项断言「七态编号跨文档一致」（walkthrough §21.1 R-01）。
+    #     原缺陷正是 component-inventory §2.2.2 把「正常场景」编成第 ⑦ 态，
+    #     导致与 copywriting §6.5.2 的 ③～⑦ 全部错位一位。这条把该缺陷复原，验证能被拦下。
+    ("七态编号跨文档错位", INV,
+     "| ⑦ | **重复请求命中已有结果**",
+     "| ⑦ | **正常场景不提醒**",
+     "编号错位", False),
+    ("七态条数不足（少一态）", INV,
+     "| ⑦ | **重复请求命中已有结果**",
+     "| ⑥ | **已达尝试上限**",
+     "七态编号序列不完整", False),
     ("§3.5 改列名致线框越界", CONTRACT,
      "| phone | 手机号 | P1 |",
      "| phone | 手机 | P1 |",
