@@ -411,6 +411,7 @@ class PipelineStatus(BaseModel):
     newly_notified: int = Field(0, description="本轮**真实发出**的短信条数（验收 A05 的凭据）")
     skipped_unchanged: int = 0
     elapsed_ms: float | None = Field(None, description="整轮耗时（毫秒，墙钟采样）")
+    error: str | None = Field(None, description="取帧源不可用时的整轮错误；正常为 None")
     frames: list[PipelineFrame] = Field(default_factory=list)
 
 

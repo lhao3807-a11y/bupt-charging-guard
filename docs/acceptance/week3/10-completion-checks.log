@@ -1,0 +1,25 @@
+2026-10-13 第三周返工补完：codex/tang-week3-completion
+基线：origin/feature/api-week3，独立工作目录 .review-tang（ASCII 路径 R:）
+
+后端：M:/.venv/Scripts/python.exe -m pytest backend/tests -q -p no:cacheprovider
+329 passed, 1 warning in 5.77s
+含：源初始缺失、运行中断不返回旧帧、恢复后不重发、目录权限错误、状态序列化。
+warning 为既有 starlette / anyio 弃用提示。
+
+算法：M:/.venv-algo/Scripts/python.exe -m pytest algo/tests -q -rs -p no:cacheprovider
+43 passed, 5 skipped in 5.83s
+新增缺图、坏图、缺权重三条实际调用异常测试通过。
+5 条模型推理测试因缺少 algo/runs/detect 下已训练的合成/真实 best.pt 跳过。
+此结果为本次重跑，不能等同于此前 45 passed 或完整模型验收通过。
+
+ruff check backend scripts：All checks passed!
+ruff format --check backend scripts：58 files already formatted
+
+MySQL 8.0.46：独立 127.0.0.1:3307 实例，专用库 tang_week3_accept_20261013。
+DATABASE_URL 指向专用库后执行：M:/.venv/Scripts/python.exe scripts/accept_mysql_week3.py
+10 轮四场景 + 每轮 /api/pipeline/status HTTP 200 + 新会话/新编排实例状态恢复：PASS。
+逐轮证据：09-mysql-ten-rounds.json。
+复跑时先创建新的 tang_week3_accept_ 前缀空库；脚本不清空已有数据。
+使用 stub 标注识别，未把 stub 演示冒充 real 模型验证。
+
+A13：用户于本会话明确确认「A13全部签字结束」，签认表与契约同步代记。

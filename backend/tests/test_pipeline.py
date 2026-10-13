@@ -193,11 +193,58 @@ def test_http_exception_detail_is_kept(db, frames):
     assert "未" in run.frames[0].error
 
 
-def test_empty_or_missing_frame_dir_is_not_an_error(db, tmp_path):
+def test_missing_source_is_visible_and_recovers(db, tmp_path):
     frame_dir = tmp_path / "nope"
-    run = _worker(db, str(frame_dir)).run_once(now=T_1000)
-    assert run.frame_count == 0
+    worker = _worker(db, str(frame_dir))
+    failed = worker.run_once(now=T_1000)
+    assert failed.error and "取帧源不可用" in failed.error
+    assert failed.frames == []
+    assert failed.newly_notified == 0
+    target = str(tmp_path / "status.json")
+    pl.write_status(failed, target)
+    assert pl.load_status(target)["error"] == failed.error
+    from app.schemas import PipelineStatus
+
+    assert PipelineStatus.model_validate(pl.load_status(target)).error == failed.error
+    frame_dir.mkdir()
+    (frame_dir / FRAME_FUEL).write_bytes(b"frame")
+    recovered = worker.run_once(now=T_1000)
+    assert recovered.error is None
+    assert recovered.recognized == 1
+    assert recovered.newly_notified == 1
+
+
+def test_existing_empty_source_is_not_an_error(db, tmp_path):
+    run = _worker(db, str(tmp_path)).run_once(now=T_1000)
+    assert run.error is None
     assert run.frames == []
+
+
+def test_source_interrupt_does_not_reuse_stale_frames(db, frames, tmp_path):
+    source = frames(FRAME_FUEL)
+    worker = _worker(db, source)
+    assert worker.run_once(now=T_1000).newly_notified == 1
+    moved = str(tmp_path.with_name(tmp_path.name + "-offline"))
+    os.rename(source, moved)
+    interrupted = worker.run_once(now=T_1000)
+    assert interrupted.error
+    assert interrupted.frames == []
+    assert interrupted.newly_notified == 0
+    os.rename(moved, source)
+    recovered = worker.run_once(now=T_1000)
+    assert recovered.error is None
+    assert recovered.recognized == 1
+    assert recovered.newly_notified == 0
+
+
+def test_unreadable_source_is_visible(db, tmp_path, monkeypatch):
+    def unreadable(_path):
+        raise PermissionError("source access denied")
+
+    monkeypatch.setattr(pl.os, "listdir", unreadable)
+    failed = _worker(db, str(tmp_path)).run_once(now=T_1000)
+    assert "PermissionError" in failed.error
+    assert failed.frames == []
 
 
 # ---------------------------------------------------------------------------

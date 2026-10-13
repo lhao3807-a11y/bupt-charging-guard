@@ -65,6 +65,8 @@ def _parse_bind_map(raw: str | None) -> dict[str, str]:
 def _print_run(run: pl.PipelineRun) -> None:
     print(f"\n=== 编排一轮 {run.started_at.isoformat()} ===")
     print(f"帧目录：{run.frame_count} 张　识别 {run.recognized}　复用 {run.skipped_unchanged}")
+    if run.error:
+        print(f"  [ERROR] {run.error}")
     for frame in run.frames:
         if frame.error:
             print(f"  [ERROR] {frame.frame_id}：{frame.error}")

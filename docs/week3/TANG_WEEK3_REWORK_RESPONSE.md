@@ -107,3 +107,11 @@ git show origin/feature/api-week3:backend/app/routers/notify.py | head -40
 | 本提交 | `05-test-rerun.log`、`06-pipeline-real.*`、`07-acceptance-matrix.md`、`08-signoff.md`、本对账文档 |
 
 凭据目录：`docs/acceptance/week3/`（共 13 个文件）
+
+## 6. 后续补完（2026-10-13，以本节覆盖前文未完成项）
+
+- 源中断/权限错误新增整轮 error，API 与 CLI 均可见；恢复后继续处理且不重发旧占用。
+- A11 在独立 MySQL 8.0.46 库补齐十轮四场景、每轮真实 HTTP 状态读取与新实例恢复，见 `docs/acceptance/week3/09-mysql-ten-rounds.json`。
+- A13 全员签认结束，由用户明确确认，签认表、契约、T1/T6 文档已同步代记。
+- 本次重跑：后端 329 passed；算法 43 passed、5 skipped（缺已训练权重）；新增缺图/坏图/缺权重测试通过。详细证据及重跑限制见 `docs/acceptance/week3/10-completion-checks.log`。
+- 尚不能宣称完整模型推理门禁通过；需在持有训练后 best.pt 及对应真实数据集的环境补跑那五项。分支与 main 的集成另行进行。

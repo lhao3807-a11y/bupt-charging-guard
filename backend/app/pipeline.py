@@ -88,6 +88,7 @@ class PipelineRun:
     started_at: datetime
     finished_at: datetime | None = None
     frames: list[FrameOutcome] = field(default_factory=list)
+    error: str | None = None
     #: 整轮墙钟耗时（毫秒）。`started_at/finished_at` 可能是固定的演示时刻，
     #: 两者**不是**一回事 —— 判重用前者，性能看后者。
     elapsed_ms: float | None = None
@@ -155,8 +156,6 @@ def status_path() -> str:
 
 def list_frames(frame_dir: str) -> list[str]:
     """列出取帧目录下的图片文件名（升序，保证处理顺序可预期）。"""
-    if not os.path.isdir(frame_dir):
-        return []
     names = [
         name
         for name in os.listdir(frame_dir)
@@ -294,7 +293,12 @@ class Pipeline:
         started = time.perf_counter()
         run = PipelineRun(started_at=moment)
 
-        for frame_id in list_frames(self.frame_dir):
+        try:
+            frame_ids = list_frames(self.frame_dir)
+        except OSError as exc:
+            run.error = f"取帧源不可用：{type(exc).__name__}: {exc}"
+            frame_ids = []
+        for frame_id in frame_ids:
             run.frames.append(self.process_frame(frame_id, moment))
 
         run.finished_at = now or datetime.now()
