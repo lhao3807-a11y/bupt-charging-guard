@@ -34,9 +34,7 @@ REPO = os.path.normpath(os.path.join(ALGO, ".."))
 #: 合并 val mAP50 0.9918 / 仅网络实拍 val 0.9889，见 `docs/acceptance/algo/08-*.log`）。
 #: real 模式默认必须用它 —— 合成集权重只在合成图上有效，拿它跑真实图等于拿
 #: 一个不能代表真实准确率的模型对外演示（第 2 周验收审查阻断项之一）。
-DEFAULT_WEIGHTS = os.path.join(
-    ALGO, "runs", "detect", "train_real_web", "weights", "best.pt"
-)
+DEFAULT_WEIGHTS = os.path.join(ALGO, "runs", "detect", "train_real_web", "weights", "best.pt")
 
 #: 合成集权重（任务 2.3）：**仅供合成帧上的链路自测**显式传入，绝不作默认值。
 #: 合成集 mAP50 0.995 只证明链路跑通，不代表真实准确率。
@@ -183,7 +181,12 @@ def recognize_frame(
 
     img = cv2.imread(image_path)
     if img is None:
-        raise FileNotFoundError(f"读不到图片：{image_path}")
+        # cv2.imread 对「文件不存在」和「文件存在但不是能解码的图片（如截断的 JPEG）」
+        # 都返回 None —— 两种情况分开报，否则坏图会被误报成「文件不见」，
+        # 排障时去查路径，而真正的问题是图坏了（验收 A09 要求失败原因可定位）。
+        if not os.path.isfile(image_path):
+            raise FileNotFoundError(f"图片不存在：{image_path}")
+        raise ValueError(f"图片无法解码（文件损坏或不是图片格式）：{image_path}")
 
     boxes = detect_boxes(image_path, conf=conf, weights=weights or DEFAULT_WEIGHTS)
     plates = [b for b in boxes if b["name"] == "plate"]
