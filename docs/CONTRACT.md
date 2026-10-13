@@ -295,6 +295,15 @@
 
 stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀），原样返回为 `RecognitionResult`。**不读图片本身**，只按 `frame_ref` 拼路径。
 
+> **（v1.9 补充）real 模式的读图目录与编排取帧目录同源**：`real` 模式读
+> `$FRAME_SOURCE_DIR/<frame_ref>`（未设置 → `algo/samples/frames/`），
+> **与 §6.11 编排取帧目录用同一个解析器**（`pipeline.default_frame_dir()`），
+> 相对路径一律按**仓库根**解析。
+>
+> **为什么必须同源**：编排按 `FRAME_SOURCE_DIR` 算帧内容摘要（`frame_digest`）来判重与复用，
+> real 识别若写死 `algo/samples/frames/` 去读**同名**的另一张图，识别结果会挂到另一帧的摘要上 ——
+> UI 上就是「按帧关联串了帧」（验收 A10 明确要求无串帧）。两处各写一份迟早分叉，故收口到一处。
+
 ### 6.2 `POST /api/judge`
 
 - 入参即 `RecognitionResult`。
@@ -755,7 +764,7 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
-| **v1.9** | 2026-10-11 | **第 3 周自动闭环（汤瑾睿 T1 定稿，待吕浩回签）**。① **新增 §3.6 占用标识 `occupancy_id`**：`charging_pile` / `occupation_record` 各加一列，到车生成、离车清空、换车与重入重新生成，落库快照后永不改写；② **§6.2 判重键改为 `(pile_id, occupancy_id, rule_hit)`**，废止 v1.2 的「已提醒过就新增一条」口径（自动轮询下每轮新增一条 + 重复发短信），复用记录时**保留首次 `occur_time` 不刷新**；③ **§6.3 `/api/notify` 重写**：请求改为「记录 ID + `retry` 意图」，`notify_status` 不再由调用方指定而由沙箱执行结果产生，响应带 `notify_attempts` / `reason` / `already_sent` / `exhausted` / `conflict`；`occupation_record` 增 `notify_attempts` / `notify_error` 并持久化（重启不清零）；④ **新增 §6.11 `GET /api/pipeline/status`** 只读编排结果（无写副作用）；⑤ §7 明确 `NOTIFY_MAX_ATTEMPTS` / `SMS_SANDBOX_RESULT` / `FRAME_SOURCE_DIR` 属部署配置，**不进 `system_config`**；⑥ §6.11 状态新增 `elapsed_ms`（单帧 + 整轮墙钟耗时）与 `newly_notified`（本轮**真实发出**的条数，区别于一直为「已提醒」的 `notified`），供 T7 耗时采样、慢帧定位与 A05 凭据，**均不参与判定**。**为什么必须改契约**：这四处全是「写语义」与「判重身份」的变更，前端（第 2 页重试/上限）、验收（A05/A07/A08）都依赖同一口径；不改契约就动手，等于让前端与验收各自猜。**设计依据 `docs/week3/T1_OCCUPANCY_DESIGN.md`** | 汤瑾睿 |
+| **v1.9** | 2026-10-11 | **第 3 周自动闭环（汤瑾睿 T1 定稿，待吕浩回签）**。① **新增 §3.6 占用标识 `occupancy_id`**：`charging_pile` / `occupation_record` 各加一列，到车生成、离车清空、换车与重入重新生成，落库快照后永不改写；② **§6.2 判重键改为 `(pile_id, occupancy_id, rule_hit)`**，废止 v1.2 的「已提醒过就新增一条」口径（自动轮询下每轮新增一条 + 重复发短信），复用记录时**保留首次 `occur_time` 不刷新**；③ **§6.3 `/api/notify` 重写**：请求改为「记录 ID + `retry` 意图」，`notify_status` 不再由调用方指定而由沙箱执行结果产生，响应带 `notify_attempts` / `reason` / `already_sent` / `exhausted` / `conflict`；`occupation_record` 增 `notify_attempts` / `notify_error` 并持久化（重启不清零）；④ **新增 §6.11 `GET /api/pipeline/status`** 只读编排结果（无写副作用）；⑤ §7 明确 `NOTIFY_MAX_ATTEMPTS` / `SMS_SANDBOX_RESULT` / `FRAME_SOURCE_DIR` 属部署配置，**不进 `system_config`**；⑥ §6.11 状态新增 `elapsed_ms`（单帧 + 整轮墙钟耗时）与 `newly_notified`（本轮**真实发出**的条数，区别于一直为「已提醒」的 `notified`），供 T7 耗时采样、慢帧定位与 A05 凭据，**均不参与判定**；⑦ **§6.1 补 real 模式读图目录口径**：real 模式与编排取帧目录同源（同一个 `$FRAME_SOURCE_DIR` 解析器、相对路径按仓库根），杜绝「识别读了另一张同名图」的串帧（A10）。**为什么必须改契约**：这四处全是「写语义」与「判重身份」的变更，前端（第 2 页重试/上限）、验收（A05/A07/A08）都依赖同一口径；不改契约就动手，等于让前端与验收各自猜。**设计依据 `docs/week3/T1_OCCUPANCY_DESIGN.md`** | 汤瑾睿 |
 | **v1.8** | 2026-10-06 | **修订 §6.10 `POST /api/piles/simulate`（第 2 周验收审查的三个阻断项）**：① **超时释放现在会落库违规记录** —— 清空 `bound_plate` 之前先交 `rule_engine.judge()` 判定并 `save_violation()` 落库，第 2/4 页因此有真数据。`rule_hit` **由引擎决定不写死 3**（燃油车会判①），车未录入 `vehicle` 表则**不落库不编造**车型；② **`at` 带时区偏移量不再 500** —— 先归一化为本地朴素时间再比较，`advanced_at` 回显归一化值；③ 明确本端点**唯一的写副作用**是 `charging_pile` + `occupation_record`。**为什么必须改契约**：v1.7 只说了「会自然命中规则③」却没说落不落库，实现也就真的一条没写，文档与代码互相矛盾；且这是唯一的写端点，副作用不写进契约，前端与验收都无从核对。**源码侧同步**：`app/simulator.py` 补落库与 `normalize_moment()`，各配回归测试 | 汤瑾睿 |
 | **v1.7** | 2026-10-05 | **新增 §6.10 `POST /api/piles/simulate`**：把充电状态模拟器（任务 5.8）从 CLI 提升为可被前端触发的端点，第 3 页因此能演示状态随时间变化。要点：① 一次调用**只推进一步**（否则跳过「充电中」这档，三色总览卡失去意义）；② 「已充满 → 释放」沿用业务阈值 `full_timeout_min`（§7），模拟数据会自然命中规则③；③ 响应带 `statuses` 全量快照，前端不必二次请求；④ `at` 字段用于演示快进，非法格式 422。**为什么必须走契约**：这是第一个「非业务只读」的写端点，若不定口径，前端可能把它当成刷新接口疯狂调用，或误以为它参与识别闭环 | 汤瑾睿 |
 | **v1.6** | 2026-10-05 | **第 2 周后端：补齐第 3/4/5 页三组接口（`PLAN_4WEEKS.md` §3.0 的 C1–C3 / §3.2 任务 5.7）**。① **§6.7 `GET /api/piles`**：桩列表 + `status` 精确筛选 + `pile_id` 模糊筛选，响应附 **`summary`（筛选后三状态计数）**供第 3 页总览卡直接取用；② **§6.8 `GET /api/stats`**：按 `rule_hit` 与按日期双聚合，`by_rule` **固定 4 项**（0/1/2/3 升序，无记录补 0）、`by_date` **连续日期补洞**，窗口由 `days`（1–90，默认 7）控制；③ **§6.9 `GET/PUT /api/config`**：守 §7 红线——**白名单仅两个阈值键**，未知 key → 422，取值范围 **1–1440 分钟**，值以字符串存取，键缺失抛 `ConfigMissingError`（不静默兜底）。**为什么先改契约**：这三页在 v1.3 被推迟的理由就是「接口未定义」，不先定口径就会出现三个前端各写各的假数据、后续对不上的局面 | 汤瑾睿 |

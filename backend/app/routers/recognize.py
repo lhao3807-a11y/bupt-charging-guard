@@ -4,7 +4,8 @@
 
 - ``stub``（**默认**）：按 ``frame_ref`` 拼路径读标注 JSON 原样返回，**不读图片**
   （契约 §6.1），demo 稳定、不被模型拖累。
-- ``real``：读 ``algo/samples/frames/<frame_ref>`` 真图 → YOLO 检测 + HyperLPR3
+- ``real``：读 ``$FRAME_SOURCE_DIR/<frame_ref>``（未设置 → ``algo/samples/frames/``，
+  与编排取帧目录**同源**，见 ``frame_source_dir()``）真图 → YOLO 检测 + HyperLPR3
   识别 + 绿蓝牌判定（``algo/recognize/plate.py``），返回结构**与 stub 完全一致**。
 
 开关**刻意不放 `system_config` 表**：契约 §7 的系统配置项只含业务阈值
@@ -26,11 +27,10 @@ from app.schemas import FrameRef, RecognitionResult
 
 router = APIRouter(tags=["recognize"])
 
-#: 标注目录：<repo>/algo/samples/{labels,frames}/
+#: 标注目录：<repo>/algo/samples/labels/
 _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _REPO_DIR = os.path.dirname(_BACKEND_DIR)
 LABELS_DIR = os.path.join(_REPO_DIR, "algo", "samples", "labels")
-FRAMES_DIR = os.path.join(_REPO_DIR, "algo", "samples", "frames")
 
 #: 模式开关：环境变量，未设置或为空 → 默认 stub
 MODE_ENV_VAR = "RECOGNITION_MODE"
@@ -48,6 +48,20 @@ def label_path_for(frame_ref: str) -> str:
     return os.path.join(LABELS_DIR, f"{stem}.json")
 
 
+def frame_source_dir() -> str:
+    """real 模式读图的目录 —— **与编排取帧目录必须是同一个**（契约 §6.11 口径 6）。
+
+    刻意**委托 `pipeline.default_frame_dir()`**，不在这里自己拼一遍
+    ``algo/samples/frames``。两处各写一份的后果很具体：编排按 `FRAME_SOURCE_DIR`
+    算帧摘要（`frame_digest`），real 识别却去 `algo/samples/frames/` 读**同名**的
+    另一张图 —— 识别结果会挂到另一帧的摘要上，UI 上就是「按帧关联串了帧」
+    （验收 A10 明确要求无串帧）。同一个来源就永远不会分叉。
+    """
+    from app.pipeline import default_frame_dir  # 延迟导入：避免 recognize ↔ pipeline 顶层循环
+
+    return default_frame_dir()
+
+
 def frame_path_for(frame_ref: str) -> str:
     """real 模式：``frame_ref`` → 真实图片路径（同样只取 basename 防越界）。"""
     name = os.path.basename(frame_ref)
@@ -56,7 +70,7 @@ def frame_path_for(frame_ref: str) -> str:
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=f"real 模式的 frame_ref 必须是图片文件名（.jpg/.png）：{frame_ref!r}",
         )
-    return os.path.join(FRAMES_DIR, name)
+    return os.path.join(frame_source_dir(), name)
 
 
 def get_recognition_mode() -> str:
