@@ -644,7 +644,6 @@
               <th style="width: 160px;">绑定车牌</th>
               <th style="width: 200px;">开始充电时间</th>
               <th style="width: 200px;">充满时间</th>
-              <th style="width: 120px;">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -654,7 +653,6 @@
               <td class="mono" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-002</td>
@@ -662,7 +660,6 @@
               <td class="mono">京AD12345</td>
               <td class="mono num">2026-09-08 08:05:00</td>
               <td class="mono num">2026-09-08 08:55:00</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr class="is-hover">
               <td class="mono">PILE-003</td>
@@ -670,7 +667,6 @@
               <td class="mono">京AD67890</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-004</td>
@@ -678,7 +674,6 @@
               <td class="mono">京AD24680</td>
               <td class="mono num">2026-09-08 10:12:00</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-005</td>
@@ -686,7 +681,6 @@
               <td class="mono">京AD24680</td>
               <td class="mono num">2026-09-08 08:40:00</td>
               <td class="mono num">2026-09-08 12:10:00</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-006</td>
@@ -694,7 +688,6 @@
               <td class="mono">京AD13579</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-007</td>
@@ -702,7 +695,6 @@
               <td class="mono" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
             <tr>
               <td class="mono">PILE-008</td>
@@ -710,7 +702,6 @@
               <td class="mono">京AD66888</td>
               <td class="mono num">2026-09-08 14:30:00</td>
               <td class="mono num" style="color: var(--text-tertiary);">—</td>
-              <td><span class="col-actions"><span class="btn btn-link">详情</span></span></td>
             </tr>
           </tbody>
         </table>
@@ -753,42 +744,16 @@
     </div>
   </div>
 
-  <h2 class="anno-title">桩位详情（点「详情」弹出）</h2>
-  <p class="anno-desc">对应 <code>el-descriptions</code>（描边模式）+ <code>el-progress</code>。字段仍只用 <code>charging_pile</code> 的 5 列，进度条为演示用视觉，<b>不新增字段</b>。</p>
-
-  <div class="specimen">
-    <div class="mask-frame">
-      <div class="modal">
-        <div class="modal-head">
-          <span class="modal-title">桩位详情 · PILE-002</span>
-          <span class="modal-close">✕</span>
-        </div>
-        <div class="modal-body">
-          <dl class="desc">
-            <dt>桩 ID</dt>
-            <dd class="mono">PILE-002</dd>
-            <dt>状态</dt>
-            <dd><span class="pill pill-caution"><i class="dot dot-caution"></i>已充满</span></dd>
-            <dt>绑定车牌</dt>
-            <dd class="mono">京AD12345</dd>
-            <dt>充电进度</dt>
-            <dd>
-              <div class="progress"><div class="progress-bar is-caution" style="width: 100%;"></div></div>
-              <div class="help">演示用进度：已充满</div>
-            </dd>
-            <dt>开始充电时间</dt>
-            <dd class="mono num">2026-09-08 08:05:00</dd>
-            <dt>充满时间</dt>
-            <dd class="mono num">2026-09-08 08:55:00</dd>
-          </dl>
-          <div class="help">该桩已充满 <span class="num">3</span> 小时 <span class="num">35</span> 分，超过 <code>full_timeout_min</code> 阈值后由规则 ③「充满未移车」判定并落库（见第 2 页记录 5）。</div>
-        </div>
-        <div class="modal-foot">
-          <button class="btn btn-default">关闭</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <h2 class="anno-title">【第三周 W3 裁定】本期不提供桩详情弹窗</h2>
+  <p class="anno-desc">
+    原线框此处是「桩位详情」弹窗样张（<code>el-descriptions</code> 描边模式 + <code>el-progress</code> 演示进度条）。
+    按 <code>walkthrough.md</code> §16.1 的 <b>P3-4</b> 裁定，该规格<b>已移除并延期至第四周</b>。
+    实测依据：<code>PilesView.vue</code> 的 <code>el-table-column</code> 仅 5 列
+    （<code>pile_id</code> / <code>status</code> / <code>bound_plate</code> / <code>start_time</code> / <code>end_time</code>），
+    无操作列、无 <code>el-dialog</code>；且本周核心是自动沙箱闭环，桩详情属次要工作。
+    <b>移除它是为了不让线框承诺一个不存在的功能</b>；若第四周实施，须先在
+    <code>component-inventory.md</code> §4.3 补回规格，再恢复本页样张。
+  </p>
 
   <h2 class="anno-title">空态</h2>
   <p class="anno-desc">桩数据来自种子与模拟器，空态最常见的原因是<b>模拟器没启动</b>，所以文案要指向排查动作。</p>
@@ -820,7 +785,8 @@
   <h2 class="anno-title">标注说明</h2>
   <p class="anno-desc">本页对应开发大纲 M7「充电状态展示」，数据源 <code>charging_pile</code>（模拟）。</p>
   <ol class="notes">
-    <li><b>表格列 = charging_pile 全字段</b>：桩 ID / 状态 / 绑定车牌 / 开始充电时间 / 充满时间，另加「操作」列。卡片视图展示同一批字段的另一种排布，<b>两视图字段完全一致</b>，用分段控件切换（对应 <code>el-radio-button</code>）。</li>
+    <li><b>表格列 = charging_pile 全字段</b>：桩 ID / 状态 / 绑定车牌 / 开始充电时间 / 充满时间。<b>【第三周 W3 · P3-4】原「另加操作列」已移除</b>（详情弹窗延期，见 <code>walkthrough.md</code> §16.1）。卡片视图展示同一批字段的另一种排布，<b>两视图字段完全一致</b>。视图切换<b>位于卡片区工具条</b>而非页头（<b>P3-1</b> 等效裁定：实现用 <code>el-button-group</code> + <code>aria-pressed</code>，比线框更完整）。</li>
+    <li><b>【第三周 W3 · P3-6 / P3-7 / P3-3 回写】</b>：卡片顶部有 <b>4px 状态色边</b>，取状态四档的 <code>-solid</code> 令牌（空闲 info / 充电中品牌主色 / 已充满 caution），<b>色值不另定</b>；卡片区有<b>状态筛选下拉</b>，走 <code>loadPiles(status)</code>；概览数字随筛选变化并标注「当前结果」（判为等效，语义自明）。</li>
     <li><b>「空闲 + 有绑定车牌」是真实业务场景</b>：代表车已停在车位上但桩未在充电，正是规则 ②「异常占位」的判定输入。PILE-003 / PILE-006 即此状态，与第 2 页的记录 3 / 记录 6 对得上。</li>
     <li><b>跨页数据自洽</b>：本页 PILE-002（京AD12345 已充满，08:55 充满）↔ 第 2 页记录 5（同一车牌、同一桩、08:55:30 命中规则 ③）；PILE-005（京AD24680 已充满，12:10 充满）↔ 第 2 页记录 4。演示时两页互相对照，讲得通。</li>
     <li><b>不用图表</b>：本页只有 8 个桩、3 种状态，用统计卡 + 卡片网格比饼图更直观，图表集中在第 4 页（ECharts 选型见 <code>component-inventory.md</code> §3.1）。</li>

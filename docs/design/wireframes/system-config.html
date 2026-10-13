@@ -514,7 +514,6 @@
               <th style="width: 260px;">参数键</th>
               <th style="width: 260px;">参数值</th>
               <th>说明</th>
-              <th style="width: 150px;">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -535,7 +534,6 @@
                 <span class="key-desc">原值 <span class="num">30</span> · 已修改，未保存</span>
               </td>
               <td>桩状态变为「已充满」后，超过该时长仍未移车 → 命中规则 ③<b>充满未移车</b>。默认 30。</td>
-              <td><span class="col-actions"><span class="btn btn-link">保存</span><span class="btn btn-danger-text">撤销</span></span></td>
             </tr>
             <tr>
               <td>
@@ -554,7 +552,6 @@
                 <span class="key-desc">当前值 · 未修改</span>
               </td>
               <td>新能源车停在桩位上但未充电，停放超过该时长 → 命中规则 ②<b>异常占位</b>。默认 30。</td>
-              <td><span class="col-actions"><span class="btn btn-link" style="color: var(--text-disabled);">保存</span><span class="btn" style="color: var(--text-disabled); padding: 0;">撤销</span></span></td>
             </tr>
           </tbody>
         </table>
@@ -665,10 +662,10 @@
   <h2 class="anno-title">标注说明</h2>
   <p class="anno-desc">契约 §7 明令：阈值一律从 <code>system_config</code> 读取，<b>严禁硬编码</b>。本页是这套约束的 UI 出口。</p>
   <ol class="notes">
-    <li><b>表格列 = system_config 全字段</b>：参数键 <code>key</code> / 参数值 <code>value</code> / 说明 <code>note</code>，另加「操作」列。字段与列一一对应，未新增字段。</li>
+    <li><b>表格列 = system_config 全字段</b>：参数键 <code>key</code> / 参数值 <code>value</code> / 说明 <code>note</code>。<b>【第三周 W3 · P5-1】原「另加操作列」已移除</b>，保存/撤销统一在页头。字段与列一一对应，未新增字段。</li>
     <li><b>只放契约里已有的两个键</b>：本期 <code>CONTRACT.md</code> §7 只定义了 <code>full_timeout_min</code> 与 <code>abnormal_park_min</code>。非阈值键（如后续的 OCPP 开关）按同一张表展示、置为只读并用 tooltip 说明用途，但<b>本期不预造键名</b>——造了就会在联调时对不上。</li>
     <li><b>行内编辑而非弹窗</b>：只有 2 个值，弹窗反而增加层级。用 <code>el-input-number</code> 行内改，单位「分钟」用 <code>append</code> 后缀，避免用户把单位理解成秒。</li>
-    <li><b>「已修改未保存」必须可见</b>：改动项给主色描边 + 光晕（<code>--brand-primary</code> + <code>--brand-primary-bg</code>），并在表底压一条黄色未保存条（<code>--state-warning-*</code>），列出「哪个键、从多少改到多少」。未改动行的「保存/撤销」置灰，避免误以为整页都要保存。</li>
+    <li><b>「已修改未保存」必须可见</b>：改动项给主色描边 + 光晕（<code>--brand-primary</code> + <code>--brand-primary-bg</code>），并在表底压一条黄色未保存条（<code>--state-warning-*</code>），列出「哪个键、从多少改到多少」。<b>【第三周 W3 · P5-1 回写】</b>原线框的「操作」列（逐行保存/撤销、未改动行置灰）<b>已移除</b> —— 全页只有 2 个参数，<b>保存/撤销统一放页头</b>，更省纵向空间；页头按钮状态按 <code>dirty</code> / <code>canSave</code> 联动，不会误以为整页都要保存。</li>
     <li><b>保存走二次确认，且把 diff 写进正文</b>：这是全站唯一能改变判定结果的入口，属于高风险操作。确认框里写清「改前 → 改后」和影响面，不做「确定要保存吗」这种无信息量文案。</li>
     <li><b>不提供「恢复默认」按钮</b>：契约未定义默认值的重置接口，硬做一个只在前端改数字的「恢复默认」会造成「看起来恢复了但库里没改」的假象。需要的键把默认值（30）写在说明列里，用户手动改回去即可。</li>
     <li><b>⚠️ 待确认（汤瑾睿）</b>：确认框里写了「已落库的历史记录不受影响」——即改阈值<b>不回溯重算</b>历史判定。这是设计侧按「判定发生在落库时刻」推出的行为，<b>需汤瑾睿确认规则引擎实现一致</b>；若引擎会回溯重算，这句话必须删掉并另写说明。</li>

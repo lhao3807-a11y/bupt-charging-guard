@@ -491,14 +491,15 @@
       <div class="page-head">
         <div>
           <h1 class="page-title">报警统计</h1>
-          <p class="page-desc">按命中规则、按天、按桩聚合违规记录（数据源 occupation_record），支持从图表下钻到明细。</p>
+          <p class="page-desc">按命中规则、按天、按桩聚合违规记录（数据源 occupation_record）；三张图同屏并列，一屏看全。</p>
         </div>
         <div class="page-actions">
           <span class="seg">
             <span class="seg-item is-on">近 7 天</span>
             <span class="seg-item">近 30 天</span>
           </span>
-          <button class="btn btn-default">导出</button>
+          <!-- 【第三周 W3 · P4-1 裁定】导出按钮已移除：契约 §6 无导出端点。
+               留着一个点不动的按钮，等于书面承诺一个不存在的功能。延期见 walkthrough.md §16.1。 -->
         </div>
       </div>
 
@@ -513,38 +514,29 @@
         <div class="stat">
           <div class="stat-label"><i class="dot dot-danger"></i>燃油车占位</div>
           <div class="stat-value num">23</div>
-          <div class="stat-foot">rule_hit = 1 · 占比 <span class="num">33.8</span>%</div>
+          <div class="stat-foot">rule_hit = 1 · 占比 <span class="num mono">33.8</span>%</div>
           <div class="stat-bar" style="background: var(--state-danger-solid);"></div>
         </div>
         <div class="stat">
           <div class="stat-label"><i class="dot dot-caution"></i>异常占位</div>
           <div class="stat-value num">19</div>
-          <div class="stat-foot">rule_hit = 2 · 占比 <span class="num">27.9</span>%</div>
+          <div class="stat-foot">rule_hit = 2 · 占比 <span class="num mono">27.9</span>%</div>
           <div class="stat-bar" style="background: var(--state-caution-solid);"></div>
         </div>
         <div class="stat">
           <div class="stat-label"><i class="dot dot-warning"></i>充满未移车</div>
           <div class="stat-value num">26</div>
-          <div class="stat-foot">rule_hit = 3 · 占比 <span class="num">38.2</span>%</div>
+          <div class="stat-foot">rule_hit = 3 · 占比 <span class="num mono">38.2</span>%</div>
           <div class="stat-bar" style="background: var(--state-warning-solid);"></div>
         </div>
       </div>
 
-      <!-- 维度切换 -->
+      <!-- 数据来源说明（P4-4 回写：第 1 周的「前端自行聚合」口径已过期） -->
       <section class="card">
-        <div class="table-toolbar">
-          <h3>统计维度</h3>
-          <span class="seg">
-            <span class="seg-item is-on">按命中规则</span>
-            <span class="seg-item">按天</span>
-            <span class="seg-item">按桩</span>
-          </span>
-          <span class="count">切换维度只换聚合口径，不换数据源</span>
-        </div>
         <div class="card-body">
           <div class="alert alert-warning">
             <span>!</span>
-            <span><b>统计聚合接口尚未在契约中定义</b>（<code>CONTRACT.md</code> §6 只有 <code>GET /api/records</code>）。第 1 周实现方式：前端从 <code>/api/records</code> 拉取后自行聚合，<b>不改契约、不加接口</b>；若第 2 周数据量上来后需要后端聚合，走「先改 CONTRACT.md → @全员 → 升版本号」流程。本页所有数字均为该口径下的示意值。</span>
+            <span><b>数据源 <code>GET /api/stats</code></b>（<code>CONTRACT.md</code> §6.8，v1.6 新增 / v1.9 扩展）。口径：时间窗为<b>最近 N 个自然日闭区间</b>（含今天），统计基准字段为 <code>occur_time</code>；<code>by_rule</code> 固定返回 4 项、<code>by_date</code> 补零为连续日期、<code>by_pile</code> 只统计规则 1/2/3。<b>序列顺序由后端固定，前端不重排</b>。自检：三个规则分项之和 = 总违规数。</span>
           </div>
         </div>
       </section>
@@ -579,7 +571,7 @@
               <text class="bar-value" x="380" y="33" text-anchor="middle">26</text>
               <text class="axis-label is-strong" x="380" y="200" text-anchor="middle">充满未移车</text>
 
-              <text class="axis-label" x="276" y="222" text-anchor="middle">点击柱体可下钻到明细（图表联动表格）</text>
+              <text class="axis-label" x="276" y="222" text-anchor="middle">单位：条</text>
             </svg>
           </div>
         </section>
@@ -605,12 +597,12 @@
               </svg>
               <div>
                 <div class="legend" style="flex-direction: column; gap: var(--space-2); margin-top: 0;">
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary);"></span>PILE-001 · <span class="num">22</span>%</span>
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-3);"></span>PILE-003 · <span class="num">18</span>%</span>
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-5);"></span>PILE-007 · <span class="num">16</span>%</span>
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--state-info-solid);"></span>PILE-005 · <span class="num">15</span>%</span>
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-7);"></span>PILE-002 · <span class="num">15</span>%</span>
-                  <span class="legend-item"><span class="legend-chip" style="background: var(--state-info-border);"></span>PILE-006 · <span class="num">14</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary);"></span><span class="mono">PILE-001</span> · <span class="num">22</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-3);"></span><span class="mono">PILE-003</span> · <span class="num">18</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-5);"></span><span class="mono">PILE-007</span> · <span class="num">16</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--state-info-solid);"></span><span class="mono">PILE-005</span> · <span class="num">15</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--brand-primary-light-7);"></span><span class="mono">PILE-002</span> · <span class="num">15</span>%</span>
+                  <span class="legend-item"><span class="legend-chip" style="background: var(--state-info-border);"></span><span class="mono">PILE-006</span> · <span class="num">14</span>%</span>
                 </div>
                 <div class="help" style="margin-top: var(--space-3);">同一维度（桩）之间的份额比较，用<b>主色梯度</b>而非违规色——违规色只表达严重度，不表达占比。</div>
               </div>
@@ -666,61 +658,15 @@
         </section>
       </div>
 
-      <!-- 明细下钻 -->
+      <!-- 【第三周 W3 · P4-6 裁定】明细下钻表已移除，改为延期说明。
+           GET /api/stats（§6.8）已含 by_rule 明细，技术上可支撑下钻，
+           但下钻属独立工时，本周延期。依据见 walkthrough.md §16.1。 -->
       <section class="card">
-        <div class="table-toolbar">
-          <h3>明细下钻</h3>
-          <span class="count">已下钻：命中规则 = 燃油车占位 · 共 <span class="num">23</span> 条</span>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th style="width: 150px;">车牌</th>
-              <th style="width: 110px;">车型</th>
-              <th style="width: 130px;">桩 ID</th>
-              <th style="width: 150px;">命中规则</th>
-              <th style="width: 200px;">命中时间</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="col-plate mono">京A12345</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td class="mono">PILE-001</td>
-              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
-              <td class="mono num">2026-09-08 10:00:05</td>
-            </tr>
-            <tr>
-              <td class="col-plate mono">京A88888</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td class="mono">PILE-007</td>
-              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
-              <td class="mono num">2026-09-08 09:41:22</td>
-            </tr>
-            <tr class="is-hover">
-              <td class="col-plate mono">京A66666</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td class="mono">PILE-001</td>
-              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
-              <td class="mono num">2026-09-07 16:22:31</td>
-            </tr>
-            <tr>
-              <td class="col-plate mono">京A12345</td>
-              <td><span class="tag tag-fuel">燃油</span></td>
-              <td class="mono">PILE-001</td>
-              <td><span class="pill pill-danger"><i class="dot dot-danger"></i>燃油车占位</span></td>
-              <td class="mono num">2026-09-07 08:15:44</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="pager">
-          <span>第 <span class="num">1</span> / <span class="num">2</span> 页，共 <span class="num">23</span> 条，每页 <span class="num">20</span> 条</span>
-          <span class="pager-right">
-            <span class="pager-btn">‹</span>
-            <span class="pager-btn is-cur">1</span>
-            <span class="pager-btn">2</span>
-            <span class="pager-btn">›</span>
-          </span>
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <span>!</span>
+            <span><b>本期不提供图表下钻</b>。数据源 <code>GET /api/stats</code>（<code>CONTRACT.md</code> §6.8）已返回 <code>by_rule</code> 明细，技术上可支撑下钻；该功能本周<b>延期至第四周</b>，不作为本周门槛。裁定与依据见 <code>walkthrough.md</code> §16.1（P4-6）。</span>
+          </div>
         </div>
       </section>
 
@@ -803,9 +749,11 @@
   <ol class="notes">
     <li><b>序列顺序不是审美选择，是严重度顺序</b>：红 → 橙 → 黄 → 绿。第 2 页表格的规则色、第 4 页图表的序列色、图例顺序三者必须完全一致，否则用户在两页之间来回切会重新学一遍颜色。</li>
     <li><b>饼图不用违规色</b>：「按桩占比」是份额比较，不是严重度。若用红橙黄，会暗示「PILE-001 更严重」，而它只是数量更多。份额一律用主色梯度。</li>
-    <li><b>统计聚合接口尚未定义</b>：契约 §6 只有 <code>GET /api/records</code>。第 1 周前端在本地聚合（不改契约）；第 2 周若需要后端聚合，<b>先改 <code>CONTRACT.md</code> 再升版本</b>，不允许前端先写死一个不存在的接口路径。</li>
+    <li><b>数据源为 <code>GET /api/stats</code></b>（契约 §6.8）。<b>【第三周 W3 · P4-4 回写】</b>原「统计聚合接口尚未定义、第 1 周前端自行聚合」是<b>已过期的临时口径</b> —— 该接口已于 v1.6 新增、v1.9 扩展并接入。口径：最近 N 个自然日闭区间、基准字段 <code>occur_time</code>、<code>by_rule</code> 固定 4 项、<code>by_date</code> 补零连续、<code>by_pile</code> 只统计规则 1/2/3，序列顺序由后端固定。</li>
     <li><b>比例尺写死在图里，口径写在标注里</b>：本页数字（总 68 / 1: 23 / 2: 19 / 3: 26，合计 68）是示意值，但<b>三个分项之和必须等于总数</b>——统计页最容易出的错就是这里对不上，答辩时一被追问就露怯。</li>
-    <li><b>下钻是联动，不是新页面</b>：点柱体后下方表格按该 <code>rule_hit</code> 过滤，并用 <code>el-tag</code> 显示当前过滤条件（可关闭）。不新增路由，避免导航层级变深。</li>
+    <li><b>【第三周 W3 · P4-6 裁定】本期不提供下钻</b>：原线框的「明细下钻表」与「点击柱体可下钻到明细」承诺<b>已移除</b>，改为页内延期说明。技术上 <code>GET /api/stats</code> 的 <code>by_rule</code> 已可支撑下钻，但该功能本周延期至第四周。裁定、依据与回签栏见 <code>walkthrough.md</code> §16.1。</li>
+    <li><b>【第三周 W3 · P4-1 裁定】本期不提供导出</b>：原页头「导出」按钮<b>已移除</b>。契约 §6.1–§6.10 <b>没有任何导出端点</b>，留着按钮只能做成假导出。若要实现，须先在 <code>CONTRACT.md</code> 补端点。依据见 <code>walkthrough.md</code> §16.1。</li>
+    <li><b>【第三周 W3 · P4-2 回写】三图同屏并列</b>：原线框的「统计维度切换」控件与「切换维度只换聚合口径」说明<b>已移除</b> —— 实现采用三张图同屏并列，一屏看全更适合答辩；留着未实现的切换说明等于欠账。</li>
     <li><b>趋势线的峰值要能解释</b>：09-05 峰值 <span class="num">15</span> 条。演示前对一遍日期，确保峰值那天确实有对应数据，别让老师问「这天为什么多」时答不上来。</li>
     <li><b>刻度与网格保持克制</b>：只保留横向网格线，纵向不加；Y 轴从 0 起，不做截断（截断会放大差异，统计图里属于误导）。</li>
     <li><b>图表容器高度固定</b>：三张图分别用固定 viewBox 比例（柱 520×230、环 240×240、线 520×200），ECharts 侧对应写死容器高度，避免数据加载后跳版。</li>

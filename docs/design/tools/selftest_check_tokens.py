@@ -74,11 +74,15 @@ CASES = [
      'stroke="currentColor"',
      'stroke="#A8071A"',
      "不得写死色值", False),
-    # 2026-09-19 终检补入：第 4 页下钻表与第 2 页读同一张 occupation_record，
+    # 2026-09-19 终检补入：第 6 页「最近识别记录」表与第 2 页读同一张 occupation_record，
     # 若把「车牌」写成「车牌号」，白名单和同表跨页比对应同时拦下。
-    ("同表跨页列名分叉", STAT,
-     '<th style="width: 150px;">车牌</th>',
-     '<th style="width: 150px;">车牌号</th>',
+    #
+    # 2026-10-13（W3 · P4-6）：原锚点在 statistics.html 的明细下钻表，该表按裁定已移除，
+    # 故把本用例迁到 preview.html —— 该页的 5 列表同样取自 occupation_record，
+    # 且 check_tokens 的 SHARED_TABLE_PAGES 仍断言 preview ⊆ records，校验能力等价。
+    ("同表跨页列名分叉", PREVIEW,
+     '<th style="width: 160px;">车牌</th>',
+     '<th style="width: 160px;">车牌号</th>',
      "列名分叉", False),
     # --- 2026-09-19 补入：列名白名单已改为从 CONTRACT.md §3.5 派生，
     #     下面 4 条验证「改契约就能拦下」这件事真的成立（而非断言空跑）。
