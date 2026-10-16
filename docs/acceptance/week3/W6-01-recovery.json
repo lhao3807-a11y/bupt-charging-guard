@@ -1,0 +1,37 @@
+{
+  "record_id": 1,
+  "before": {
+    "id": 1,
+    "notify_status": "失败",
+    "notify_attempts": 0,
+    "max_attempts": 3,
+    "reason": "车主未绑定手机号",
+    "already_sent": false,
+    "exhausted": false,
+    "conflict": false
+  },
+  "recovered": {
+    "id": 1,
+    "notify_status": "已提醒",
+    "notify_attempts": 1,
+    "max_attempts": 3,
+    "reason": null,
+    "already_sent": false,
+    "exhausted": false,
+    "conflict": false
+  },
+  "final": {
+    "id": 1,
+    "notify_status": "已提醒",
+    "notify_attempts": 1,
+    "max_attempts": 3,
+    "reason": null,
+    "already_sent": true,
+    "exhausted": false,
+    "conflict": false
+  },
+  "generated_at": "2026-10-16T12:08:04.891840",
+  "mode": "sandbox",
+  "api": "http://127.0.0.1:8016",
+  "capture": "API 驱动真实运行态分步截图，非人工点击录屏"
+}
