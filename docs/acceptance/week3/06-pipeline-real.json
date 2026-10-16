@@ -1,0 +1,569 @@
+{
+  "generated_at": "2026-10-13T19:38:50",
+  "mode": "real",
+  "recognition_weights": "algo\\runs\\detect\\train_real_web\\weights\\best.pt",
+  "frame_source_dir": "C:\\Users\\yy\\AppData\\Local\\Temp\\accept-real-geefsns_\\frames",
+  "judge_now": "2026-10-13T15:00:00",
+  "probe": [
+    {
+      "frame": "web_0163.jpg",
+      "plate": "沪AG61020",
+      "vtype": "新能源",
+      "confidence": 0.8907172083854675
+    },
+    {
+      "frame": "web_0210.jpg",
+      "plate": "粤CD88145",
+      "vtype": "新能源",
+      "confidence": 0.8901025652885437
+    },
+    {
+      "frame": "web_0243.jpg",
+      "plate": "苏EA15162",
+      "vtype": "燃油",
+      "confidence": 0.8794180750846863
+    },
+    {
+      "frame": "web_0250.jpg",
+      "plate": "沪BAS0511",
+      "vtype": "新能源",
+      "confidence": 0.8907070755958557
+    },
+    {
+      "frame": "web_0270.jpg",
+      "plate": "沪AD88888",
+      "vtype": "新能源",
+      "confidence": 0.8892194032669067
+    },
+    {
+      "frame": "web_0288.jpg",
+      "plate": "沪BDZ5519",
+      "vtype": "新能源",
+      "confidence": 0.8910652995109558
+    },
+    {
+      "frame": "web_0313.jpg",
+      "plate": "粤SDY3228",
+      "vtype": "新能源",
+      "confidence": 0.8669264316558838
+    },
+    {
+      "frame": "web_0388.jpg",
+      "plate": "沪ADJ5658",
+      "vtype": "新能源",
+      "confidence": 0.8754682540893555
+    }
+  ],
+  "scenario": [
+    {
+      "frame": "a_full_timeout.jpg",
+      "pile_id": "PILE-R1",
+      "scenario": "full_timeout",
+      "scenario_label": "已充满超时",
+      "plate": "沪AG61020",
+      "vtype": "新能源",
+      "phone": "13800000001",
+      "expected_rule": 3
+    },
+    {
+      "frame": "b_idle_park.jpg",
+      "pile_id": "PILE-R2",
+      "scenario": "idle_park",
+      "scenario_label": "未充电久停",
+      "plate": "粤CD88145",
+      "vtype": "新能源",
+      "phone": "13800000001",
+      "expected_rule": 2
+    },
+    {
+      "frame": "c_normal.jpg",
+      "pile_id": "PILE-R3",
+      "scenario": "normal",
+      "scenario_label": "正常充电",
+      "plate": "沪BAS0511",
+      "vtype": "新能源",
+      "phone": "13800000001",
+      "expected_rule": null
+    },
+    {
+      "frame": "d_sandbox_fail.jpg",
+      "pile_id": "PILE-R4",
+      "scenario": "full_timeout",
+      "scenario_label": "已充满超时",
+      "plate": "沪AD88888",
+      "vtype": "新能源",
+      "phone": "13800000001",
+      "expected_rule": 3
+    },
+    {
+      "frame": "e_fuel.jpg",
+      "pile_id": "PILE-R5",
+      "scenario": "fuel_occupy",
+      "scenario_label": "燃油占位",
+      "plate": "苏EA15162",
+      "vtype": "燃油",
+      "phone": null,
+      "expected_rule": 1
+    }
+  ],
+  "rounds": [
+    {
+      "started_at": "2026-10-13T15:00:00",
+      "finished_at": "2026-10-13T15:00:00",
+      "frames": [
+        {
+          "frame_id": "a_full_timeout.jpg",
+          "frame_digest": "625c0801bad531c1b2954474c579305c",
+          "recognized": true,
+          "reused": false,
+          "plate": "沪AG61020",
+          "vtype": "新能源",
+          "pile_id": "PILE-R1",
+          "rule_hit": 3,
+          "record_id": 1,
+          "notify_status": "已提醒",
+          "notify_reason": null,
+          "error": null,
+          "notified_now": true,
+          "elapsed_ms": 988.51
+        },
+        {
+          "frame_id": "b_idle_park.jpg",
+          "frame_digest": "d9697195c81ee3ed41b4df8379657588",
+          "recognized": true,
+          "reused": false,
+          "plate": "粤CD88145",
+          "vtype": "新能源",
+          "pile_id": "PILE-R2",
+          "rule_hit": 2,
+          "record_id": 2,
+          "notify_status": "已提醒",
+          "notify_reason": null,
+          "error": null,
+          "notified_now": true,
+          "elapsed_ms": 673.87
+        },
+        {
+          "frame_id": "c_normal.jpg",
+          "frame_digest": "b767d447f6775eec4dadcd28c14b487f",
+          "recognized": true,
+          "reused": false,
+          "plate": "沪BAS0511",
+          "vtype": "新能源",
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 676.28
+        },
+        {
+          "frame_id": "e_fuel.jpg",
+          "frame_digest": "85c31c85a2e2bf501226415b75a8aeb6",
+          "recognized": true,
+          "reused": false,
+          "plate": "苏EA15162",
+          "vtype": "燃油",
+          "pile_id": "PILE-R5",
+          "rule_hit": 1,
+          "record_id": 3,
+          "notify_status": "失败",
+          "notify_reason": "车主未绑定手机号",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 756.05
+        },
+        {
+          "frame_id": "z_corrupt.jpg",
+          "frame_digest": "9d55756b960614b8d1870e7136b8be60",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\\Users\\yy\\AppData\\Local\\Temp\\accept-real-geefsns_\\frames\\z_corrupt.jpg",
+          "notified_now": false,
+          "elapsed_ms": 1.45
+        },
+        {
+          "frame_id": "z_noplate.jpg",
+          "frame_digest": "13e0df08229cd94e5b9e2259ba4ef90d",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。",
+          "notified_now": false,
+          "elapsed_ms": 1167.38
+        }
+      ],
+      "elapsed_ms": 4264.66,
+      "frame_count": 6,
+      "recognized": 4,
+      "violations": 3,
+      "notified": 2,
+      "newly_notified": 2,
+      "skipped_unchanged": 0
+    },
+    {
+      "started_at": "2026-10-13T15:00:00",
+      "finished_at": "2026-10-13T15:00:00",
+      "frames": [
+        {
+          "frame_id": "a_full_timeout.jpg",
+          "frame_digest": "625c0801bad531c1b2954474c579305c",
+          "recognized": true,
+          "reused": true,
+          "plate": "沪AG61020",
+          "vtype": "新能源",
+          "pile_id": "PILE-R1",
+          "rule_hit": 3,
+          "record_id": 1,
+          "notify_status": "已提醒",
+          "notify_reason": "此前已成功提醒，本次未重发",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 6.45
+        },
+        {
+          "frame_id": "b_idle_park.jpg",
+          "frame_digest": "d9697195c81ee3ed41b4df8379657588",
+          "recognized": true,
+          "reused": true,
+          "plate": "粤CD88145",
+          "vtype": "新能源",
+          "pile_id": "PILE-R2",
+          "rule_hit": 2,
+          "record_id": 2,
+          "notify_status": "已提醒",
+          "notify_reason": "此前已成功提醒，本次未重发",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 4.78
+        },
+        {
+          "frame_id": "c_normal.jpg",
+          "frame_digest": "b767d447f6775eec4dadcd28c14b487f",
+          "recognized": true,
+          "reused": true,
+          "plate": "沪BAS0511",
+          "vtype": "新能源",
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 2.32
+        },
+        {
+          "frame_id": "e_fuel.jpg",
+          "frame_digest": "85c31c85a2e2bf501226415b75a8aeb6",
+          "recognized": true,
+          "reused": true,
+          "plate": "苏EA15162",
+          "vtype": "燃油",
+          "pile_id": "PILE-R5",
+          "rule_hit": 1,
+          "record_id": 3,
+          "notify_status": "失败",
+          "notify_reason": "车主未绑定手机号",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 6.31
+        },
+        {
+          "frame_id": "z_corrupt.jpg",
+          "frame_digest": "9d55756b960614b8d1870e7136b8be60",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\\Users\\yy\\AppData\\Local\\Temp\\accept-real-geefsns_\\frames\\z_corrupt.jpg",
+          "notified_now": false,
+          "elapsed_ms": 0.84
+        },
+        {
+          "frame_id": "z_noplate.jpg",
+          "frame_digest": "13e0df08229cd94e5b9e2259ba4ef90d",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。",
+          "notified_now": false,
+          "elapsed_ms": 1099.07
+        }
+      ],
+      "elapsed_ms": 1121.37,
+      "frame_count": 6,
+      "recognized": 4,
+      "violations": 3,
+      "notified": 2,
+      "newly_notified": 0,
+      "skipped_unchanged": 4
+    },
+    {
+      "started_at": "2026-10-13T15:00:00",
+      "finished_at": "2026-10-13T15:00:00",
+      "frames": [
+        {
+          "frame_id": "a_full_timeout.jpg",
+          "frame_digest": "625c0801bad531c1b2954474c579305c",
+          "recognized": true,
+          "reused": false,
+          "plate": "沪AG61020",
+          "vtype": "新能源",
+          "pile_id": "PILE-R1",
+          "rule_hit": 3,
+          "record_id": 1,
+          "notify_status": "已提醒",
+          "notify_reason": "此前已成功提醒，本次未重发",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 891.19
+        },
+        {
+          "frame_id": "b_idle_park.jpg",
+          "frame_digest": "d9697195c81ee3ed41b4df8379657588",
+          "recognized": true,
+          "reused": false,
+          "plate": "粤CD88145",
+          "vtype": "新能源",
+          "pile_id": "PILE-R2",
+          "rule_hit": 2,
+          "record_id": 2,
+          "notify_status": "已提醒",
+          "notify_reason": "此前已成功提醒，本次未重发",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 584.94
+        },
+        {
+          "frame_id": "c_normal.jpg",
+          "frame_digest": "b767d447f6775eec4dadcd28c14b487f",
+          "recognized": true,
+          "reused": false,
+          "plate": "沪BAS0511",
+          "vtype": "新能源",
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 795.28
+        },
+        {
+          "frame_id": "e_fuel.jpg",
+          "frame_digest": "85c31c85a2e2bf501226415b75a8aeb6",
+          "recognized": true,
+          "reused": false,
+          "plate": "苏EA15162",
+          "vtype": "燃油",
+          "pile_id": "PILE-R5",
+          "rule_hit": 1,
+          "record_id": 3,
+          "notify_status": "失败",
+          "notify_reason": "车主未绑定手机号",
+          "error": null,
+          "notified_now": false,
+          "elapsed_ms": 686.42
+        },
+        {
+          "frame_id": "z_corrupt.jpg",
+          "frame_digest": "9d55756b960614b8d1870e7136b8be60",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\\Users\\yy\\AppData\\Local\\Temp\\accept-real-geefsns_\\frames\\z_corrupt.jpg",
+          "notified_now": false,
+          "elapsed_ms": 0.85
+        },
+        {
+          "frame_id": "z_noplate.jpg",
+          "frame_digest": "13e0df08229cd94e5b9e2259ba4ef90d",
+          "recognized": false,
+          "reused": false,
+          "plate": null,
+          "vtype": null,
+          "pile_id": null,
+          "rule_hit": null,
+          "record_id": null,
+          "notify_status": null,
+          "notify_reason": null,
+          "error": "识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。",
+          "notified_now": false,
+          "elapsed_ms": 839.37
+        }
+      ],
+      "elapsed_ms": 3799.61,
+      "frame_count": 6,
+      "recognized": 4,
+      "violations": 3,
+      "notified": 2,
+      "newly_notified": 0,
+      "skipped_unchanged": 0
+    }
+  ],
+  "sandbox_fail_recovery": {
+    "record_id": 4,
+    "attempts_after_fail": 1,
+    "retry_status": "已提醒",
+    "retry_attempts": 2,
+    "retry_reason": null
+  },
+  "no_phone_recovery": {
+    "before": {
+      "id": 3,
+      "status": "失败",
+      "attempts": 0,
+      "error": "车主未绑定手机号"
+    },
+    "after": {
+      "status": "已提醒",
+      "attempts": 1
+    }
+  },
+  "records": [
+    {
+      "id": 1,
+      "plate": "沪AG61020",
+      "vtype": "新能源",
+      "pile_id": "PILE-R1",
+      "occupancy_id": "PILE-R1@20261013150000000000",
+      "rule_hit": 3,
+      "occur_time": "2026-10-13T15:00:00",
+      "notify_status": "已提醒",
+      "notify_time": "2026-10-13T15:00:00",
+      "notify_attempts": 1,
+      "notify_error": null
+    },
+    {
+      "id": 2,
+      "plate": "粤CD88145",
+      "vtype": "新能源",
+      "pile_id": "PILE-R2",
+      "occupancy_id": "PILE-R2@20261013150000000000",
+      "rule_hit": 2,
+      "occur_time": "2026-10-13T15:00:00",
+      "notify_status": "已提醒",
+      "notify_time": "2026-10-13T15:00:00",
+      "notify_attempts": 1,
+      "notify_error": null
+    },
+    {
+      "id": 3,
+      "plate": "苏EA15162",
+      "vtype": "燃油",
+      "pile_id": "PILE-R5",
+      "occupancy_id": "PILE-R5@20261013150000000000",
+      "rule_hit": 1,
+      "occur_time": "2026-10-13T15:00:00",
+      "notify_status": "已提醒",
+      "notify_time": "2026-10-13T19:38:50.700730",
+      "notify_attempts": 1,
+      "notify_error": null
+    },
+    {
+      "id": 4,
+      "plate": "沪AD88888",
+      "vtype": "新能源",
+      "pile_id": "PILE-R4",
+      "occupancy_id": "PILE-R4@20261013150000000000",
+      "rule_hit": 3,
+      "occur_time": "2026-10-13T15:00:00",
+      "notify_status": "已提醒",
+      "notify_time": "2026-10-13T19:38:50.685946",
+      "notify_attempts": 2,
+      "notify_error": null
+    }
+  ],
+  "checks": [
+    {
+      "id": "A01",
+      "desc": "自动闭环一轮跑完（取帧→识别→判定→落库→发送）",
+      "pass": true,
+      "detail": "帧 6，违规 3"
+    },
+    {
+      "id": "A02",
+      "desc": "异常久停命中规则②",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "A03",
+      "desc": "充满未移车命中规则③",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "A04",
+      "desc": "正常充电不落库、不发送",
+      "pass": true,
+      "detail": "c_normal.jpg 无违规记录"
+    },
+    {
+      "id": "A05",
+      "desc": "第 2 轮不重复发送",
+      "pass": true,
+      "detail": "newly_notified=0"
+    },
+    {
+      "id": "A06",
+      "desc": "无手机号不计尝试次数、补绑定后可成功",
+      "pass": true,
+      "detail": "失败前 attempts=0 → 补绑定后 {'status': '已提醒', 'attempts': 1}"
+    },
+    {
+      "id": "A07",
+      "desc": "沙箱失败→重试成功；换进程不重发",
+      "pass": true,
+      "detail": "失败后 attempts=1 → 重试后 2；第 3 轮真发 0"
+    },
+    {
+      "id": "A09",
+      "desc": "坏图/无牌失败可见且不伪造结果",
+      "pass": true,
+      "detail": "z_corrupt.jpg: 识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\\Users\\yy\\App; z_noplate.jpg: 识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg"
+    },
+    {
+      "id": "A10",
+      "desc": "帧→车牌→桩 三元组无串帧",
+      "pass": true,
+      "detail": "逐帧一致"
+    }
+  ],
+  "passed": 9,
+  "total": 9
+}

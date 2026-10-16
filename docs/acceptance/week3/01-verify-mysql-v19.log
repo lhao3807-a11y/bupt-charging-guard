@@ -1,0 +1,42 @@
+MySQL 8 真机验证日志（第 3 周 v1.9）
+时间：2026-10-12 01:07:43
+环境：本机 ZIP 免安装版 MySQL，数据目录 E:\WorkBuddy\tools\mysql8-data
+目标库：bupt_charging_guard_test（独立测试库，脚本 DROP 重建四表）
+命令：python scripts/verify_mysql.py --json docs/acceptance/week3/01-verify-mysql-v19.json
+============================================================
+== MySQL 8 真机验证（驱动 pymysql，目标 root@127.0.0.1:3306/bupt_charging_guard_test）==
+  PASS  MySQL 版本为 8.x —— VERSION()=8.0.45
+  INFO  sql_mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION（严格模式=True）
+  PASS  表 vehicle 存在且 ENGINE=InnoDB —— ('InnoDB', 'utf8mb4_0900_ai_ci')
+  PASS  表 vehicle 字符集 utf8mb4 —— utf8mb4_0900_ai_ci
+  PASS  表 charging_pile 存在且 ENGINE=InnoDB —— ('InnoDB', 'utf8mb4_0900_ai_ci')
+  PASS  表 charging_pile 字符集 utf8mb4 —— utf8mb4_0900_ai_ci
+  PASS  表 occupation_record 存在且 ENGINE=InnoDB —— ('InnoDB', 'utf8mb4_0900_ai_ci')
+  PASS  表 occupation_record 字符集 utf8mb4 —— utf8mb4_0900_ai_ci
+  PASS  表 system_config 存在且 ENGINE=InnoDB —— ('InnoDB', 'utf8mb4_0900_ai_ci')
+  PASS  表 system_config 字符集 utf8mb4 —— utf8mb4_0900_ai_ci
+  PASS  charging_pile.status 是原生 ENUM —— enum('空闲','充电中','已充满')
+  PASS  ENUM 非法值不被接受 —— 被拒（DataError）
+  PASS  FK ON DELETE SET NULL 真的把 bound_plate 置空 —— 删除车辆后 bound_plate=None
+  PASS  occupation_record.plate 未加外键
+  PASS  DATETIME 存取往返一致（无时区） —— 读出 datetime.datetime(2026, 9, 8, 10, 0)
+  PASS  occupation_record.id 自增 —— AUTO_INCREMENT=2
+  PASS  system_config.`key` 反引号转义可用 —— full_timeout_min=30
+  PASS  种子数据 vehicle = 6 行 —— 实际 6
+  PASS  种子数据 charging_pile = 4 行 —— 实际 4
+  PASS  种子数据 system_config = 2 行 —— 实际 2
+  PASS  charging_pile.occupancy_id 存在且类型为 varchar(40) —— ('varchar(40)', 'YES', None)
+  PASS  charging_pile.scenario 存在且类型为 varchar(20) —— ('varchar(20)', 'YES', None)
+  PASS  occupation_record.occupancy_id 存在且类型为 varchar(40) —— ('varchar(40)', 'YES', None)
+  PASS  occupation_record.notify_attempts 存在且类型为 tinyint —— ('tinyint', 'NO', '0')
+  PASS  occupation_record.notify_error 存在且类型为 varchar(120) —— ('varchar(120)', 'YES', None)
+  PASS  occupation_record.notify_attempts 是 NOT NULL 且默认 0 —— ('tinyint', 'NO', '0')
+  PASS  索引 idx_pile_occupancy 已建立（charging_pile） —— 现有 ['PRIMARY', 'idx_occ_occupancy', 'idx_occ_occur_time', 'idx_occ_plate', 'idx_occ_rule_hit', 'idx_pile_bound_plate', 'idx_pile_occupancy']
+  PASS  索引 idx_occ_occupancy 已建立（occupation_record） —— 现有 ['PRIMARY', 'idx_occ_occupancy', 'idx_occ_occur_time', 'idx_occ_plate', 'idx_occ_rule_hit', 'idx_pile_bound_plate', 'idx_pile_occupancy']
+  PASS  占用标识与失败原因原样读回（中文不乱码） —— 读出 ('PILE-TEST2@20260908100000000000', 2, '车主未绑定手机号')
+  PASS  NULL 占用标识不与新数据匹配（判重键空值安全） —— NULL 行 1、匹配新标识 1
+  PASS  加法迁移把 5 个新列与 2 个索引补回（v1.8 老库升级） —— 补了 7 条：['ALTER TABLE charging_pile ADD COLUMN occupancy_id VARCHAR(40) NULL', 'ALTER TABLE charging_pile ADD COLUMN scenario VARCHAR(20) NULL', 'ALTER TABLE occupation_record ADD COLUMN occupancy_id VARCHAR(40) NULL', 'ALTER TABLE occupation_record ADD COLUMN notify_attempts TINYINT NOT NULL DEFAULT 0', 'ALTER TABLE occupation_record ADD COLUMN notify_error VARCHAR(120) NULL', 'CREATE INDEX idx_pile_occupancy ON charging_pile (occupancy_id)', 'CREATE INDEX idx_occ_occupancy ON occupation_record (occupancy_id)']
+  PASS  加法迁移幂等（第二次执行无操作） —— 第二次又执行了 []
+============================================================
+结果：31/31 通过
+结果已写入：E:\user\bupt-charging-guard\docs\acceptance\week3\01-verify-mysql-v19.json

@@ -14,6 +14,7 @@
     GET    /api/config              读取系统参数（§7 白名单，契约 §6.9）
     PUT    /api/config              修改系统参数（仅两个阈值，契约 §6.9）
     GET    /api/frame/latest        读取最近更新的截图（契约 §6.5）
+    GET    /api/pipeline/status     编排最近一轮结果（只读，契约 §6.11）
     GET    /api/health              冒烟/健康检查
 
 启动时自动建表 + 灌种子（开发期 SQLite；正式交付物是 backend/sql/schema.sql）。
@@ -32,6 +33,7 @@ from app.routers.frame import router as frame_router
 from app.routers.judge import router as judge_router
 from app.routers.notify import router as notify_router
 from app.routers.piles import router as piles_router
+from app.routers.pipeline import router as pipeline_router
 from app.routers.recognize import router as recognize_router
 from app.routers.records import router as records_router
 from app.routers.stats import router as stats_router
@@ -67,6 +69,7 @@ app.include_router(piles_router)
 app.include_router(stats_router)
 app.include_router(config_router)
 app.include_router(frame_router)
+app.include_router(pipeline_router)
 
 
 @app.get("/api/health", response_model=HealthResp, tags=["health"])

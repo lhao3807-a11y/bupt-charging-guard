@@ -36,21 +36,20 @@ def test_simulate_returns_200_and_full_shape(client):
 def test_simulate_fast_forward_with_at(client):
     body = _post(client, {"at": AT.isoformat()}).json()
     assert datetime.fromisoformat(body["advanced_at"]) == AT
-    # 种子 4 桩在 10:30 全部满足推进条件：
-    # 001 充电中(09:50)→已充满、002 已充满(09:20)→释放、003/004 空闲→充电中
-    assert body["changed_count"] == 4
+    # 种子 4 桩在 10:30：001 充电中(09:50)→已充满、002 已充满(09:20)→释放、
+    # 003 空闲(新能源)→充电中；**004 空闲但绑定燃油车 → 不推进**（T5 修正：燃油车不充电）
+    assert body["changed_count"] == 3
     assert {c["pile_id"] for c in body["changes"]} == {
         "PILE-001",
         "PILE-002",
         "PILE-003",
-        "PILE-004",
     }
 
 
 def test_simulate_advances_only_one_step(client):
     """口径 1：一次一档。连调两次，第二次应当没有变化。"""
     first = _post(client, {"at": AT.isoformat()}).json()
-    assert first["changed_count"] == 4
+    assert first["changed_count"] == 3
     second = _post(client, {"at": AT.isoformat()}).json()
     assert second["changed_count"] == 0
 
@@ -91,7 +90,7 @@ def test_simulate_accepts_timezone_aware_at(client):
     assert moment.tzinfo is None, "响应里的时刻必须是朴素时间，避免前端二次踩坑"
     expected = datetime.fromisoformat("2026-09-08T10:30:00+08:00").astimezone().replace(tzinfo=None)
     assert moment == expected
-    assert body["changed_count"] == 4  # 确实按该时刻推进了
+    assert body["changed_count"] == 3  # 确实按该时刻推进了
 
 
 def test_simulate_utc_offset_is_converted_not_dropped(client):

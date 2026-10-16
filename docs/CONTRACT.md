@@ -1,8 +1,8 @@
 # CONTRACT.md — 接口与数据契约（唯一事实源）
 
-> **版本**：**v2.1**（2026-10-07 · 统一规则显示名称）
+> **版本**：**v2.2**（2026-10-16 · 第 3 周自动闭环：**占用标识 `occupancy_id`** 判重、`/api/notify` 改为「提交记录 ID + 重试意图、结果由发送器产生」、新增 §6.11 编排结果只读接口。设计依据 `docs/week3/T1_OCCUPANCY_DESIGN.md`）
 > **负责人**：吕浩（起草与维护）
-> **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— v1.0 已逐条确认并签字，后续版本为增量变更
+> **确认人**：吕浩 / 汤瑾睿 / 吴和庆 —— v1.0 已逐条确认并签字，v1.1–v1.8 为增量变更；**第三周自动闭环语义三人已确认（2026-10-13 用户确认 A13 全员签认结束，代记见 `docs/acceptance/week3/08-signoff.md`）**
 > **适用范围**：第 1 周最小闭环。任何结构变动 → 先改本文件 → @全员 + 升版本号，**禁止私自改自己那侧**。
 
 ---
@@ -93,7 +93,9 @@
 | pile_id | VARCHAR(20) PK | 桩 ID |
 | status | ENUM('空闲','充电中','已充满') | 状态 |
 | bound_plate | VARCHAR(15) | 绑定车牌（FK vehicle.plate） |
-| start_time | DATETIME | 开始充电时间 |
+| **occupancy_id** | VARCHAR(40) NULL | **（v1.9 新增）本次占用标识**（详见 §3.6）。到车时生成、离车时清空；无车占用为 `NULL` |
+| **scenario** | VARCHAR(20) NULL | **（v1.9 新增）模拟场景标签**（`fuel_occupy` / `idle_park` / `full_timeout` / `normal`）。**仅演示夹具使用，不参与任何判定**（§7） |
+| start_time | DATETIME | 绑定（到达）时间；开始充电时会被重置为充电开始时刻 |
 | end_time | DATETIME | 充满时间 |
 
 ### 3.3 occupation_record（违规记录）
@@ -104,10 +106,13 @@
 | plate | VARCHAR(15) | 车牌 |
 | vtype | ENUM('新能源','燃油') | 车型 |
 | **pile_id** | VARCHAR(20) NULL | **桩 ID（v0.1 新增）**——违规记录需能关联到具体桩，否则后台统计缺维度 |
+| **occupancy_id** | VARCHAR(40) NULL | **（v1.9 新增）落库时从桩上快照的占用标识，落库后永不改写**（详见 §3.6） |
 | rule_hit | TINYINT | 命中规则：1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电 |
-| occur_time | DATETIME | 命中时间 |
+| occur_time | DATETIME | 命中时间（**首次**命中时刻，复用记录时不刷新） |
 | notify_status | ENUM('未提醒','已提醒','失败') | 提醒状态 |
 | notify_time | DATETIME | 提醒时间 |
+| **notify_attempts** | TINYINT NOT NULL DEFAULT 0 | **（v1.9 新增）已尝试发送次数，进程重启不清零** |
+| **notify_error** | VARCHAR(120) NULL | **（v1.9 新增）最近一次发送失败原因（人话，可直接展示）** |
 
 ### 3.4 system_config（系统参数）
 
@@ -177,6 +182,25 @@
 
 > 改列名 → 先改本节 → @全员 + 升版本号 → 线框与前端随后对齐。**不允许只改线框不改本节。**
 
+### 3.6 占用标识 `occupancy_id`（v1.9 新增，第 3 周自动闭环的前提）
+
+**为什么需要**：第 1 周的判重键是「同 `pile_id` + 同 `rule_hit` + 未提醒」，它在人工链路里够用，
+但自动轮询下一碰就碎：① 已提醒后不再复用 → 每轮新增一条记录并重复发短信；
+② 换车被误合并 → 后车的违规记到前车那条上且不再提醒；③ `start_time` 会在「开始充电」时被重置，
+不能拿来当身份。故引入与桩状态流转、与业务阈值都无关的**稳定占用标识**。
+
+| 口径 | 约定 |
+|---|---|
+| 取值 | `f"{pile_id}@{绑定时刻:%Y%m%d%H%M%S%f}"`，如 `PILE-003@20260908100000123456` |
+| 生成时机 | **到车绑定**时生成（`app/occupancy.begin_occupancy()`） |
+| 保持不变 | 同车仍在原桩时（`bound_plate` 未变）——无论桩状态怎么流转 |
+| 重新生成 | **换车**（`bound_plate` 变成另一块牌）、**离车后重入** |
+| 清空 | **离车释放**（`end_occupancy()`）→ 置 `NULL` |
+| 落库快照 | `occupation_record.occupancy_id` 落库时从桩上抄下来，**落库后永不改写** |
+| 历史数据 | 保持 `NULL`，**不回填**（回填等于凭空编造占用身份） |
+
+完整设计与迁移/回退 SQL 见 `docs/week3/T1_OCCUPANCY_DESIGN.md`。
+
 ## 4. 识别结果 `RecognitionResult`
 
 ```json
@@ -201,13 +225,21 @@
   "plate": "京A12345",
   "vtype": "燃油",
   "pile_id": "PILE-001",
+  "occupancy_id": "PILE-001@20260908095500123456",
   "rule_hit": 1,
   "occur_time": "2026-09-08T10:00:05",
-  "notify_status": "未提醒"
+  "notify_status": "未提醒",
+  "notify_attempts": 0,
+  "notify_error": null
 }
 ```
 
 > `id` 为 v0.1 新增：前端需要它来定位记录、轮询/更新提醒状态。
+
+> **v1.9 新增三个只读字段**（全部有默认值，旧前端不解析也不受影响）：
+> `occupancy_id`（本次占用标识，见 §3.6）、`notify_attempts`（已尝试发送次数）、
+> `notify_error`（最近一次失败原因，成功时为 `null`）。第 2 页「失败可重试、已达上限要明确」
+> 依赖后两个字段，吕浩（L3）同步 `frontend/src/types/contract.ts`。
 
 ## 6. API 端点
 
@@ -217,8 +249,14 @@
 |---|---|---|---|
 | POST | `/api/recognize` | 输入帧 → 识别结果（stub 读标注） | `FrameRef` → `RecognitionResult` |
 | POST | `/api/judge` | 识别结果 → 违规判定（引擎内部查桩状态） | `RecognitionResult` → `ViolationRecord` \| `null` |
-| POST | `/api/notify` | 违规 → 短信沙箱（写库+日志） | `ViolationRecord` → `NotifyResp` |
+| POST | `/api/notify` | 违规 → 短信沙箱（**v1.9：执行沙箱发送并把结果写库**，见 §6.3） | `NotifyReq` → `NotifyResp` |
 | GET | `/api/records` | 后台查询违规记录（分页 + 筛选，见 §6.4） | `?page=&size=&plate=&vtype=&pile_id=&rule_hit=&notify_status=&start_time=&end_time=` → `RecordPage` |
+
+**自动闭环端点（v1.9 新增，供第 6 页与编排进程）**
+
+| 方法 | 路径 | 说明 | 请求 → 响应 |
+|---|---|---|---|
+| GET | `/api/pipeline/status` | 编排最近一轮的**只读**结果（见 §6.11） | → `PipelineStatus`（无副作用） |
 
 **后台数据端点（v1.3 新增，供第 1 页）**
 
@@ -256,24 +294,77 @@
 
 stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀），原样返回为 `RecognitionResult`。**不读图片本身**，只按 `frame_ref` 拼路径。
 
+> **（v1.9 补充）real 模式的读图目录与编排取帧目录同源**：`real` 模式读
+> `$FRAME_SOURCE_DIR/<frame_ref>`（未设置 → `algo/samples/frames/`），
+> **与 §6.11 编排取帧目录用同一个解析器**（`pipeline.default_frame_dir()`），
+> 相对路径一律按**仓库根**解析。
+>
+> **为什么必须同源**：编排按 `FRAME_SOURCE_DIR` 算帧内容摘要（`frame_digest`）来判重与复用，
+> real 识别若写死 `algo/samples/frames/` 去读**同名**的另一张图，识别结果会挂到另一帧的摘要上 ——
+> UI 上就是「按帧关联串了帧」（验收 A10 明确要求无串帧）。两处各写一份迟早分叉，故收口到一处。
+>
+> **（v1.9 收紧）real 模式的失败必须可见**（验收 A09）：图缺失 → `404`；缺 CV 依赖 → `503`；
+> 画面里没检出车牌 → `422`；检出车牌框但 **OCR 为空号码** → `422`。
+> 空号码若放过去，会拿空串去反查桩并判成「无违规」，表现为「接口成功但什么都没识别到」——
+> 那种「成功」比报错更危险：既不落库也不报警，问题被静默吞掉。
+
 ### 6.2 `POST /api/judge`
 
 - 入参即 `RecognitionResult`。
 - 引擎内部按 `plate` 查 `charging_pile` 与 `system_config`，命中四条规则之一则返回 `ViolationRecord`，**规则 ④（正常充电）返回 `null`**。
 - **落库口径（v1.2 明确）**：命中即**落库**并返回带 `id` 的记录（非等 `/api/notify`），前端拿到 `id` 后可直接调 `/api/notify` 或查 `/api/records`。
-- **去重口径（v1.2 明确）**：若已存在 **同 `pile_id` + 同 `rule_hit` 且 `notify_status='未提醒'`** 的记录，视为「同一违规持续中」，更新其 `occur_time` 并返回原记录，**不新增行**。避免轮询场景下记录爆炸、保证「报警统计」页数字真实。已提醒过（或 `rule_hit` 已变）再次命中则视为新违规，新增一条。
+- **去重口径（v1.9 重写，取代 v1.2 口径）**：判重键为 **`(pile_id, occupancy_id, rule_hit)`**，
+  命中已有记录则**复用原记录**并返回它（**保留首次 `occur_time`，不刷新**），不新增行。
+  - **不再看 `notify_status`**：已提醒 / 发送失败都属于「同一次占用的同一条规则」，必须复用；
+    v1.2 里「已提醒过就新增一条」的口径在自动轮询下会每轮新增一条 + 重复发短信，已废止。
+  - `occupancy_id` 为 `NULL` 的历史行只与 `NULL` 行相互匹配，不会与新数据串（§3.6）。
+  - 换车 / 离车重入 / `rule_hit` 变化 → 判重键变了 → **新一条**。
+  - `occur_time` 是「违规首次发生时刻」，复用时**不刷新**，否则第 2/4 页的时间维度会被轮询改写
+    （呼应 A08「历史不被重写」）。
 
-### 6.3 `POST /api/notify`
+### 6.3 `POST /api/notify`（v1.9 重写：结果由发送器产生）
 
-请求体（v1.2 起**入参含 `id`**，用于定位要更新的记录 —— v1.1 及以前仅 `notify_status`，沙箱无法确定更新哪条）：
+请求体：
 
 ```json
-{ "id": 1, "notify_status": "已提醒" }
+{ "id": 1, "retry": true }
 ```
 
-- `id` 取自 `/api/judge` 返回的记录。
-- 沙箱实现：按 `id` 更新 `occupation_record.notify_status` / `notify_time`，并写日志，不调真实短信 API。
-- 记录不存在 → `404`。
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `id` | int | 必填 | 违规记录 ID，取自 `/api/judge` 或 `/api/records` |
+| `retry` | bool | `true` | `true` = 发起一次发送尝试；`false` = **只回显当前状态，不发送**（供第 2 页查状态用） |
+| `notify_status` | 枚举 | 弃用 | **v1.2 遗留字段，保留只为兼容旧调用，服务端不再按它写库** |
+
+- **状态不再由调用方指定**：`notify_status` / `notify_time` / `notify_attempts` / `notify_error`
+  一律由沙箱发送器的**实际执行结果**产生（第 1 周口径里「前端说已提醒就写已提醒」不能作为验收证据）。
+- 响应（v1.9 扩展）：
+
+```json
+{
+  "id": 1,
+  "notify_status": "已提醒",
+  "notify_attempts": 1,
+  "max_attempts": 3,
+  "reason": null,
+  "already_sent": false,
+  "exhausted": false,
+  "conflict": false,
+  "message": "【桩点北邮】您的车辆京A88888 占用充电车位（PILE-004），请立即驶离。"
+}
+```
+
+| 标志 | 含义 | 前端该做什么 |
+|---|---|---|
+| `already_sent` | 该记录此前**已发送成功**，本次**没有重发** | 显示「已提醒」，按钮置灰 |
+| `exhausted` | 尝试次数已达上限（默认 3），本次未发送 | 显示 `reason` 与「已达上限」，不再自动重试 |
+| `conflict` | 并发请求已被另一个请求处理，本次未发送 | 提示「正在处理，请稍后刷新」 |
+| `reason` | 失败原因（人话）：`车主未绑定手机号` / `沙箱发送失败` 等 | 直接展示；补绑定后可再次 `retry=true` |
+
+- **判重与次数**：同一记录发送成功后不再自动发送；失败可重试，累计 `notify_attempts`，
+  **上限由部署配置 `NOTIFY_MAX_ATTEMPTS`（默认 3）提供，不进 `system_config`**（§7）。
+  次数与结果**持久化**，进程重启不清零。
+- 记录不存在 → `404`。沙箱**不访问运营商网络**。
 
 ### 6.4 `GET /api/records`
 
@@ -564,9 +655,73 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
   响应里的 `advanced_at` 回显归一化后的朴素值 —— 避免「aware − naive」抛 `TypeError` 变成 `500`，
   也避免前端拿到带偏移量的值做二次计算时再踩一次。
 
+### 6.11 `GET /api/pipeline/status`（v1.9 新增，只读）
+
+> 补充（2026-10-13）：整轮 `error` 为取帧源错误，目录不存在或无法读取时明确返回错误原因，`frames=[]`，不伪造帧、不发送提醒。目录恢复后下一轮继续处理。已存在但没有图片的目录不是源中断，`error=null`。该字段同时写入状态文件并由本接口返回。
+
+编排进程（`scripts/run_pipeline.py` / `app/pipeline.py`）把「取帧 → 识别 → 判定 → 落库 → 沙箱发送」
+串成一条自动链，本端点**只回报它最近一轮的结果**，**不承担编排职责、不触发任何写操作**
+（第 6 页刷新、查询记录、查询统计一律无发送副作用）。
+
+```json
+{
+  "running": false,
+  "last_run_at": "2026-10-11T23:10:00",
+  "frame_count": 4,
+  "recognized": 1,
+  "violations": 1,
+  "notified": 1,
+  "newly_notified": 1,
+  "skipped_unchanged": 3,
+  "elapsed_ms": 812.5,
+  "error": null,
+  "frames": [
+    {
+      "frame_id": "003.jpg",
+      "frame_digest": "9f2c…",
+      "recognized": true,
+      "reused": false,
+      "plate": "京AD24680",
+      "vtype": "新能源",
+      "pile_id": "PILE-003",
+      "rule_hit": 2,
+      "record_id": 7,
+      "notify_status": "已提醒",
+      "error": null,
+      "elapsed_ms": 190.25
+    }
+  ]
+}
+```
+
+口径：
+
+1. **帧标识**：`frame_id` 取文件名，`frame_digest` 取文件内容 MD5。**内容未变的图片可复用上次识别结果**
+   （`reused=true`，省一次 CV），但**时间推进仍会重新判定**久停 / 充满超时 —— 不能因为没新帧就永远跳过时间规则。
+2. **单帧失败不中断**：坏图 / 无牌 / 缺权重 → 该帧 `error` 给出原因，其余帧照常处理，**不伪造识别结果、不静默切 stub**。
+3. **正常场景不调用发送器**：只有落库成功的违规才会走 §6.3 的发送流程。
+   `notified`（处于「已提醒」状态）与 `newly_notified`（本轮**真实发出**）分开统计：
+   自动轮询下第 2 轮起状态都是「已提醒」而 `newly_notified=0`，**后者才是 A05「不重复提醒」的凭据**。
+4. 编排进程未启动过 → `last_run_at=null`、`frames=[]`，接口仍返回 `200`（不是错误）。
+5. **`elapsed_ms` 只作性能凭据**（v1.9 补充）：单帧与整轮的**墙钟**耗时（毫秒）。
+   它是**真实时钟**采样，与 `started_at/finished_at`（可能是固定的演示时刻）**不是一回事**，
+   **不参与任何判定** —— 判定只看 `frame_time` 与 `system_config`。
+   `scripts/run_pipeline.py --timing N` 连跑 N 轮采样，写入凭据目录（第 3 周 T7）。
+
 ## 7. 系统配置项
 
 `full_timeout_min`（充满超时阈值）、`abnormal_park_min`（异常占位久停阈值），均来自 `system_config`，禁止硬编码。
+
+> **（v1.9 补充）部署期配置不进本表**：以下几项属部署/运行开关，**刻意不放 `system_config`** ——
+> 该表是「业务判定阈值」的唯一来源，塞进非业务开关等于给 §7 白名单开口子
+> （与 v1.6 已确立的「`RECOGNITION_MODE` 走环境变量」同一纪律）：
+>
+> | 项 | 来源 | 默认 | 说明 |
+> |---|---|---|---|
+> | `NOTIFY_MAX_ATTEMPTS` | 环境变量 | `3` | 单条记录的发送尝试上限（§6.3） |
+> | `SMS_SANDBOX_RESULT` | 环境变量 | `ok` | 沙箱发送器的确定性结果（`ok` / `fail`），用于演示失败与恢复 |
+> | `RECOGNITION_MODE` | 环境变量 | `stub` | 识别模式（v1.6 已定） |
+> | `FRAME_SOURCE_DIR` | 环境变量 | `algo/samples/frames` | 编排取帧目录（§6.11） |
 
 ## 8. 仓库结构与文件归属
 
@@ -632,6 +787,7 @@ stub 行为：读取 `algo/samples/labels/001.json`（同名字、`.json` 后缀
 
 | 版本 | 日期 | 变更 | 发起人 |
 |---|---|---|---|
+| **v2.2** | 2026-10-16 | **第 3 周自动闭环（汤瑾睿 T1 定稿，2026-10-13 用户确认三人签认结束）**。① **新增 §3.6 占用标识 `occupancy_id`**：`charging_pile` / `occupation_record` 各加一列，到车生成、离车清空、换车与重入重新生成，落库快照后永不改写；② **§6.2 判重键改为 `(pile_id, occupancy_id, rule_hit)`**，废止 v1.2 的「已提醒过就新增一条」口径（自动轮询下每轮新增一条 + 重复发短信），复用记录时**保留首次 `occur_time` 不刷新**；③ **§6.3 `/api/notify` 重写**：请求改为「记录 ID + `retry` 意图」，`notify_status` 不再由调用方指定而由沙箱执行结果产生，响应带 `notify_attempts` / `reason` / `already_sent` / `exhausted` / `conflict`；`occupation_record` 增 `notify_attempts` / `notify_error` 并持久化（重启不清零）；④ **新增 §6.11 `GET /api/pipeline/status`** 只读编排结果（无写副作用）；⑤ §7 明确 `NOTIFY_MAX_ATTEMPTS` / `SMS_SANDBOX_RESULT` / `FRAME_SOURCE_DIR` 属部署配置，**不进 `system_config`**；⑥ §6.11 状态新增 `elapsed_ms`（单帧 + 整轮墙钟耗时）与 `newly_notified`（本轮**真实发出**的条数，区别于一直为「已提醒」的 `notified`），供 T7 耗时采样、慢帧定位与 A05 凭据，**均不参与判定**；⑦ **§6.1 补 real 模式读图目录口径**：real 模式与编排取帧目录同源（同一个 `$FRAME_SOURCE_DIR` 解析器、相对路径按仓库根），杜绝「识别读了另一张同名图」的串帧（A10）；⑧ **§6.1 收紧 real 模式失败口径**：图缺失 `404` / 缺依赖 `503` / 未检出车牌 `422` / **检出框但 OCR 空号码 `422`**（空号码若放过会静默判成「无违规」，A09 要求失败可见）。**为什么必须改契约**：这四处全是「写语义」与「判重身份」的变更，前端（第 2 页重试/上限）、验收（A05/A07/A08）都依赖同一口径；不改契约就动手，等于让前端与验收各自猜。**设计依据 `docs/week3/T1_OCCUPANCY_DESIGN.md`** | 汤瑾睿 |
 | **v2.1** | 2026-10-07 | 统一规则显示名称：`rule_hit=1` 为「燃油车占位」、`rule_hit=0` 为「正常充电」；后端统计标签、前端文案及数据库注释同步，规则编号和字段结构不变。 | Codex（受用户委托核查第二周） |
 | **v2.0** | 2026-10-07 | **实现 §6.5 帧截图端点并开放第 6 页**：`GET /api/frame/latest` 从可配置目录返回最新 JPEG/PNG/WebP 快照，空目录 404、禁缓存；前端每 3 秒轮询并展示空态/刷新时间。确认该接口仅传静态图片，不接实时视频流。 | 吕浩 |
 | **v1.9** | 2026-10-07 | **扩展 §6.8 `GET /api/stats`**：`by_date` 逐日补齐 4 项规则计数；新增排除正常规则 0 的 `by_pile` 违规统计（未关联桩单独计数），对应第 4 页趋势与按桩图表。 | 吕浩 |

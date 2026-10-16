@@ -1,0 +1,21 @@
+﻿第三周返工 · 测试复跑凭据
+生成时间：2026-10-13 19:56:27
+提交：801fe23
+环境：后端 .venv (Python 3.11.9) / 算法 .venv-algo（含 ultralytics+torch）
+
+【1】后端全量：.venv/Scripts/python.exe -m pytest backend/tests -q
+326 passed, 10 warnings in 8.80s
+
+【2】专项复跑（返工清单点名 10 个文件）：
+     test_notification / test_occupancy / test_pipeline / test_charging_adapter / test_rule_review
+     test_recognize_mode / test_rule_engine / test_rule_engine_edge / test_simulator / test_simulate_api
+168 passed, 4 warnings in 4.81s
+
+【3】ruff check backend scripts
+All checks passed!
+【4】ruff format --check backend scripts
+57 files already formatted
+
+【5】算法测试：.venv-algo/Scripts/python.exe -m pytest algo/tests -q
+     （必须用 .venv-algo：.venv 里没有 ultralytics，会静默 skip）
+45 passed in 28.73s（上一轮实跑结果，未重跑）

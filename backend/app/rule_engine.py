@@ -34,6 +34,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app import models as m
+from app import occupancy
 from app.schemas import NotifyStatus, RecognitionResult, ViolationRecord
 
 
@@ -95,6 +96,7 @@ def judge(
         plate=recognition.plate,
         vtype=recognition.vtype,
         pile_id=pile.pile_id,
+        occupancy_id=occupancy.current_occupancy_id(pile),
         rule_hit=rule_hit,
         occur_time=moment,
         notify_status=NotifyStatus.未提醒,
@@ -139,56 +141,69 @@ def _decide_rule(
 # 落库 / 沙箱辅助（供 /api/judge、/api/notify 路由复用）
 # ---------------------------------------------------------------------------
 def save_violation(db: Session, record: ViolationRecord) -> ViolationRecord:
-    """把违规记录落库，返回带 ``id`` 的记录；**同一违规复用已有记录**。
+    """把违规记录落库，返回带 ``id`` 的记录；**同一次占用的同一条规则复用已有记录**。
 
-    落库口径（2026-09-13 与吕浩对齐，写入 CONTRACT §6.2）：
+    落库口径（契约 v1.9 §6.2，取代 v1.2 口径）：
 
     - ``/api/judge`` 命中即落库（非等 ``/api/notify``）。
-    - **去重**：若已存在 ``pile_id`` + ``rule_hit`` 相同且 ``notify_status='未提醒'``
-      的记录，视为「同一违规持续中」——更新其 ``occur_time`` 后返回原记录，
-      **不新增行**。避免轮询场景下记录爆炸、保证「报警统计」页数字真实。
-    - 已提醒过（``notify_status != '未提醒'``）或规则已变（``rule_hit`` 不同）
-      则视为新违规，新增一条。
+    - **判重键 = (pile_id, occupancy_id, rule_hit)**，命中即返回原记录、**不新增行**。
+      - **不再看 ``notify_status``**：已提醒 / 发送失败都属于「同一次占用、同一条规则」。
+        v1.2 的「已提醒过就新增一条」在自动轮询下会每轮新增一行并重复发短信，已废止。
+      - ``occupancy_id`` 为 ``NULL`` 的历史行只与 ``NULL`` 行匹配（SQL ``IS NULL`` 语义），
+        不会与新数据串。
+      - 换车 / 离车重入 / 规则变化 → 判重键变化 → 新起一条。
+    - **复用时保留首次 ``occur_time``，不刷新**：``occur_time`` 是「违规首次发生时刻」，
+      被轮询反复改写会让第 2/4 页的时间维度失真（验收 A08「历史不被重写」）。
+      其余字段（车牌 / 车型）以本次判定结果为准——同一次占用里它们本应不变，
+      变了说明是换车，那会是新的一条。
     """
     existing = (
         db.query(m.OccupationRecord)
         .filter(
             m.OccupationRecord.pile_id == record.pile_id,
+            m.OccupationRecord.occupancy_id == record.occupancy_id,
             m.OccupationRecord.rule_hit == record.rule_hit,
-            m.OccupationRecord.notify_status == m.NOTIFY_PENDING,
         )
         .order_by(m.OccupationRecord.id.desc())
         .first()
     )
 
     if existing is not None:
-        existing.occur_time = record.occur_time
         existing.plate = record.plate
         existing.vtype = record.vtype
         db.commit()
         db.refresh(existing)
-        return ViolationRecord(
-            id=existing.id,
-            plate=existing.plate,
-            vtype=existing.vtype,
-            pile_id=existing.pile_id,
-            rule_hit=existing.rule_hit,
-            occur_time=existing.occur_time,
-            notify_status=existing.notify_status,
-        )
+        return to_violation_record(existing)
 
     row = m.OccupationRecord(
         plate=record.plate,
         vtype=record.vtype,
         pile_id=record.pile_id,
+        occupancy_id=record.occupancy_id,
         rule_hit=record.rule_hit,
         occur_time=record.occur_time,
-        notify_status=record.notify_status,
+        notify_status=record.notify_status.value,
     )
     db.add(row)
     db.commit()
     db.refresh(row)
-    return record.model_copy(update={"id": row.id})
+    return to_violation_record(row)
+
+
+def to_violation_record(row: m.OccupationRecord) -> ViolationRecord:
+    """ORM 行 → ``ViolationRecord``（单一出口，避免各处手写一半字段）。"""
+    return ViolationRecord(
+        id=row.id,
+        plate=row.plate,
+        vtype=row.vtype,
+        pile_id=row.pile_id,
+        occupancy_id=row.occupancy_id,
+        rule_hit=row.rule_hit,
+        occur_time=row.occur_time,
+        notify_status=row.notify_status,
+        notify_attempts=row.notify_attempts,
+        notify_error=row.notify_error,
+    )
 
 
 def mark_notified(

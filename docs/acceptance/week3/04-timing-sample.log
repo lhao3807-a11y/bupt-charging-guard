@@ -1,0 +1,12 @@
+自动闭环耗时采样（第 3 周 T7）
+时间：2026-10-12 01:07:50
+目标库：bupt_charging_guard_test；识别模式：stub；轮数：5；基准时刻：2026-09-08T10:00:00
+说明：紧接 ③ 之后跑，记录已存在且已提醒 —— 5 轮均走「复用识别 + 判重不重发」路径（newly_notified 全为 0，即 A05 的真机样子）；第 1 轮仍需真正识别，与 2..N 轮的耗时差 ≈ 复用识别省下的时间
+命令：python scripts/run_pipeline.py --at 2026-09-08T10:00:00 --bind-map 002.jpg=PILE-D1,003.jpg=PILE-D2,004.jpg=PILE-D3,001.jpg=PILE-D4 --timing 5 --timing-out docs/acceptance/week3/04-timing-sample.json
+============================================================
+  第  1 轮：   81.73 ms　识别 4/4　复用 0　违规 3　已提醒 3（本轮新发 0）
+  第  2 轮：   24.03 ms　识别 4/4　复用 4　违规 3　已提醒 3（本轮新发 0）
+  第  3 轮：   21.50 ms　识别 4/4　复用 4　违规 3　已提醒 3（本轮新发 0）
+  第  4 轮：   21.41 ms　识别 4/4　复用 4　违规 3　已提醒 3（本轮新发 0）
+  第  5 轮：   22.34 ms　识别 4/4　复用 4　违规 3　已提醒 3（本轮新发 0）
+  耗时采样已写入：E:\user\bupt-charging-guard\docs\acceptance\week3\04-timing-sample.json

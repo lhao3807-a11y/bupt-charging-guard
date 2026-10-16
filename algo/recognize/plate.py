@@ -190,7 +190,12 @@ def recognize_frame(
 
     img = read_image(image_path)
     if img is None:
-        raise FileNotFoundError(f"读不到图片：{image_path}")
+        # cv2.imread 对「文件不存在」和「文件存在但不是能解码的图片（如截断的 JPEG）」
+        # 都返回 None —— 两种情况分开报，否则坏图会被误报成「文件不见」，
+        # 排障时去查路径，而真正的问题是图坏了（验收 A09 要求失败原因可定位）。
+        if not os.path.isfile(image_path):
+            raise FileNotFoundError(f"图片不存在：{image_path}")
+        raise ValueError(f"图片无法解码（文件损坏或不是图片格式）：{image_path}")
 
     boxes = detect_boxes(image_path, conf=conf, weights=weights or DEFAULT_WEIGHTS)
     plates = [b for b in boxes if b["name"] == "plate"]

@@ -1,0 +1,75 @@
+==============================================================================
+阶段 1：实拍图识别探测（挑选场景素材）
+==============================================================================
+  web_0163.jpg  沪AG61020     新能源  conf=0.891
+  web_0210.jpg  粤CD88145     新能源  conf=0.890
+  web_0243.jpg  苏EA15162     燃油  conf=0.879
+  web_0250.jpg  沪BAS0511     新能源  conf=0.891
+  web_0270.jpg  沪AD88888     新能源  conf=0.889
+  web_0288.jpg  沪BDZ5519     新能源  conf=0.891
+  web_0313.jpg  粤SDY3228     新能源  conf=0.867
+  web_0388.jpg  沪ADJ5658     新能源  conf=0.875
+  挑中：燃油 web_0243.jpg；新能源 7 张
+
+==============================================================================
+阶段 2：登记车辆（车牌/车型来自真实识别）+ 布置场景
+==============================================================================
+  a_full_timeout.jpg     PILE-R1  已充满超时  沪AG61020  新能源  手机号=有  期望 rule=3
+  b_idle_park.jpg        PILE-R2  未充电久停  粤CD88145  新能源  手机号=有  期望 rule=2
+  c_normal.jpg           PILE-R3  正常充电   沪BAS0511  新能源  手机号=有  期望 rule=None
+  d_sandbox_fail.jpg     PILE-R4  已充满超时  沪AD88888  新能源  手机号=有  期望 rule=3
+  e_fuel.jpg             PILE-R5  燃油占位   苏EA15162  燃油  手机号=无  期望 rule=1
+  权重：algo\runs\detect\train_real_web\weights\best.pt
+  取帧目录：C:\Users\yy\AppData\Local\Temp\accept-real-geefsns_\frames
+
+==============================================================================
+阶段 3：自动闭环（第 1 轮真识别 → 第 2 轮复用 → 第 3 轮换进程）
+==============================================================================
+  第 1 轮：帧 6  识别 4  复用 0  违规 3  状态已提醒 2  本轮真发 2  耗时 4264.66 ms
+      OK  a_full_timeout.jpg     plate=沪AG61020     rule=3 notify=已提醒
+      OK  b_idle_park.jpg        plate=粤CD88145     rule=2 notify=已提醒
+      OK  c_normal.jpg           plate=沪BAS0511     rule=None notify=-
+      OK  e_fuel.jpg             plate=苏EA15162     rule=1 notify=失败
+      ERR z_corrupt.jpg          plate=-            rule=None notify=-  ← 识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\Users\yy\AppData\Local\Temp\accept-real-geefsns_\frames\z_corrupt.jpg
+      ERR z_noplate.jpg          plate=-            rule=None notify=-  ← 识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。
+  第 2 轮：帧 6  识别 4  复用 4  违规 3  状态已提醒 2  本轮真发 0  耗时 1121.37 ms
+      OK  a_full_timeout.jpg     plate=沪AG61020     rule=3 notify=已提醒
+      OK  b_idle_park.jpg        plate=粤CD88145     rule=2 notify=已提醒
+      OK  c_normal.jpg           plate=沪BAS0511     rule=None notify=-
+      OK  e_fuel.jpg             plate=苏EA15162     rule=1 notify=失败
+      ERR z_corrupt.jpg          plate=-            rule=None notify=-  ← 识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\Users\yy\AppData\Local\Temp\accept-real-geefsns_\frames\z_corrupt.jpg
+      ERR z_noplate.jpg          plate=-            rule=None notify=-  ← 识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。
+  第 3 轮：帧 6  识别 4  复用 0  违规 3  状态已提醒 2  本轮真发 0  耗时 3799.61 ms
+      OK  a_full_timeout.jpg     plate=沪AG61020     rule=3 notify=已提醒
+      OK  b_idle_park.jpg        plate=粤CD88145     rule=2 notify=已提醒
+      OK  c_normal.jpg           plate=沪BAS0511     rule=None notify=-
+      OK  e_fuel.jpg             plate=苏EA15162     rule=1 notify=失败
+      ERR z_corrupt.jpg          plate=-            rule=None notify=-  ← 识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\Users\yy\AppData\Local\Temp\accept-real-geefsns_\frames\z_corrupt.jpg
+      ERR z_noplate.jpg          plate=-            rule=None notify=-  ← 识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg。不猜号码、不落库；请换更清晰的一帧。
+
+==============================================================================
+阶段 4：沙箱强制失败 → 重试成功（A07）
+==============================================================================
+  强制失败一轮：record=4 status=失败 reason=沙箱发送失败 attempts=1
+  重试一次：status=已提醒 attempts=2 reason=None
+
+==============================================================================
+阶段 5：无手机号 → 补绑定后重试成功（A06）
+==============================================================================
+  燃油记录 id=3 status=失败 attempts=0 reason=车主未绑定手机号
+  补绑定后重试：status=已提醒 attempts=1
+
+==============================================================================
+阶段 6：断言（对应 WEEK3_PLAN §5 验收矩阵）
+==============================================================================
+  [PASS] A01 自动闭环一轮跑完（取帧→识别→判定→落库→发送） —— 帧 6，违规 3
+  [PASS] A02 异常久停命中规则②
+  [PASS] A03 充满未移车命中规则③
+  [PASS] A04 正常充电不落库、不发送 —— c_normal.jpg 无违规记录
+  [PASS] A05 第 2 轮不重复发送 —— newly_notified=0
+  [PASS] A06 无手机号不计尝试次数、补绑定后可成功 —— 失败前 attempts=0 → 补绑定后 {'status': '已提醒', 'attempts': 1}
+  [PASS] A07 沙箱失败→重试成功；换进程不重发 —— 失败后 attempts=1 → 重试后 2；第 3 轮真发 0
+  [PASS] A09 坏图/无牌失败可见且不伪造结果 —— z_corrupt.jpg: 识别异常：ValueError: 图片无法解码（文件损坏或不是图片格式）：C:\Users\yy\App; z_noplate.jpg: 识别失败（422）：real 模式检出车牌框但未识别出号码（OCR 空结果）：z_noplate.jpg
+  [PASS] A10 帧→车牌→桩 三元组无串帧 —— 逐帧一致
+
+结果：9/9 项通过

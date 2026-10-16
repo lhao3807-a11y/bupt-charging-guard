@@ -1,0 +1,15 @@
+自动闭环在 MySQL 8 上跑一轮（第 3 周 T7）
+时间：2026-10-12 01:07:47
+目标库：bupt_charging_guard_test；识别模式：stub（RECOGNITION_MODE 未设置）
+帧→桩映射：002.jpg=PILE-D1,003.jpg=PILE-D2,004.jpg=PILE-D3,001.jpg=PILE-D4
+命令：python scripts/run_pipeline.py --at 2026-09-08T10:00:00 --bind-map 002.jpg=PILE-D1,003.jpg=PILE-D2,004.jpg=PILE-D3,001.jpg=PILE-D4 --status-file docs/acceptance/week3/03-pipeline-mysql.json
+============================================================
+
+=== 编排一轮 2026-09-08T10:00:00 ===
+帧目录：4 张　识别 4　复用 0
+  [正常] 001.jpg　京AD12345　未违规
+  [违规] 002.jpg　京A88888　PILE-D1　①燃油占位　记录#4　提醒=已提醒
+  [违规] 003.jpg　京AD24680　PILE-D2　②异常占位　记录#5　提醒=已提醒
+  [违规] 004.jpg　京AD67890　PILE-D3　③充满未移车　记录#6　提醒=已提醒
+  小计：违规 3　已提醒 3（本轮新发 3）
+  状态文件：E:\user\bupt-charging-guard\docs\acceptance\week3\03-pipeline-mysql.json

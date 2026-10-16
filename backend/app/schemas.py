@@ -77,23 +77,46 @@ class ViolationRecord(BaseModel):
     plate: str
     vtype: VType
     pile_id: str | None = Field(None, description="关联桩 ID（v0.1 新增）")
+    occupancy_id: str | None = Field(
+        None, description="本次占用标识（v1.9 §3.6），落库时快照，之后不改写"
+    )
     rule_hit: int = Field(..., ge=0, le=3)
     occur_time: datetime
     notify_status: NotifyStatus = NotifyStatus.未提醒
+    notify_attempts: int = Field(0, ge=0, description="已尝试发送次数（v1.9，重启不清零）")
+    notify_error: str | None = Field(None, description="最近一次发送失败原因（v1.9）")
 
 
 # ---------------------------------------------------------------------------
 # 短信沙箱 -> /api/notify
 # ---------------------------------------------------------------------------
 class NotifyReq(BaseModel):
-    """短信沙箱请求：按记录 id 更新提醒状态（契约 v1.2 起入参含 id）。"""
+    """`POST /api/notify` 请求体（契约 v1.9 重写）。
 
-    id: int = Field(..., description="违规记录 ID，取自 /api/judge 的返回")
-    notify_status: NotifyStatus
+    **提交的是「记录 ID + 重试意图」，不是结果**：`已提醒` / `失败` 一律由沙箱发送器的
+    实际执行产生（§6.3）。v1.2 的 `notify_status` 字段保留仅为兼容旧调用，
+    服务端**不再按它写库** —— 「前端说已提醒就写已提醒」不能作为验收证据。
+    """
+
+    id: int = Field(..., description="违规记录 ID，取自 /api/judge 或 /api/records")
+    retry: bool = Field(True, description="true = 发起一次发送尝试；false = 只回显状态不发送")
+    notify_status: NotifyStatus | None = Field(
+        None, description="【已弃用】v1.2 遗留字段，服务端忽略，仅作兼容保留"
+    )
 
 
 class NotifyResp(BaseModel):
-    notify_status: NotifyStatus
+    """`POST /api/notify` 响应：结果**来自发送器**，不是回显请求。"""
+
+    id: int = Field(..., description="违规记录 ID")
+    notify_status: NotifyStatus = Field(..., description="发送器执行后的状态")
+    notify_attempts: int = Field(0, ge=0, description="累计尝试次数（含本次）")
+    max_attempts: int = Field(0, ge=0, description="部署配置的尝试上限（NOTIFY_MAX_ATTEMPTS）")
+    reason: str | None = Field(None, description="失败原因（人话），成功时为 None")
+    already_sent: bool = Field(False, description="此前已发送成功，本次未重发")
+    exhausted: bool = Field(False, description="尝试次数已达上限，本次未发送")
+    conflict: bool = Field(False, description="并发请求已被另一方处理，本次未发送")
+    message: str | None = Field(None, description="本次生成/最后一次生成的短信内容")
 
 
 # ---------------------------------------------------------------------------
@@ -357,6 +380,48 @@ class SimulateResp(BaseModel):
     changed_count: int = Field(0, description="本次发生变化的桩数")
     changes: list[PileChange] = Field(default_factory=list, description="变化明细")
     statuses: dict[str, str] = Field(default_factory=dict, description="推进后各桩状态")
+
+
+# ---------------------------------------------------------------------------
+# 自动闭环编排结果 -> GET /api/pipeline/status（CONTRACT §6.11，v1.9 新增）
+# ---------------------------------------------------------------------------
+class PipelineFrame(BaseModel):
+    """单帧的处理结果（一帧一行，UI 与验收据此追溯）。"""
+
+    frame_id: str = Field(..., description="帧标识（文件名）")
+    frame_digest: str | None = Field(None, description="帧内容 MD5，内容变了才重新识别")
+    recognized: bool = Field(False, description="本帧是否拿到识别结果")
+    reused: bool = Field(False, description="内容未变，复用了上次识别结果")
+    plate: str | None = None
+    vtype: VType | None = None
+    pile_id: str | None = None
+    rule_hit: int | None = Field(None, ge=0, le=3, description="命中规则；None = 未违规")
+    record_id: int | None = Field(None, description="落库的违规记录 ID")
+    notify_status: NotifyStatus | None = None
+    notify_reason: str | None = Field(None, description="提醒结果说明（失败原因 / 已发过）")
+    notified_now: bool = Field(
+        False, description="本轮是否真的发了短信（区别于一直为「已提醒」的 notify_status）"
+    )
+    error: str | None = Field(None, description="处理失败原因；成功为 None")
+    elapsed_ms: float | None = Field(None, description="本帧处理耗时（毫秒，墙钟采样）")
+
+
+class PipelineStatus(BaseModel):
+    """最近一轮编排的结果。**只读**：不承担编排职责、不触发任何写操作。"""
+
+    running: bool = Field(False, description="编排进程是否在跑（按状态文件新鲜度推断）")
+    last_run_at: datetime | None = Field(None, description="最近一轮完成时刻；从未运行为 None")
+    frame_count: int = 0
+    recognized: int = 0
+    violations: int = 0
+    notified: int = Field(
+        0, description="处于「已提醒」状态的帧数（**含**此前已提醒、本轮未重发的）"
+    )
+    newly_notified: int = Field(0, description="本轮**真实发出**的短信条数（验收 A05 的凭据）")
+    skipped_unchanged: int = 0
+    elapsed_ms: float | None = Field(None, description="整轮耗时（毫秒，墙钟采样）")
+    error: str | None = Field(None, description="取帧源不可用时的整轮错误；正常为 None")
+    frames: list[PipelineFrame] = Field(default_factory=list)
 
 
 #: 阈值取值范围（分钟）：下界 1（0 会让规则②③对任何车立刻命中），上界 1440（24 小时）

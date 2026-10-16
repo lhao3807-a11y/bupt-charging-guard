@@ -51,10 +51,13 @@ CREATE TABLE charging_pile (
   pile_id     VARCHAR(20) NOT NULL                        COMMENT '桩 ID',
   status      ENUM('空闲','充电中','已充满') NOT NULL DEFAULT '空闲' COMMENT '运行状态',
   bound_plate VARCHAR(15)     DEFAULT NULL                COMMENT '绑定/占用车牌（FK vehicle.plate）',
+  occupancy_id VARCHAR(40)    DEFAULT NULL                COMMENT '本次占用标识（到车生成/离车清空，CONTRACT §3.6）',
+  scenario    VARCHAR(20)     DEFAULT NULL                COMMENT '模拟场景标签（仅演示夹具用，不参与判定）',
   start_time  DATETIME        DEFAULT NULL                COMMENT '绑定/开始充电时间（规则②久停基准）',
   end_time    DATETIME        DEFAULT NULL                COMMENT '充满时间（规则③超时基准）',
   PRIMARY KEY (pile_id),
   KEY idx_pile_bound_plate (bound_plate),
+  KEY idx_pile_occupancy (occupancy_id),
   CONSTRAINT fk_pile_vehicle FOREIGN KEY (bound_plate) REFERENCES vehicle (plate)
     ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='充电桩状态（模拟数据）';
@@ -68,14 +71,18 @@ CREATE TABLE occupation_record (
   plate         VARCHAR(15) NOT NULL                      COMMENT '车牌',
   vtype         ENUM('新能源','燃油') NOT NULL             COMMENT '车型',
   pile_id       VARCHAR(20)     DEFAULT NULL              COMMENT '桩 ID（v0.1 新增）',
+  occupancy_id  VARCHAR(40)     DEFAULT NULL              COMMENT '落库时快照的占用标识，永不改写（v1.9 / §3.6）',
   rule_hit      TINYINT     NOT NULL DEFAULT 0            COMMENT '1 燃油车占位 / 2 异常占位 / 3 充满未移车 / 0 正常充电',
-  occur_time    DATETIME    NOT NULL                      COMMENT '命中时间',
+  occur_time    DATETIME    NOT NULL                      COMMENT '命中时间（首次命中时刻，复用记录时不刷新）',
   notify_status ENUM('未提醒','已提醒','失败') NOT NULL DEFAULT '未提醒' COMMENT '提醒状态',
   notify_time   DATETIME        DEFAULT NULL              COMMENT '提醒时间',
+  notify_attempts TINYINT    NOT NULL DEFAULT 0           COMMENT '已尝试发送次数（v1.9，重启不清零）',
+  notify_error  VARCHAR(120)    DEFAULT NULL              COMMENT '最近一次发送失败原因（v1.9）',
   PRIMARY KEY (id),
   KEY idx_occ_occur_time (occur_time),
   KEY idx_occ_rule_hit (rule_hit),
-  KEY idx_occ_plate (plate)
+  KEY idx_occ_plate (plate),
+  KEY idx_occ_occupancy (occupancy_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='违规记录';
 
 -- -----------------------------------------------------------------------------
@@ -108,11 +115,13 @@ INSERT INTO vehicle (plate, vtype, owner, phone, created_at) VALUES
 --  · PILE-002 已充满  → 若 now - end_time > full_timeout_min，命中规则③
 --  · PILE-003 空闲    → 新能源占位，若 now - start_time > abnormal_park_min，命中规则②
 --  · PILE-004 空闲    → 燃油车占位，命中规则①
-INSERT INTO charging_pile (pile_id, status, bound_plate, start_time, end_time) VALUES
-  ('PILE-001', '充电中', '京AD12345', '2026-09-08 09:50:00', NULL),
-  ('PILE-002', '已充满', '京AD67890', '2026-09-08 08:00:00', '2026-09-08 09:20:00'),
-  ('PILE-003', '空闲',   '京AD24680', '2026-09-08 08:30:00', NULL),
-  ('PILE-004', '空闲',   '京A88888',  '2026-09-08 09:00:00', NULL);
+-- occupancy_id 由「桩 + 到达时刻」推导（CONTRACT §3.6），与 backend/app/models.py 的
+-- make_occupancy_id() 同口径；种子时刻的微秒部分为 0，故末 6 位是 000000。
+INSERT INTO charging_pile (pile_id, status, bound_plate, occupancy_id, start_time, end_time) VALUES
+  ('PILE-001', '充电中', '京AD12345', 'PILE-001@20260908095000000000', '2026-09-08 09:50:00', NULL),
+  ('PILE-002', '已充满', '京AD67890', 'PILE-002@20260908080000000000', '2026-09-08 08:00:00', '2026-09-08 09:20:00'),
+  ('PILE-003', '空闲',   '京AD24680', 'PILE-003@20260908083000000000', '2026-09-08 08:30:00', NULL),
+  ('PILE-004', '空闲',   '京A88888',  'PILE-004@20260908090000000000', '2026-09-08 09:00:00', NULL);
 
 -- 系统参数：契约 §7 两项默认阈值（严禁硬编码，业务一律查本表）
 -- 注：识别桩的 stub/real 开关不走本表，而是环境变量 RECOGNITION_MODE（非业务阈值，属部署期开关）

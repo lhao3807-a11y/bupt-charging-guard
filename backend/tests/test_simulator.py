@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
+from app import charging_adapter
 from app import models as m
 from app.simulator import (
     SIM_CHARGING_TO_FULL_MIN,
@@ -224,7 +225,7 @@ def test_advance_accepts_timezone_aware_now(db_session):
     result = advance(db_session, now=aware)
     assert result.advanced_at.tzinfo is None
     assert result.advanced_at == NOW
-    assert result.changed_count == 3  # 确实推进了，不是静默空转
+    assert result.changed_count == 2  # 确实推进了，不是静默空转
 
 
 # ---------------------------------------------------------------------------
@@ -232,9 +233,10 @@ def test_advance_accepts_timezone_aware_now(db_session):
 # ---------------------------------------------------------------------------
 def test_advance_walks_every_pile(db_session):
     result = advance(db_session, now=NOW)
-    # 种子 4 桩：001 充电中未满（不变）、002 超时释放、003/004 空闲转充电中
-    assert result.changed_count == 3
-    assert {change.pile_id for change in result.changes} == {"PILE-002", "PILE-003", "PILE-004"}
+    # 种子 4 桩：001 充电中未满（不变）、002 超时释放、003 空闲转充电中、
+    # 004 空闲但绑定**燃油车** → 不推进（第 3 周 T5 修正，见下方专项用例）
+    assert result.changed_count == 2
+    assert {change.pile_id for change in result.changes} == {"PILE-002", "PILE-003"}
     assert result.advanced_at == NOW
 
 
@@ -243,7 +245,7 @@ def test_advance_is_idempotent_within_same_moment(db_session):
 
     否则演示时一刷新就会连跳两档，看不到中间的「充电中」。
     """
-    assert advance(db_session, now=NOW).changed_count == 3
+    assert advance(db_session, now=NOW).changed_count == 2
     assert advance(db_session, now=NOW).changed_count == 0
 
 
@@ -294,8 +296,60 @@ def test_advance_commits_changes(db_session):
         "PILE-001": m.PILE_CHARGING,
         "PILE-002": m.PILE_IDLE,
         "PILE-003": m.PILE_CHARGING,
-        "PILE-004": m.PILE_CHARGING,
+        "PILE-004": m.PILE_IDLE,  # 燃油车：不充电（T5 修正）
     }
+
+
+# ---------------------------------------------------------------------------
+# 燃油车不充电 / 场景保持未充电（第 3 周 T5 修正）
+# ---------------------------------------------------------------------------
+def test_fuel_car_is_never_driven_into_charging(db_session):
+    """**防回归 + 语义修正**：燃油车没有枪可插，不能被演示成「正常充电中」。
+
+    旧行为会把 PILE-004（燃油占位）推进成充电中，于是规则①「燃油占位」
+    在演示里直接变成规则④「正常」—— 演示语义与数据同时对不上。
+    """
+    pile = _pile(db_session, "PILE-004")  # 种子：空闲 + 燃油车 京A88888，09:00 到达
+    assert advance_pile(pile, db_session, NOW) is None
+    assert pile.status == m.PILE_IDLE
+
+
+def test_unknown_vehicle_is_not_driven_into_charging(db_session):
+    """车型查不到也**不推进**：猜一个车型等于往库里写假数据（本项目一贯纪律）。"""
+    db_session.add(
+        m.ChargingPile(
+            pile_id="PILE-950",
+            status=m.PILE_IDLE,
+            bound_plate="京Z99999",  # 未录入 vehicle 表
+            start_time=NOW - timedelta(hours=2),
+        )
+    )
+    db_session.commit()
+    assert advance_pile(_pile(db_session, "PILE-950"), db_session, NOW) is None
+    assert _pile(db_session, "PILE-950").status == m.PILE_IDLE
+
+
+def test_idle_park_scenario_is_not_taken_over_by_auto_charging(db_session):
+    """**验收 A02 的前提**：久停演示桩必须**一直停着不充电**，否则阈值永远等不到。
+
+    普通模拟流程 3 分钟就会把空闲桩推进成充电中，把规则②的场景顶掉。
+    """
+    pile = _pile(db_session, "PILE-003")
+    charging_adapter.apply_scenario(
+        pile, "京AD24680", charging_adapter.SCENARIO_IDLE, NOW, db_session
+    )
+
+    assert advance_pile(pile, db_session, NOW + timedelta(hours=3)) is None
+    assert pile.status == m.PILE_IDLE
+
+
+def test_release_clears_occupancy_identity(db_session):
+    """超时释放必须清掉占用标识，否则下次到车会撞上上一次的判重键（契约 §3.6）。"""
+    pile = _pile(db_session, "PILE-002")
+    assert pile.occupancy_id
+    advance_pile(pile, db_session, NOW)
+    assert pile.occupancy_id is None
+    assert pile.bound_plate is None
 
 
 def test_simulator_constants_are_documented_as_pacing(db_session):

@@ -37,6 +37,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from app import charging_adapter, occupancy
 from app import models as m
 from app.rule_engine import get_config_int, judge, save_violation
 from app.schemas import RecognitionResult
@@ -78,11 +79,13 @@ def _elapsed_minutes(since: datetime | None, now: datetime) -> float:
 
 
 def _release(pile: m.ChargingPile) -> None:
-    """车已移走：解绑并清空两个时间字段（回到「空闲且无车」的初始态）。"""
-    pile.status = m.PILE_IDLE
-    pile.bound_plate = None
-    pile.start_time = None
-    pile.end_time = None
+    """车已移走：解绑并清空两个时间字段（回到「空闲且无车」的初始态）。
+
+    走 `occupancy.end_occupancy()` 而不是手写四行：占用标识必须**在这里被清空**，
+    否则下次到车会与上次的判重键 `(pile_id, occupancy_id, rule_hit)` 撞上（契约 §3.6）。
+    """
+    occupancy.end_occupancy(pile)
+    pile.scenario = None
 
 
 def normalize_moment(value: datetime | None) -> datetime | None:
@@ -164,6 +167,15 @@ def advance_pile(
             return None  # 没有车，等识别系统来绑定
         # start_time 在此处是「车辆到达/绑定的时刻」（规则引擎同一口径）
         if _elapsed_minutes(pile.start_time, now) <= SIM_IDLE_TO_CHARGING_MIN:
+            return None
+        # **燃油车不能被演示成正常充电**（第 3 周 T5 修正）：燃油车没有充电枪可插，
+        # 让它转入「充电中」会把规则①「燃油占位」直接演示成规则④「正常」，
+        # 演示语义与数据同时对不上。车型查不到也**不推进**——猜车型等于编数据。
+        vtype = _lookup_vtype(db, pile.bound_plate)
+        if vtype is None or vtype == m.VTYPE_FUEL:
+            return None
+        # 场景要求「保持未充电」的桩（A02 的久停演示）不能被普通自动充电流程抢先推进
+        if charging_adapter.holds_charging(pile):
             return None
         before = pile.status
         pile.status = m.PILE_CHARGING
