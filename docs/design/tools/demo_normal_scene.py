@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""W6-03 · 证明「正常充电不落库、不调用发送器、不增加违规统计」的可复现凭据。
+"""W6-03 · 正常充电不落库、统计不变的接口凭据。
 
 背景
 ----
@@ -11,7 +11,7 @@
     2. 对它调 POST /api/judge，断言返回 **null**（即不产生违规记录）
     3. 比对调用前后 GET /api/records 的 total —— **不变**
     4. 比对调用前后 GET /api/stats 的 total 与 by_rule[0]（正常充电）—— **均不变**
-    5. 全程**不调用** POST /api/notify（发送器），从日志侧也说明「未调用」
+    5. 脚本不请求 POST /api/notify；未监测服务端发送器，不独立证明发送次数。
 
 对应计划 §5 A04：「正常充电/未超时/无车：不生成违规，不调用发送器，不增加违规统计」。
 
@@ -26,6 +26,7 @@ JSON 输出到 ``docs/acceptance/week3/A04-normal-scene.json``。
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -33,7 +34,7 @@ from pathlib import Path
 import httpx
 
 ROOT = Path(__file__).resolve().parents[3]
-API = "http://127.0.0.1:8000"
+API = os.environ.get("DEMO_API_URL", "http://127.0.0.1:8000")
 OUT_DIR = ROOT / "docs" / "acceptance" / "week3"
 
 
@@ -106,7 +107,7 @@ def main() -> int:
         ok &= passed
 
     print("\n说明：本脚本**全程未调用 POST /api/notify**（发送器），"
-          "即正常场景下不触发任何沙箱发送 —— 对应 A04「不调用发送器」。")
+          "未监测服务端发送器，此项需结合后端 A04 行为测试。")
 
     if "--json" in sys.argv:
         OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -115,19 +116,19 @@ def main() -> int:
             "task": "W6-03",
             "acceptance": "A04 正常充电/未超时/无车：不生成违规，不调用发送器，不增加违规统计",
             "generated_at": datetime.now().isoformat(timespec="seconds"),
-            "env": {"api": API, "db": "SQLite 开发库（backend/app.db，可再生产物）"},
+            "env": {"api": API, "db": os.environ.get("DEMO_DATABASE_LABEL", "由服务端 DATABASE_URL 指定，脚本未读取连接配置")},
             "command": "python docs/design/tools/demo_normal_scene.py --json",
             "request": {"method": "POST", "path": "/api/judge", "body": payload},
             "response": {"status": resp.status_code, "body": verdict},
             "before": before,
             "after": after,
             "checks": {n: bool(p) for n, p in checks},
-            "notify_called": False,
+            "notify_observation": "本脚本未调用提醒端点；未监测服务端发送器，不作为发送次数证据",
             "all_passed": bool(ok),
         }, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"\n凭据已写入：{out.relative_to(ROOT)}")
 
-    print("\n结论：" + ("全部通过，正常场景不落库且不触发发送器" if ok else "存在不通过项，见上"))
+    print("\n结论：" + ("全部通过，正常场景不落库且统计不变" if ok else "存在不通过项，见上"))
     return 0 if ok else 1
 
 

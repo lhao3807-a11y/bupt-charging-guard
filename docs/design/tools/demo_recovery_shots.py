@@ -22,16 +22,17 @@
 --------
 1. ``w601-1-failed``    失败态：某条记录 ``notify_status='失败'``，行内按钮为「重试」
 2. ``w601-2-recovered`` 恢复后：手机号补齐（同一辆车），重试成功 → ``已提醒``
-3. ``w601-3-final``     最终态：同一行显示「已提醒」
+3. ``w601-3-final``     重复请求命中已有结果，计数不增加
 
 安全性
 ------
 只打契约端点，不直连数据库、不改 SQL、不动前端 mock —— 同 ``demo_seed.py`` 的口径。
-结束时会把演示记录恢复成原始状态，避免污染其他人的截图。
+仅用于独立演示库；成功后的发送状态与次数保留，不倒写失败状态。
 """
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import uuid
@@ -40,7 +41,7 @@ from pathlib import Path
 import httpx
 
 ROOT = Path(__file__).resolve().parents[3]
-FRONTEND = "http://localhost:5173"
+FRONTEND = os.environ.get("DEMO_FRONTEND_URL", "http://localhost:5173")
 RAW_DIR = ROOT / "docs" / "design" / "demo" / "screenshots" / "raw"
 VIEWPORT = (1600, 880)
 
@@ -65,7 +66,11 @@ def shoot(browser: str, name: str, route: str, profile: Path) -> Path:
     target = RAW_DIR / f"{name}.png"
     fresh = RAW_DIR / f"{name}.{uuid.uuid4().hex}.fresh.png"
     cmd = [
-        browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
+        browser,
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--no-first-run",
         f"--user-data-dir={profile}",
         f"--window-size={VIEWPORT[0]},{VIEWPORT[1]}",
         # 与既有脚本同值：第 2 页是 SPA，少了这个会拍到「骨架在、内容空白」。
@@ -82,58 +87,93 @@ def shoot(browser: str, name: str, route: str, profile: Path) -> Path:
     return target
 
 
+def recover_record(c, api: str, target: dict, phone: str, capture) -> dict:
+    """只接受 v1.9 发送器结果；错误时不拍成功画面、不回退记录状态。"""
+    rid = target["id"]
+    response = c.post(f"{api}/api/notify", json={"id": rid, "retry": False})
+    response.raise_for_status()
+    before = response.json()
+    if "notify_attempts" not in before:
+        raise ValueError("需要 v1.9 后端；旧版直接写提醒状态不能作为恢复证据")
+    if before["notify_status"] != "失败" or before.get("reason") != "车主未绑定手机号":
+        raise ValueError("请选择因车主未绑定手机号失败的专用演示记录")
+    capture("w601-1-failed")
+    response = c.put(
+        f"{api}/api/vehicles/{target['plate']}", json={"vtype": target["vtype"], "phone": phone}
+    )
+    response.raise_for_status()
+    response = c.post(f"{api}/api/notify", json={"id": rid, "retry": True})
+    response.raise_for_status()
+    recovered = response.json()
+    if (
+        recovered.get("id") != rid
+        or recovered.get("notify_status") != "已提醒"
+        or recovered.get("notify_attempts") != before["notify_attempts"] + 1
+        or recovered.get("already_sent")
+        or recovered.get("exhausted")
+        or recovered.get("conflict")
+    ):
+        raise ValueError(f"重试未成功，不生成成功截图：{recovered}")
+    capture("w601-2-recovered")
+    response = c.post(f"{api}/api/notify", json={"id": rid, "retry": True})
+    response.raise_for_status()
+    final = response.json()
+    if (
+        final.get("id") != rid
+        or final.get("notify_status") != "已提醒"
+        or not final.get("already_sent")
+        or final.get("notify_attempts") != recovered["notify_attempts"]
+    ):
+        raise ValueError("重复请求未命中已有结果，不生成最终截图")
+    capture("w601-3-final")
+    return {"record_id": rid, "before": before, "recovered": recovered, "final": final}
+
+
 def main() -> int:
-    api = "http://127.0.0.1:8000"
-    c = httpx.Client(trust_env=False, timeout=10)
+    import argparse
+    import json
+    import tempfile
+    from datetime import datetime
 
-    # ① 找一条失败态记录作为主角
-    rows = c.get(f"{api}/api/records", params={"page": 1, "size": 50}).json()["items"]
-    failed = [r for r in rows if r["notify_status"] == "失败"]
-    if not failed:
-        sys.exit("没有失败态记录，请先跑 docs/design/tools/demo_seed.py")
-    target = failed[0]
-    rid, plate = target["id"], target["plate"]
-    print(f"主角记录：id={rid} {plate}（当前 失败）")
-
-    # ② 记录原始状态，结束时还原
-    origin_status = target["notify_status"]
-    profile = RAW_DIR / f".w601-{uuid.uuid4().hex[:8]}"
+    parser = argparse.ArgumentParser(
+        description="v1.9 无手机号失败→补绑定→真实重试；仅用于独立演示环境"
+    )
+    parser.add_argument("--api", default="http://127.0.0.1:8000")
+    parser.add_argument("--record-id", type=int, required=True)
+    parser.add_argument("--phone", required=True)
+    parser.add_argument(
+        "--demo-only", action="store_true", help="确认连接独立演示库；会保留发送成功状态"
+    )
+    args = parser.parse_args()
+    if not args.demo_only:
+        parser.error("必须使用独立演示库并传 --demo-only；不可回滚已发送记录伪造失败状态")
     browser = find_browser()
-    print(f"浏览器：{browser}")
-
-    try:
-        print("\n[1/3] 拍失败态（不改动库，当前即为真实失败态）")
-        shoot(browser, "w601-1-failed", "/records", profile)
-
-        print("\n[2/3] 模拟「补绑定手机号后重试」→ 走 POST /api/notify（与前端同一端点）")
-        resp = c.post(f"{api}/api/notify", json={"id": rid, "notify_status": "已提醒"})
-        resp.raise_for_status()
-        print(f"  重试结果：{resp.json()}")
-        shoot(browser, "w601-2-recovered", "/records", profile)
-
-        print("\n[3/3] 拍最终态（同上画面即为最终态；再拍一次以留下独立凭据）")
-        shoot(browser, "w601-3-final", "/records", profile)
-
-        print("\n回读验证（库中真实状态）")
-        now = [r for r in c.get(f"{api}/api/records", params={"page": 1, "size": 50}).json()["items"]
-               if r["id"] == rid][0]
-        print(f"  id={rid} {plate} → {now['notify_status']}")
-
-    finally:
-        # 还原演示数据，避免影响其他人的截图
-        c.post(f"{api}/api/notify", json={"id": rid, "notify_status": origin_status})
-        print(f"\n已还原：id={rid} → {origin_status}")
-        # 清理临时浏览器 profile（rmdir 在旧 Python 上无 missing_ok，手动判断）
-        for p in profile.glob("*"):
-            if p.is_file():
-                p.unlink(missing_ok=True)
-        if profile.exists():
-            try:
-                profile.rmdir()
-            except OSError:
-                pass
-
-    print("\n完成。三张画面均为真实页面渲染，原件在 docs/design/demo/screenshots/raw/w601-*.png")
+    with httpx.Client(trust_env=False, timeout=10) as c, tempfile.TemporaryDirectory() as temp:
+        response = c.get(f"{args.api}/api/records", params={"page": 1, "size": 100})
+        response.raise_for_status()
+        target = next((r for r in response.json()["items"] if r["id"] == args.record_id), None)
+        if target is None:
+            raise ValueError("未找到演示记录，请使用前 100 条中的失败记录")
+        result = recover_record(
+            c,
+            args.api,
+            target,
+            args.phone,
+            lambda name: shoot(browser, name, "/records", Path(temp)),
+        )
+        result.update(
+            generated_at=datetime.now().isoformat(),
+            mode="sandbox",
+            api=args.api,
+            capture="API 驱动真实运行态分步截图，非人工点击录屏",
+        )
+        # 短信内容含车主信息，验收文件只留状态与计数。
+        for key in ("before", "recovered", "final"):
+            result[key].pop("message", None)
+        out = ROOT / "docs/acceptance/week3/W6-01-recovery.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("完成：成功状态保留在专用演示库；未回滚发送历史。")
     return 0
 
 
