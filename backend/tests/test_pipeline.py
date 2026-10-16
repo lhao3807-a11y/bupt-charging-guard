@@ -220,11 +220,14 @@ def test_existing_empty_source_is_not_an_error(db, tmp_path):
     assert run.frames == []
 
 
-def test_source_interrupt_does_not_reuse_stale_frames(db, frames, tmp_path):
-    source = frames(FRAME_FUEL)
+def test_source_interrupt_does_not_reuse_stale_frames(db, tmp_path):
+    frame_dir = tmp_path / "source"
+    frame_dir.mkdir()
+    (frame_dir / FRAME_FUEL).write_bytes(b"frame")
+    source = str(frame_dir)
     worker = _worker(db, source)
     assert worker.run_once(now=T_1000).newly_notified == 1
-    moved = str(tmp_path.with_name(tmp_path.name + "-offline"))
+    moved = str(tmp_path / "offline")
     os.rename(source, moved)
     interrupted = worker.run_once(now=T_1000)
     assert interrupted.error

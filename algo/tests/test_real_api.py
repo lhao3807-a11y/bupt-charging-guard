@@ -24,7 +24,7 @@ def test_real_photo_through_recognition_http_router(monkeypatch):
     rows = json.loads((ROOT / "algo/dataset_plate_web/manifest.json").read_text(encoding="utf-8"))
     item = next(r for r in rows if r["split"] == "val")
     path = ROOT / item["image"]
-    monkeypatch.setattr(recognize, "FRAMES_DIR", str(path.parent))
+    monkeypatch.setenv("FRAME_SOURCE_DIR", str(path.parent))
     monkeypatch.setenv("RECOGNITION_MODE", "real")
     app = FastAPI()
     app.include_router(recognize.router)

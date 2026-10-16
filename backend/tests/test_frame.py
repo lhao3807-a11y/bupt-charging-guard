@@ -45,3 +45,21 @@ def test_latest_frame_returns_404_when_no_supported_image(client, tmp_path, monk
     response = client.get("/api/frame/latest")
 
     assert response.status_code == 404
+
+
+def test_relative_source_matches_recognition_when_started_in_backend(client, tmp_path, monkeypatch):
+    from app import pipeline
+    from app.routers.recognize import frame_path_for
+
+    (tmp_path / "frames").mkdir()
+    (tmp_path / "frames" / "same.jpg").write_bytes(b"correct-frame")
+    backend = tmp_path / "backend"
+    (backend / "frames").mkdir(parents=True)
+    (backend / "frames" / "same.jpg").write_bytes(b"wrong-frame")
+    monkeypatch.setattr(pipeline, "repo_root", lambda: str(tmp_path))
+    monkeypatch.chdir(backend)
+    monkeypatch.setenv("FRAME_SOURCE_DIR", "frames")
+    assert frame_path_for("same.jpg") == str(tmp_path / "frames" / "same.jpg")
+    response = client.get("/api/frame/latest")
+    assert response.status_code == 200
+    assert response.content == b"correct-frame"

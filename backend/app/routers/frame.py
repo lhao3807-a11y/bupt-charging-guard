@@ -8,11 +8,10 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
 
+from app.pipeline import default_frame_dir
+
 router = APIRouter(tags=["frame"])
 
-_BACKEND_DIR = Path(__file__).resolve().parents[2]
-_REPO_DIR = _BACKEND_DIR.parent
-_DEFAULT_FRAME_DIR = _REPO_DIR / "algo" / "samples" / "frames"
 _MEDIA_TYPES = {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
@@ -28,7 +27,7 @@ def latest_frame() -> FileResponse:
     A producer may refresh a file or place a new snapshot in the directory. This endpoint
     only returns one still image; it is not an MJPEG, WebSocket, or video stream.
     """
-    source_dir = Path(os.environ.get("FRAME_SOURCE_DIR", str(_DEFAULT_FRAME_DIR)))
+    source_dir = Path(default_frame_dir())
     try:
         candidates = [
             (

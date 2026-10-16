@@ -1,0 +1,395 @@
+{
+  "sampled_at": "2026-10-16 12:20:53",
+  "rounds": 10,
+  "frame_count": 4,
+  "recognition_mode": "stub",
+  "round_elapsed_ms": {
+    "count": 10,
+    "min_ms": 5.72,
+    "max_ms": 61.16,
+    "mean_ms": 11.5,
+    "p50_ms": 5.82
+  },
+  "per_frame_elapsed_ms": {
+    "001.jpg": {
+      "count": 10,
+      "min_ms": 0.43,
+      "max_ms": 24.12,
+      "mean_ms": 2.85,
+      "p50_ms": 0.47
+    },
+    "002.jpg": {
+      "count": 10,
+      "min_ms": 1.39,
+      "max_ms": 16.47,
+      "mean_ms": 3.01,
+      "p50_ms": 1.5
+    },
+    "003.jpg": {
+      "count": 10,
+      "min_ms": 1.59,
+      "max_ms": 10.14,
+      "mean_ms": 2.55,
+      "p50_ms": 1.7
+    },
+    "004.jpg": {
+      "count": 10,
+      "min_ms": 1.62,
+      "max_ms": 9.89,
+      "mean_ms": 2.61,
+      "p50_ms": 1.72
+    }
+  },
+  "detail": [
+    {
+      "round": 1,
+      "elapsed_ms": 61.16,
+      "recognized": 4,
+      "reused": 0,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 3,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 24.12,
+          "reused": false,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 16.47,
+          "reused": false,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 10.14,
+          "reused": false,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 9.89,
+          "reused": false,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "elapsed_ms": 6.81,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.68,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.73,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.79,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 2.08,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "elapsed_ms": 6.19,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.47,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.63,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.72,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.93,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "elapsed_ms": 6.02,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.46,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.39,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.79,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.96,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "elapsed_ms": 5.76,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.46,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.39,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.63,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.8,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 6,
+      "elapsed_ms": 5.82,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.47,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.52,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.59,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.72,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 7,
+      "elapsed_ms": 5.75,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.43,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.5,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.67,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.72,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 8,
+      "elapsed_ms": 5.8,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.43,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.47,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.74,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.7,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 9,
+      "elapsed_ms": 6.0,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.48,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.57,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.7,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.65,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    },
+    {
+      "round": 10,
+      "elapsed_ms": 5.72,
+      "recognized": 4,
+      "reused": 4,
+      "violations": 3,
+      "notified": 3,
+      "newly_notified": 0,
+      "frames": [
+        {
+          "frame_id": "001.jpg",
+          "elapsed_ms": 0.5,
+          "reused": true,
+          "rule_hit": null
+        },
+        {
+          "frame_id": "002.jpg",
+          "elapsed_ms": 1.47,
+          "reused": true,
+          "rule_hit": 1
+        },
+        {
+          "frame_id": "003.jpg",
+          "elapsed_ms": 1.69,
+          "reused": true,
+          "rule_hit": 2
+        },
+        {
+          "frame_id": "004.jpg",
+          "elapsed_ms": 1.62,
+          "reused": true,
+          "rule_hit": 3
+        }
+      ]
+    }
+  ]
+}

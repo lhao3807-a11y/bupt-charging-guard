@@ -1,4 +1,4 @@
-"""Validate the remote branch snapshot integrated on 2026-10-13."""
+"""Validate the remote branch snapshot integrated on 2026-10-16."""
 
 import subprocess
 from pathlib import Path
@@ -7,6 +7,9 @@ import pytest
 
 REPO = Path(__file__).resolve().parents[2]
 INCLUDED = {
+    "team-main": "849d5eabf174f0574a430baaa058e68d7af69fb7",
+    "team-tang-week3": "de28679627c6a69d3ef07adc42e66f1b51bb619c",
+    "team-wu-week3": "6026bf58e10fe46add3a7c2161e59ff9e2a04b6b",
     "api-week2": "dae5995d9cadbdb6b073d60895423d1d940f5370",
     "db-schema": "6f75af67d5673d346d22b447a8ae2f352795a3b6",
     "rule-engine": "24ee309d6ac2692975637066d2de191c0f63e12c",
@@ -21,6 +24,9 @@ INCLUDED = {
 def test_selected_branch_snapshot_is_in_main_history(branch, commit):
     result = subprocess.run(
         ["git", "merge-base", "--is-ancestor", commit, "HEAD"],
-        cwd=REPO, capture_output=True, text=True, check=False,
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+        check=False,
     )
     assert result.returncode == 0, f"Missing branch {branch}: {result.stderr}"

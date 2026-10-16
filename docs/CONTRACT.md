@@ -95,7 +95,7 @@
 | bound_plate | VARCHAR(15) | 绑定车牌（FK vehicle.plate） |
 | **occupancy_id** | VARCHAR(40) NULL | **（v1.9 新增）本次占用标识**（详见 §3.6）。到车时生成、离车时清空；无车占用为 `NULL` |
 | **scenario** | VARCHAR(20) NULL | **（v1.9 新增）模拟场景标签**（`fuel_occupy` / `idle_park` / `full_timeout` / `normal`）。**仅演示夹具使用，不参与任何判定**（§7） |
-| start_time | DATETIME | 绑定（到达）时间；开始充电时会被重置为充电开始时刻 |
+| start_time | DATETIME | 开始充电时间（绑定时初始为到达时间，开始充电时重置） |
 | end_time | DATETIME | 充满时间 |
 
 ### 3.3 occupation_record（违规记录）
